@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version type (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create as prerelease'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: |
+          npm run build:grammar
+          npm test
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Bump version
+        id: version
+        run: |
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $VERSION"
+      
+      - name: Update CHANGELOG
+        run: |
+          cat > CHANGELOG_NEW.md << 'EOF'
+          # Changelog
+          
+          ## [${{ steps.version.outputs.version }}] - $(date +%Y-%m-%d)
+          
+          ### Changes
+          EOF
+          
+          git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0 2>/dev/null || echo "HEAD~10")..HEAD >> CHANGELOG_NEW.md
+          
+          echo "" >> CHANGELOG_NEW.md
+          echo "" >> CHANGELOG_NEW.md
+          
+          if [ -f CHANGELOG.md ]; then
+            tail -n +2 CHANGELOG.md >> CHANGELOG_NEW.md
+          fi
+          
+          mv CHANGELOG_NEW.md CHANGELOG.md
+      
+      - name: Commit changes
+        run: |
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore: release v${{ steps.version.outputs.version }}"
+      
+      - name: Create tag
+        run: |
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
+      
+      - name: Push changes
+        run: |
+          git push origin main
+          git push origin "v${{ steps.version.outputs.version }}"
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: |
+            dist/browser/wang.min.js
+            dist/browser/wang.min.js.map
+      
+      - name: Publish to npm
+        run: |
+          if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            npm publish --access public --tag beta
+          else
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Update documentation
+        run: |
+          npm run docs || echo "No docs script"
+          
+      - name: Deploy docs to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          enable_jekyll: false
+        continue-on-error: true

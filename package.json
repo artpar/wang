@@ -21,7 +21,7 @@
     "url": "git+https://github.com/artpar/wang.git"
   },
   "license": "MIT",
-  "author": "Your Name",
+  "author": "artpar",
   "type": "module",
   "exports": {
     ".": {

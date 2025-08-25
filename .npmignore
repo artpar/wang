@@ -1,0 +1,63 @@
+# Source files (only include dist)
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Configuration files
+.github/
+.vscode/
+.husky/
+.editorconfig
+.eslintrc*
+.prettierrc*
+.gitignore
+.npmignore
+commitlint.config.*
+rollup.config.*
+tsconfig.*
+!tsconfig.json
+vitest.config.*
+playwright.config.*
+
+# Test files
+tests/
+test-results/
+coverage/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Development files
+scripts/
+docs/
+examples/
+*.log
+*.tmp
+.DS_Store
+node_modules/
+.env*
+
+# Build files
+*.tsbuildinfo
+
+# Documentation source
+CLAUDE.md
+CONTRIBUTING.md
+
+# Git files
+.git/
+.gitattributes
+
+# IDE
+*.swp
+*.swo
+*~
+.idea/
+
+# Keep only essentials
+!README.md
+!LICENSE
+!CHANGELOG.md
+!package.json
+!dist/

@@ -51,5 +51,6 @@ lerna-debug.log*
 .temp/
 .tmp/
 
-# Documentation
-docs/
+# Documentation - only ignore generated API docs
+docs/api/
+docs/reference/generated/
