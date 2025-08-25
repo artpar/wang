@@ -15,10 +15,10 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📍 **Comprehensive Error Reporting** - Detailed error messages with line numbers and recovery suggestions
 - 🌐 **Browser Automation Focus** - Built for DOM manipulation and web workflows
 - 🚀 **Pipeline Operators** - Elegant data flow with `|>` and `->` operators
-- ✨ **Full Class Support** - Classes with constructors, methods, inheritance, and proper `this` binding
+- ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (66/90 tests passing)
 
 ## Installation
 
@@ -128,27 +128,37 @@ async function fetchData() {
 
 ### Classes
 
-Full object-oriented programming support with proper `this` binding:
+Full object-oriented programming support with inheritance and proper `this` binding:
 
 ```javascript
-class Rectangle {
-  constructor(width, height) {
-    this.width = width;
-    this.height = height
+class Animal {
+  constructor(name) {
+    this.name = name
   }
   
-  area() {
-    return this.width * this.height
-  }
-  
-  perimeter() {
-    return 2 * (this.width + this.height)
+  speak() {
+    return this.name + " makes a sound"
   }
 }
 
-const rect = new Rectangle(5, 3);
-log(rect.area());       // 15
-log(rect.perimeter());  // 16
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name);  // Call parent constructor
+    this.breed = breed
+  }
+  
+  speak() {
+    return this.name + " barks"
+  }
+  
+  getBreed() {
+    return this.breed
+  }
+}
+
+const dog = new Dog("Max", "Golden Retriever");
+log(dog.speak());       // "Max barks"
+log(dog.getBreed());    // "Golden Retriever"
 ```
 
 ### Pipeline Operators
@@ -481,6 +491,42 @@ Wang comes with many built-in functions:
 - `parseJSON(str)` - Parse JSON
 - `stringify(obj)` - Stringify to JSON
 - `wait(ms)` - Async wait
+
+## Implementation Status
+
+### ✅ Fully Implemented
+- Classes with constructors and methods
+- Class inheritance with `extends` and `super()`
+- Pipeline operators (`|>` and `->`)
+- Variable declarations (let, const, var) with proper scoping
+- Functions (regular and arrow)
+- Async/await
+- Arrays and objects
+- Control flow (if/else, for, while, for...of, for...in)
+- Try/catch/finally
+- Module imports/exports
+- Template literals (basic)
+- Spread operator
+- Rest parameters
+- Method chaining
+
+### 🚧 Partially Implemented
+- Getters and setters (parsing works, execution needs fixes)
+- Destructuring (works in most contexts)
+- Template literals with expressions
+
+### ❌ Not Yet Implemented
+- Default parameters in functions
+- Static methods in classes
+- Private fields (#field syntax)
+- Labeled break/continue
+- Switch statements
+- Do-while loops
+- Async generators
+- Default exports/imports
+- Namespace imports (import * as)
+- Re-exports
+- Tagged template literals
 
 ## License
 

@@ -159,7 +159,7 @@ staticAsyncGetSet -> "static" | "async" | "get" | "set"
 static -> "static"
 assignment -> "=" AssignmentExpression
 asIdentifier -> "as" %identifier {% d => d[1].value %}
-defaultAssignment -> "=" AssignmentExpression {% d => d[1] %}
+defaultAssignment -> "=" Expression {% d => d[1] %}
 async -> "async"
 extendsClause -> "extends" %identifier {% d => d[1].value %}
 elseClause -> "else" Statement {% d => d[1] %}
@@ -583,7 +583,12 @@ PrimaryExpressionNoFunction ->
   | "(" PipelineExpressionNoFunction ")" {% d => d[1] %}
 
 Expression ->
+    PipelineExpression {% id %}
+
+PipelineExpression ->
     AssignmentExpression {% id %}
+  | PipelineExpression pipelineOp AssignmentExpression
+    {% d => buildPipeline(d[0], d[1], d[2]) %}
 
 AssignmentExpression ->
     ArrowFunction {% id %}

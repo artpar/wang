@@ -122,7 +122,14 @@ export class CircularDependencyError extends WangError {
 export class TypeMismatchError extends WangError {
   constructor(expected: string, received: any, context: string) {
     const receivedType = typeof received;
-    const receivedValue = JSON.stringify(received).substring(0, 50);
+    let receivedValue = 'undefined';
+    try {
+      receivedValue = received === undefined ? 'undefined' : 
+                      received === null ? 'null' :
+                      JSON.stringify(received).substring(0, 50);
+    } catch (e) {
+      receivedValue = String(received).substring(0, 50);
+    }
     
     super(
       `Type mismatch in ${context}:\n   Expected: ${expected}\n   Received: ${receivedType} (${receivedValue})`,

@@ -350,6 +350,9 @@ export class WangInterpreter {
       case 'ThisExpression':
         return this.currentContext.variables.get('this');
       
+      case 'Super':
+        return this.currentContext.variables.get('__super__');
+      
       case 'SpreadElement':
         const arr = await this.evaluateNode(node.argument);
         if (!Array.isArray(arr)) {
@@ -589,6 +592,15 @@ export class WangInterpreter {
           const constructorContext = interpreter.createContext(interpreter.currentContext);
           constructorContext.variables.set('this', instance);
           
+          // Set up super constructor if there's inheritance
+          if (superClass) {
+            constructorContext.variables.set('__super__', async (...superArgs: any[]) => {
+              // Call parent constructor and copy properties to instance
+              const parentInstance = await superClass(...superArgs);
+              Object.assign(instance, parentInstance);
+            });
+          }
+          
           // Bind constructor parameters
           for (let i = 0; i < constructorMethod.params.length; i++) {
             const param = constructorMethod.params[i];
@@ -614,7 +626,13 @@ export class WangInterpreter {
       })();
     };
     
-    // Add methods to prototype
+    // Set up inheritance FIRST if needed
+    if (superClass) {
+      classConstructor.prototype = Object.create(superClass.prototype);
+      classConstructor.prototype.constructor = classConstructor;
+    }
+    
+    // THEN add methods to prototype (after inheritance is set up)
     for (const method of node.body.body) {
       if (method.type === 'MethodDefinition' && method.kind !== 'constructor') {
         const methodName = method.key.name;
@@ -653,12 +671,6 @@ export class WangInterpreter {
           }
         };
       }
-    }
-    
-    // Set up inheritance if needed
-    if (superClass) {
-      classConstructor.prototype = Object.create(superClass.prototype);
-      classConstructor.prototype.constructor = classConstructor;
     }
     
     // Store the class
@@ -787,6 +799,24 @@ export class WangInterpreter {
   }
 
   private async evaluateCallExpression(node: any): Promise<any> {
+    // Handle super() calls
+    if (node.callee.type === 'Super') {
+      const superConstructor = this.currentContext.variables.get('__super__');
+      if (!superConstructor) {
+        throw new WangError('super() can only be called in a derived class constructor', { type: 'RuntimeError' });
+      }
+      const args = [];
+      for (const arg of node.arguments) {
+        if (arg.type === 'SpreadElement') {
+          const spread = await this.evaluateNode(arg.argument);
+          args.push(...spread);
+        } else {
+          args.push(await this.evaluateNode(arg));
+        }
+      }
+      return superConstructor(...args);
+    }
+    
     // If the callee is a member expression, we need to preserve the object as 'this'
     let thisContext = null;
     let callee;
