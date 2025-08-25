@@ -20,7 +20,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (75/90 tests passing - 83% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (80/90 tests passing - 89% coverage)
 
 ## Installation
 
@@ -512,7 +512,8 @@ Wang comes with many built-in functions:
 - Do-while loops
 - Break and continue statements
 - Labeled statements with labeled break/continue
-- Try/catch/finally
+- Try/catch/finally with proper error propagation
+- Error constructor for creating error objects
 - Module imports/exports
 - Template literals with expression interpolation
 - Spread operator
@@ -521,9 +522,14 @@ Wang comes with many built-in functions:
 - Type conversion functions (Number, String, Boolean)
 - Type checking functions (isNaN, isFinite, isInteger)
 - Special numeric values (Infinity, NaN, undefined)
+- Synchronous arrow functions for callbacks (filter, map, reduce)
+- ThisExpression for proper `this` keyword support
+- Optional chaining (`?.`) and nullish coalescing (`??`)
+- `new` operator with proper constructor handling
 
 ### 🚧 Partially Implemented
 - Destructuring (works in most contexts except function parameters)
+- Arrow function `this` preservation in closures (works in methods but not fully in nested closures)
 
 ### ❌ Not Yet Implemented
 - Private fields (#field syntax)
@@ -533,6 +539,7 @@ Wang comes with many built-in functions:
 - Re-exports
 - Tagged template literals
 - Destructuring in function parameters
+- Spread syntax in expressions (e.g., `...array` in function calls)
 
 ## License
 
