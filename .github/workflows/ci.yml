@@ -25,8 +25,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       
+      - name: Clear npm cache (fix for Rollup native deps issue)
+        run: npm cache clean --force
+      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
       
       - name: Run linter
         run: npm run lint --if-present
@@ -79,8 +84,13 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       
+      - name: Clear npm cache (fix for Rollup native deps issue)
+        run: npm cache clean --force
+      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
       
       - name: Check formatting
         run: npm run format:check --if-present
@@ -110,8 +120,13 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       
+      - name: Clear npm cache (fix for Rollup native deps issue)
+        run: npm cache clean --force
+      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
       
       - name: Build for browser
         run: npm run build:browser
@@ -143,8 +158,13 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
       
+      - name: Clear npm cache (fix for Rollup native deps issue)
+        run: npm cache clean --force
+      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
       
       - name: Build project
         run: npm run build
@@ -183,8 +203,13 @@ jobs:
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
       
+      - name: Clear npm cache (fix for Rollup native deps issue)
+        run: npm cache clean --force
+      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
       
       - name: Build project
         run: npm run build
