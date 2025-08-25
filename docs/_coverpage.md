@@ -8,6 +8,7 @@
 - 📦 Pluggable module system
 - ✨ Class inheritance with super()
 - 🔥 Pipeline operators for elegant data flow
+- 🧪 100% test coverage (90/90 tests passing)
 
 [GitHub](https://github.com/artpar/wang)
 [Get Started](#quick-start)

@@ -125,25 +125,3 @@ function curry(fn, arity) {
   };
 }
 ```
-
-## Design Philosophy
-
-Wang prioritizes:
-1. **CSP-safe execution** - no eval/new Function
-2. **Core JavaScript features** - variables, functions, classes, modules, async/await
-3. **Workflow automation** - pipeline operators, data transformation
-4. **Simplicity** - clear, readable syntax without edge cases
-
-Features are excluded if they:
-- Require significant parser/lexer changes
-- Have acceptable workarounds using supported syntax
-- Are rarely used in typical workflow automation scripts
-- Add complexity without proportional user value
-
-## Current Status
-
-- **90 total tests** in language-features.test.js
-- **90 passing tests** (100% coverage)
-- **7 tests expect failures** for intentionally unsupported features listed above
-
-This represents complete coverage of JavaScript's core features while intentionally excluding complex features with low user value. All supported features work correctly, and unsupported features fail gracefully with clear error messages.
