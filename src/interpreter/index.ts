@@ -85,10 +85,29 @@ export class WangInterpreter {
     this.bindFunction('isFinite', (val: any) => isFinite(val));
     this.bindFunction('isInteger', (val: any) => Number.isInteger(val));
     
+    // Error constructor - needs to work as both function and constructor
+    const ErrorConstructor = function(message?: string) {
+      const error = new Error(message);
+      // Make sure the error has the message property accessible
+      if (message) {
+        error.message = message;
+      }
+      return error;
+    };
+    this.bindFunction('Error', ErrorConstructor);
+    
     // Special values
     this.currentContext.variables.set('Infinity', Infinity);
     this.currentContext.variables.set('NaN', NaN);
     this.currentContext.variables.set('undefined', undefined);
+    
+    // Promise support
+    this.currentContext.variables.set('Promise', {
+      all: (promises: Promise<any>[]) => Promise.all(promises),
+      race: (promises: Promise<any>[]) => Promise.race(promises),
+      resolve: (value: any) => Promise.resolve(value),
+      reject: (reason: any) => Promise.reject(reason),
+    });
 
     // Array functions - handle async callbacks
     this.bindFunction(
@@ -96,7 +115,9 @@ export class WangInterpreter {
       async (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => {
         const results = [];
         for (let i = 0; i < arr.length; i++) {
-          if (await predicate(arr[i], i, arr)) {
+          const shouldInclude = predicate(arr[i], i, arr);
+          // Only await if it's a promise
+          if (shouldInclude instanceof Promise ? await shouldInclude : shouldInclude) {
             results.push(arr[i]);
           }
         }
@@ -108,7 +129,9 @@ export class WangInterpreter {
       async (arr: any[], mapper: (value: any, index: number, array: any[]) => unknown) => {
         const results = [];
         for (let i = 0; i < arr.length; i++) {
-          results.push(await mapper(arr[i], i, arr));
+          const result = mapper(arr[i], i, arr);
+          // Only await if it's a promise
+          results.push(result instanceof Promise ? await result : result);
         }
         return results;
       },
@@ -123,7 +146,9 @@ export class WangInterpreter {
         let accumulator = initial !== undefined ? initial : arr[0];
         const startIndex = initial !== undefined ? 0 : 1;
         for (let i = startIndex; i < arr.length; i++) {
-          accumulator = await reducer(accumulator, arr[i], i, arr);
+          const result = reducer(accumulator, arr[i], i, arr);
+          // Only await if it's a promise
+          accumulator = result instanceof Promise ? await result : result;
         }
         return accumulator;
       },

@@ -20,6 +20,8 @@ describe('Wang Language E2E Tests', () => {
         getValue: vi.fn(x => x),
         push: (arr, item) => { arr.push(item); return arr; },
         fetch: () => Promise.resolve({ json: () => Promise.resolve({ data: 'test' }) }),
+        filter: (arr, pred) => arr.filter(pred),
+        map: (arr, fn) => arr.map(fn),
       }
     });
   });
@@ -326,15 +328,17 @@ describe('Wang Language E2E Tests', () => {
       const result = await interpreter.execute(`
         let result = [];
         
-        outer: for (let i = 0; i < 4; i++) {
-          for (let j = 0; j < 4; j++) {
-            if (i === 2 && j === 2) break outer;
-            if (j === 1) continue;
-            push(result, i * 10 + j)
+        outer: {
+          for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+              if (i === 2 && j === 2) break outer;
+              if (j === 1) continue;
+              push(result, i * 10 + j);
+            }
           }
-        };
+        }
         
-        result
+        ; result
       `);
       expect(result).toEqual([0, 2, 3, 10, 12, 13, 20]);
     });
@@ -369,10 +373,10 @@ describe('Wang Language E2E Tests', () => {
         
         do {
           sum = sum + i;
-          i = i + 1
+          i = i + 1;
         } while (i < 5);
         
-        sum
+        ; sum
       `);
       expect(result).toBe(10);
     });
