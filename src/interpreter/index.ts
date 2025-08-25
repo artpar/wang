@@ -1936,7 +1936,7 @@ export class WangInterpreter {
       return this.globalModuleCache.get(modulePath);
     }
 
-    // Create placeholder to prevent circular imports
+    // Create placeholder to prevent infinite recursion in circular imports
     const exports: any = {};
     this.globalModuleCache.set(modulePath, exports);
 
@@ -1949,15 +1949,6 @@ export class WangInterpreter {
     // Store reference to exports object so we can update it during evaluation
     moduleContext.moduleExports = exports;
 
-    // Parse the module to hoist function declarations
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    parser.feed(code);
-    if (parser.results.length > 0) {
-      const ast = parser.results[0];
-      // First pass: hoist function exports
-      await this.hoistExports(ast, moduleContext, exports);
-    }
-
     // Execute module
     await this.execute(code, moduleContext);
 
@@ -1967,35 +1958,6 @@ export class WangInterpreter {
     });
 
     return exports;
-  }
-
-  private async hoistExports(node: any, context: ExecutionContext, exports: any): Promise<void> {
-    if (!node) return;
-    
-    if (Array.isArray(node)) {
-      for (const child of node) {
-        await this.hoistExports(child, context, exports);
-      }
-      return;
-    }
-    
-    // Hoist export function declarations
-    if (node.type === 'ExportNamedDeclaration' && node.declaration) {
-      if (node.declaration.type === 'FunctionDeclaration') {
-        // Create a placeholder that will forward to the actual function once it's defined
-        const name = node.declaration.id.name;
-        // Use undefined initially - it will be replaced when the function is actually evaluated
-        exports[name] = undefined;
-      }
-    }
-    
-    // Recursively hoist in child nodes
-    if (node.body) {
-      await this.hoistExports(node.body, context, exports);
-    }
-    if (node.statements) {
-      await this.hoistExports(node.statements, context, exports);  
-    }
   }
 }
 

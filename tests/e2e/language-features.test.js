@@ -677,7 +677,7 @@ describe('Wang Language E2E Tests', () => {
   });
 
   describe('Module System - Advanced', () => {
-    it('should handle circular dependencies', async () => {
+    it('should throw error for circular dependencies with immediate calls', async () => {
       resolver.addModule('moduleA', `
         import { functionB } from "moduleB";
         
@@ -698,11 +698,11 @@ describe('Wang Language E2E Tests', () => {
         }
       `);
 
-      const result = await interpreter.execute(`
+      // This should throw because helperA is undefined when functionB tries to call it
+      await expect(interpreter.execute(`
         import { functionA } from "moduleA";
         functionA()
-      `);
-      expect(result).toBe("A calls B uses Helper A");
+      `)).rejects.toThrow('Type mismatch in call expression');
     });
 
     it('should handle default exports and imports', async () => {

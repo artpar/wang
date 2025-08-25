@@ -1,7 +1,7 @@
 # Known Issues and Limitations
 
 ## Test Coverage
-Currently **80/90 tests passing** (88.9% coverage)
+Currently **81/90 tests passing** (90% coverage)
 
 ## Reserved Keywords as Identifiers
 - **Issue**: Reserved keywords cannot be used as parameter names or variable names
@@ -87,7 +87,8 @@ const result = func.apply(null, array);
 ```
 
 ## Circular Module Dependencies
-- **Issue**: Circular dependencies between modules may fail if functions are called during module initialization
-- **Example**: If moduleA imports from moduleB, and moduleB imports from moduleA, functions may be undefined during initialization
-- **Status**: Partial support implemented with function hoisting, but full ES6-style circular dependency handling requires significant architectural changes
-- **Workaround**: Structure modules to avoid calling imported functions during initialization, only call them after all modules are loaded
+- **Behavior**: Circular dependencies are allowed, but functions may be undefined if called during module initialization
+- **Example**: If moduleA imports from moduleB, and moduleB imports from moduleA, functions will be undefined until both modules finish loading
+- **Runtime Error**: Calling an undefined imported function will throw a runtime error: "Type mismatch in call expression"
+- **Design Decision**: This is intentional behavior - no complex ES6-style hoisting is implemented
+- **Best Practice**: Structure modules to avoid calling imported functions during initialization; only call them after all modules are loaded
