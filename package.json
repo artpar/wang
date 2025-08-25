@@ -1,5 +1,5 @@
 {
-  "name": "@wang-lang/core",
+  "name": "wang-lang",
   "version": "0.1.0",
   "description": "A CSP-safe workflow programming language for browser automation",
   "keywords": [

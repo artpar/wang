@@ -3,13 +3,13 @@
 ## Installation
 
 ```bash
-npm install @wang-lang/core
+npm install wang-lang
 ```
 
 ## Basic Usage
 
 ```javascript
-import { WangInterpreter, InMemoryModuleResolver } from '@wang-lang/core';
+import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang';
 
 // Create a module resolver
 const resolver = new InMemoryModuleResolver();
