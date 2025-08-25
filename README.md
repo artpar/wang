@@ -42,7 +42,7 @@ resolver.addModule('utils', `
     return data 
       |> filter(_, item => item.active)
       |> map(_, item => item.name)
-      |> sort()
+      |> sort(_);
   }
 `);
 
@@ -59,16 +59,16 @@ const interpreter = new WangInterpreter({
 
 // Execute Wang code
 await interpreter.execute(`
-  import { processData } from "utils"
+  import { processData } from "utils";
   
   let data = [
     { name: "Alice", active: true },
     { name: "Bob", active: false },
     { name: "Charlie", active: true }
-  ]
+  ];
   
-  let result = processData(data)
-  log(result)  // ["Alice", "Charlie"]
+  let result = processData(data);
+  log(result);  // ["Alice", "Charlie"]
 `);
 ```
 
@@ -99,7 +99,7 @@ let outer = 1;
   let outer = 2;         // Shadows outer variable
   const inner = 3;
   log(outer);            // 2
-}
+};
 log(outer);              // 1
 // log(inner);           // ❌ Error: inner is not defined
 
@@ -124,7 +124,7 @@ const add = (a, b) => a + b;
 // Async/await
 async function fetchData() {
   const response = await fetch(url);
-  return await response.json()
+  return await response.json();
 }
 ```
 
@@ -135,26 +135,26 @@ Full object-oriented programming support with inheritance and proper `this` bind
 ```javascript
 class Animal {
   constructor(name) {
-    this.name = name
+    this.name = name;
   }
   
   speak() {
-    return this.name + " makes a sound"
+    return this.name + " makes a sound";
   }
 }
 
 class Dog extends Animal {
   constructor(name, breed) {
     super(name);  // Call parent constructor
-    this.breed = breed
+    this.breed = breed;
   }
   
   speak() {
-    return this.name + " barks"
+    return this.name + " barks";
   }
   
   getBreed() {
-    return this.breed
+    return this.breed;
   }
 }
 
@@ -187,7 +187,7 @@ Full ES6 module support:
 ```javascript
 // math.wang
 export function square(x) {
-  return x * x
+  return x * x;
 }
 
 export const PI = 3.14159;
@@ -241,21 +241,21 @@ const interpreter = new WangInterpreter({
 // Define a workflow module
 resolver.addModule('linkedin-workflow', `
   export async function extractProfiles() {
-    let profiles = querySelectorAll(".profile-card")
-    let results = []
+    let profiles = querySelectorAll(".profile-card");
+    let results = [];
     
     for (let profile of profiles) {
       let data = {
         name: profile |> querySelector(_, ".name") |> getText(_),
         title: profile |> querySelector(_, ".title") |> getText(_),
         company: profile |> querySelector(_, ".company") |> getText(_)
-      }
+      };
       
-      results.push(data)
-      await wait(1000)  // Rate limiting
+      results.push(data);
+      await wait(1000);  // Rate limiting
     }
     
-    return results
+    return results;
   }
 `);
 
@@ -272,10 +272,10 @@ const interpreter = new WangInterpreter({
 
 // Execute the workflow
 await interpreter.execute(`
-  import { extractProfiles } from "linkedin-workflow"
+  import { extractProfiles } from "linkedin-workflow";
   
-  let profiles = await extractProfiles()
-  log(\`Found \${profiles.length} profiles\`)
+  let profiles = await extractProfiles();
+  log(\`Found \${profiles.length} profiles\`);
 `);
 ```
 
@@ -407,7 +407,7 @@ Wang is designed to run in Content Security Policy restricted environments where
   
   // This works even with strict CSP!
   const interpreter = new WangInterpreter();
-  await interpreter.execute('log("Hello from Wang!")');
+  await interpreter.execute('log("Hello from Wang!");');
 </script>
 ```
 

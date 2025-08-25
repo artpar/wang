@@ -9,8 +9,7 @@ import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/e
 
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
-import grammar from '../generated/wang-grammar.js';
-import nearley from 'nearley';
+import { grammar, nearley } from '../generated/wang-grammar.js';
 
 export interface ExecutionContext {
   variables: Map<string, any>;
@@ -307,7 +306,7 @@ export class WangInterpreter {
   }
 
   async execute(code: string, context?: ExecutionContext): Promise<any> {
-    // Create parser
+    // Create parser using bundled nearley runtime
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
     try {

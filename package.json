@@ -54,7 +54,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build:grammar": "mkdir -p src/generated && nearleyc src/grammar/wang.ne -o src/generated/wang-grammar.js",
+    "build:grammar": "mkdir -p src/generated && nearleyc src/grammar/wang.ne -o src/generated/wang-grammar.js && node scripts/bundle-nearley-runtime.js",
     "build": "npm run clean && npm run build:grammar && npm run build:esm && npm run build:cjs && npm run build:browser && npm run build:types",
     "build:esm": "tsc -p tsconfig.esm.json && cp -r src/generated dist/esm/ && npm run fix-esm-extensions && npm run fix-grammar-esm",
     "fix-grammar-esm": "node scripts/fix-grammar-esm.js",
@@ -76,7 +76,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
     "typecheck": "tsc --noEmit",
     "docs": "typedoc --out docs src/index.ts",
-    "prepublishOnly": "npm run clean && npm run lint && npm run test && npm run build",
+    "prepublishOnly": "npm run clean && npm run build && npm run lint && npm run test",
     "prepare": "husky install",
     "release": "standard-version",
     "release:patch": "npm run release -- --release-as patch",

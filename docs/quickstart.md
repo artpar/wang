@@ -58,11 +58,11 @@ const result = await interpreter.execute(`
 const result = await interpreter.execute(`
   class Vehicle {
     constructor(type) {
-      this.type = type
+      this.type = type;
     }
     
     describe() {
-      return "This is a " + this.type
+      return "This is a " + this.type;
     }
   }
   
@@ -70,11 +70,11 @@ const result = await interpreter.execute(`
     constructor(brand, model) {
       super("car");
       this.brand = brand;
-      this.model = model
+      this.model = model;
     }
     
     describe() {
-      return super.describe() + ": " + this.brand + " " + this.model
+      return super.describe() + ": " + this.brand + " " + this.model;
     }
   }
   
@@ -92,7 +92,7 @@ Create reusable modules:
 // Add a module
 resolver.addModule('utils', `
   export function greet(name) {
-    return "Hello, " + name + "!"
+    return "Hello, " + name + "!";
   }
   
   export const VERSION = "1.0.0";
@@ -128,7 +128,7 @@ await interpreter.execute(`
     |> filter(_, btn => getText(btn) === "Submit")
     |> forEach(_, btn => {
         click(btn);
-        await wait(1000)
+        await wait(1000);
       })
 `);
 ```
@@ -155,7 +155,7 @@ await interpreter.execute(`
   {
     let outer = 2; // Shadows outer variable
     console.log(outer); // 2
-  }
+  };
   console.log(outer); // 1
 `);
 ```
