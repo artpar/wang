@@ -103,11 +103,11 @@ const lexer = moo.compile({
   '@': '@'
 });
 
-// Skip whitespace and comments (preserve newlines but handle them contextually)
+// Skip whitespace and comments, and newlines in most contexts
 lexer.next = (next => () => {
   let tok;
-  while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'comment' || tok.type === 'blockComment')) {
-    // Skip whitespace and comments but not newlines
+  while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'NL' || tok.type === 'comment' || tok.type === 'blockComment')) {
+    // Skip whitespace, newlines, and comments
   }
   return tok;
 })(lexer.next);
@@ -146,16 +146,12 @@ function buildPipeline(left, op, right) {
 # Main program (start rule)
 Program -> Statements {% d => ({ type: 'Program', body: d[0] }) %}
 
-# Statements with semicolon or newline separators
+# Statements with semicolon separators
 Statements ->
     null {% () => [] %}
   | Statement {% d => [d[0]] %}
-  | Statements StatementSeparator Statement {% d => [...d[0], d[2]] %}
-  | Statements StatementSeparator {% d => d[0] %}
-
-StatementSeparator ->
-    ";" {% id %}
-  | %NL {% id %}
+  | Statements ";" Statement {% d => [...d[0], d[2]] %}
+  | Statements ";" {% d => d[0] %}
 
 # Helper rules
 semicolon -> ";"
@@ -312,13 +308,12 @@ ClassDeclaration ->
     }) %}
 
 ClassBody ->
-    "{" OptionalNewline ClassMembers OptionalNewline "}"
-    {% d => ({ type: 'ClassBody', body: d[2] }) %}
+    "{" ClassMembers "}"
+    {% d => ({ type: 'ClassBody', body: d[1] }) %}
 
 ClassMembers ->
     null {% () => [] %}
-  | ClassMember {% d => d[0] ? [d[0]] : [] %}
-  | ClassMembers OptionalNewline ClassMember {% d => d[2] ? [...d[0], d[2]] : d[0] %}
+  | ClassMembers ClassMember {% d => d[1] ? [...d[0], d[1]] : d[0] %}
 
 ClassMember ->
     MethodDefinition {% id %}
@@ -457,15 +452,15 @@ ReturnStatement ->
 
 # Expressions (disallow function expressions as statements to avoid ambiguity)
 ExpressionStatement ->
-    ExpressionNoFunction {% d => ({ type: 'ExpressionStatement', expression: d[0] }) %}
+    PipelineExpressionNoFunction {% d => ({ type: 'ExpressionStatement', expression: d[0] }) %}
 
-ExpressionNoFunction ->
-    PipelineExpressionNoFunction {% id %}
-
+# Pipeline without function expressions  
 PipelineExpressionNoFunction ->
     AssignmentExpressionNoFunction {% id %}
-  | PipelineExpressionNoFunction (%pipeline | %arrow) AssignmentExpression
-    {% d => buildPipeline(d[0], d[1][0].value, d[2]) %}
+  | PipelineExpressionNoFunction pipelineOp AssignmentExpression
+    {% d => buildPipeline(d[0], d[1], d[2]) %}
+
+pipelineOp -> %pipeline {% d => d[0].value %} | %arrow {% d => d[0].value %}
 
 AssignmentExpressionNoFunction ->
     ConditionalExpressionNoFunction {% id %}
@@ -585,13 +580,7 @@ PrimaryExpressionNoFunction ->
   | "_" {% d => ({ type: 'Identifier', name: '_' }) %}
 
 Expression ->
-    PipelineExpression {% id %}
-
-# Pipeline operators (left-recursive to avoid ambiguity)
-PipelineExpression ->
     AssignmentExpression {% id %}
-  | PipelineExpression (%pipeline | %arrow) AssignmentExpression
-    {% d => buildPipeline(d[0], d[1][0].value, d[2]) %}
 
 AssignmentExpression ->
     ArrowFunction {% id %}
@@ -732,13 +721,13 @@ Literal ->
   | "undefined" {% d => ({ type: 'Literal', value: undefined, raw: 'undefined' }) %}
 
 ArrayLiteral ->
-    "[" OptionalNewline ArrayElements OptionalNewline "]"
-    {% d => ({ type: 'ArrayExpression', elements: d[2] }) %}
+    "[" ArrayElements "]"
+    {% d => ({ type: 'ArrayExpression', elements: d[1] }) %}
 
 ArrayElements ->
     null {% () => [] %}
   | ArrayElement {% d => [d[0]] %}
-  | ArrayElements "," OptionalNewline ArrayElement {% d => [...d[0], d[3]] %}
+  | ArrayElements "," ArrayElement {% d => [...d[0], d[2]] %}
 
 ArrayElement ->
     AssignmentExpression {% id %}
@@ -746,16 +735,13 @@ ArrayElement ->
   | null {% () => null %}
 
 ObjectLiteral ->
-    "{" OptionalNewline PropertyList OptionalNewline "}"
-    {% d => ({ type: 'ObjectExpression', properties: d[2] }) %}
+    "{" PropertyList "}"
+    {% d => ({ type: 'ObjectExpression', properties: d[1] }) %}
 
 PropertyList ->
     null {% () => [] %}
   | Property {% d => [d[0]] %}
-  | PropertyList "," OptionalNewline Property {% d => [...d[0], d[3]] %}
-
-OptionalNewline ->
-    %NL:? {% () => null %}
+  | PropertyList "," Property {% d => [...d[0], d[2]] %}
 
 Property ->
     %identifier {% d => ({ type: 'Property', key: d[0].value, value: d[0].value, shorthand: true }) %}
@@ -802,4 +788,4 @@ ArrowBody ->
   | AssignmentExpression {% d => d[0] %}
 
 Block ->
-    "{" OptionalNewline Statements OptionalNewline "}" {% d => ({ type: 'BlockStatement', body: d[2] }) %}
+    "{" Statements "}" {% d => ({ type: 'BlockStatement', body: d[1] }) %}

@@ -104,11 +104,11 @@ const lexer = moo.compile({
   '@': '@'
 });
 
-// Skip whitespace and comments (preserve newlines but handle them contextually)
+// Skip whitespace and comments, and newlines in most contexts
 lexer.next = (next => () => {
   let tok;
-  while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'comment' || tok.type === 'blockComment')) {
-    // Skip whitespace and comments but not newlines
+  while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'NL' || tok.type === 'comment' || tok.type === 'blockComment')) {
+    // Skip whitespace, newlines, and comments
   }
   return tok;
 })(lexer.next);
@@ -146,10 +146,8 @@ var grammar = {
     {"name": "Program", "symbols": ["Statements"], "postprocess": d => ({ type: 'Program', body: d[0] })},
     {"name": "Statements", "symbols": [], "postprocess": () => []},
     {"name": "Statements", "symbols": ["Statement"], "postprocess": d => [d[0]]},
-    {"name": "Statements", "symbols": ["Statements", "StatementSeparator", "Statement"], "postprocess": d => [...d[0], d[2]]},
-    {"name": "Statements", "symbols": ["Statements", "StatementSeparator"], "postprocess": d => d[0]},
-    {"name": "StatementSeparator", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "StatementSeparator", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
+    {"name": "Statements", "symbols": ["Statements", {"literal":";"}, "Statement"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "Statements", "symbols": ["Statements", {"literal":";"}], "postprocess": d => d[0]},
     {"name": "semicolon", "symbols": [{"literal":";"}]},
     {"name": "staticAsyncGetSet", "symbols": [{"literal":"static"}]},
     {"name": "staticAsyncGetSet", "symbols": [{"literal":"async"}]},
@@ -256,10 +254,9 @@ var grammar = {
           superClass: d[2] ? { type: 'Identifier', name: d[2] } : null,
           body: d[3]
         }) },
-    {"name": "ClassBody", "symbols": [{"literal":"{"}, "OptionalNewline", "ClassMembers", "OptionalNewline", {"literal":"}"}], "postprocess": d => ({ type: 'ClassBody', body: d[2] })},
+    {"name": "ClassBody", "symbols": [{"literal":"{"}, "ClassMembers", {"literal":"}"}], "postprocess": d => ({ type: 'ClassBody', body: d[1] })},
     {"name": "ClassMembers", "symbols": [], "postprocess": () => []},
-    {"name": "ClassMembers", "symbols": ["ClassMember"], "postprocess": d => d[0] ? [d[0]] : []},
-    {"name": "ClassMembers", "symbols": ["ClassMembers", "OptionalNewline", "ClassMember"], "postprocess": d => d[2] ? [...d[0], d[2]] : d[0]},
+    {"name": "ClassMembers", "symbols": ["ClassMembers", "ClassMember"], "postprocess": d => d[1] ? [...d[0], d[1]] : d[0]},
     {"name": "ClassMember", "symbols": ["MethodDefinition"], "postprocess": id},
     {"name": "ClassMember", "symbols": ["PropertyDefinition"], "postprocess": id},
     {"name": "ClassMember", "symbols": [{"literal":";"}], "postprocess": () => null},
@@ -374,12 +371,11 @@ var grammar = {
     {"name": "ThrowStatement", "symbols": [{"literal":"throw"}, "Expression"], "postprocess": d => ({ type: 'ThrowStatement', argument: d[1] })},
     {"name": "ReturnStatement", "symbols": [{"literal":"return"}, "Expression"], "postprocess": d => ({ type: 'ReturnStatement', argument: d[1] })},
     {"name": "ReturnStatement", "symbols": [{"literal":"return"}], "postprocess": d => ({ type: 'ReturnStatement', argument: null })},
-    {"name": "ExpressionStatement", "symbols": ["ExpressionNoFunction"], "postprocess": d => ({ type: 'ExpressionStatement', expression: d[0] })},
-    {"name": "ExpressionNoFunction", "symbols": ["PipelineExpressionNoFunction"], "postprocess": id},
+    {"name": "ExpressionStatement", "symbols": ["PipelineExpressionNoFunction"], "postprocess": d => ({ type: 'ExpressionStatement', expression: d[0] })},
     {"name": "PipelineExpressionNoFunction", "symbols": ["AssignmentExpressionNoFunction"], "postprocess": id},
-    {"name": "PipelineExpressionNoFunction$subexpression$1", "symbols": [(lexer.has("pipeline") ? {type: "pipeline"} : pipeline)]},
-    {"name": "PipelineExpressionNoFunction$subexpression$1", "symbols": [(lexer.has("arrow") ? {type: "arrow"} : arrow)]},
-    {"name": "PipelineExpressionNoFunction", "symbols": ["PipelineExpressionNoFunction", "PipelineExpressionNoFunction$subexpression$1", "AssignmentExpression"], "postprocess": d => buildPipeline(d[0], d[1][0].value, d[2])},
+    {"name": "PipelineExpressionNoFunction", "symbols": ["PipelineExpressionNoFunction", "pipelineOp", "AssignmentExpression"], "postprocess": d => buildPipeline(d[0], d[1], d[2])},
+    {"name": "pipelineOp", "symbols": [(lexer.has("pipeline") ? {type: "pipeline"} : pipeline)], "postprocess": d => d[0].value},
+    {"name": "pipelineOp", "symbols": [(lexer.has("arrow") ? {type: "arrow"} : arrow)], "postprocess": d => d[0].value},
     {"name": "AssignmentExpressionNoFunction", "symbols": ["ConditionalExpressionNoFunction"], "postprocess": id},
     {"name": "AssignmentExpressionNoFunction$subexpression$1", "symbols": [{"literal":"="}]},
     {"name": "AssignmentExpressionNoFunction$subexpression$1", "symbols": [{"literal":"+="}]},
@@ -486,11 +482,7 @@ var grammar = {
     {"name": "PrimaryExpressionNoFunction", "symbols": ["ObjectLiteral"], "postprocess": id},
     {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"("}, "Expression", {"literal":")"}], "postprocess": d => d[1]},
     {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"_"}], "postprocess": d => ({ type: 'Identifier', name: '_' })},
-    {"name": "Expression", "symbols": ["PipelineExpression"], "postprocess": id},
-    {"name": "PipelineExpression", "symbols": ["AssignmentExpression"], "postprocess": id},
-    {"name": "PipelineExpression$subexpression$1", "symbols": [(lexer.has("pipeline") ? {type: "pipeline"} : pipeline)]},
-    {"name": "PipelineExpression$subexpression$1", "symbols": [(lexer.has("arrow") ? {type: "arrow"} : arrow)]},
-    {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$subexpression$1", "AssignmentExpression"], "postprocess": d => buildPipeline(d[0], d[1][0].value, d[2])},
+    {"name": "Expression", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ArrowFunction"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
     {"name": "AssignmentExpression$subexpression$1", "symbols": [{"literal":"="}]},
@@ -611,20 +603,17 @@ var grammar = {
     {"name": "Literal", "symbols": [{"literal":"false"}], "postprocess": d => ({ type: 'Literal', value: false, raw: 'false' })},
     {"name": "Literal", "symbols": [{"literal":"null"}], "postprocess": d => ({ type: 'Literal', value: null, raw: 'null' })},
     {"name": "Literal", "symbols": [{"literal":"undefined"}], "postprocess": d => ({ type: 'Literal', value: undefined, raw: 'undefined' })},
-    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, "OptionalNewline", "ArrayElements", "OptionalNewline", {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: d[2] })},
+    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, "ArrayElements", {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: d[1] })},
     {"name": "ArrayElements", "symbols": [], "postprocess": () => []},
     {"name": "ArrayElements", "symbols": ["ArrayElement"], "postprocess": d => [d[0]]},
-    {"name": "ArrayElements", "symbols": ["ArrayElements", {"literal":","}, "OptionalNewline", "ArrayElement"], "postprocess": d => [...d[0], d[3]]},
+    {"name": "ArrayElements", "symbols": ["ArrayElements", {"literal":","}, "ArrayElement"], "postprocess": d => [...d[0], d[2]]},
     {"name": "ArrayElement", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "ArrayElement", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => ({ type: 'SpreadElement', argument: d[1] })},
     {"name": "ArrayElement", "symbols": [], "postprocess": () => null},
-    {"name": "ObjectLiteral", "symbols": [{"literal":"{"}, "OptionalNewline", "PropertyList", "OptionalNewline", {"literal":"}"}], "postprocess": d => ({ type: 'ObjectExpression', properties: d[2] })},
+    {"name": "ObjectLiteral", "symbols": [{"literal":"{"}, "PropertyList", {"literal":"}"}], "postprocess": d => ({ type: 'ObjectExpression', properties: d[1] })},
     {"name": "PropertyList", "symbols": [], "postprocess": () => []},
     {"name": "PropertyList", "symbols": ["Property"], "postprocess": d => [d[0]]},
-    {"name": "PropertyList", "symbols": ["PropertyList", {"literal":","}, "OptionalNewline", "Property"], "postprocess": d => [...d[0], d[3]]},
-    {"name": "OptionalNewline$ebnf$1", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
-    {"name": "OptionalNewline$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "OptionalNewline", "symbols": ["OptionalNewline$ebnf$1"], "postprocess": () => null},
+    {"name": "PropertyList", "symbols": ["PropertyList", {"literal":","}, "Property"], "postprocess": d => [...d[0], d[2]]},
     {"name": "Property", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => ({ type: 'Property', key: d[0].value, value: d[0].value, shorthand: true })},
     {"name": "Property", "symbols": ["PropertyKey", {"literal":":"}, "AssignmentExpression"], "postprocess": d => ({ type: 'Property', key: d[0], value: d[2], shorthand: false })},
     {"name": "Property", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => ({ type: 'SpreadElement', argument: d[1] })},
@@ -658,7 +647,7 @@ var grammar = {
     {"name": "ArrowParameters", "symbols": [{"literal":"("}, "ParameterList", {"literal":")"}], "postprocess": d => d[1]},
     {"name": "ArrowBody", "symbols": ["Block"], "postprocess": id},
     {"name": "ArrowBody", "symbols": ["AssignmentExpression"], "postprocess": d => d[0]},
-    {"name": "Block", "symbols": [{"literal":"{"}, "OptionalNewline", "Statements", "OptionalNewline", {"literal":"}"}], "postprocess": d => ({ type: 'BlockStatement', body: d[2] })}
+    {"name": "Block", "symbols": [{"literal":"{"}, "Statements", {"literal":"}"}], "postprocess": d => ({ type: 'BlockStatement', body: d[1] })}
 ]
   , ParserStart: "Program"
 }

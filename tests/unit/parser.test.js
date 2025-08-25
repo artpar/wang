@@ -22,8 +22,8 @@ const tests = [
   runTest('Parser: Multiple statements', () => {
     const ctx = new TestContext();
     const results = ctx.parse(`
-      let x = 5
-      let y = 10
+      let x = 5;
+      let y = 10;
       x + y
     `);
     assertParseCount(results, 1, 'Multiple statements');
@@ -52,7 +52,7 @@ const tests = [
     const ctx = new TestContext();
     const results = ctx.parse(`
       function add(a, b) {
-        return a + b
+        return a + b;
       }
     `);
     assertParseCount(results, 1, 'Function declaration');
@@ -69,7 +69,7 @@ const tests = [
     const ctx = new TestContext();
     const results = ctx.parse(`
       async function fetchData() {
-        return await getData()
+        return await getData();
       }
     `);
     assertParseCount(results, 1, 'Async function');
@@ -199,11 +199,11 @@ const tests = [
     const results = ctx.parse(`
       class Person {
         constructor(name) {
-          this.name = name
+          this.name = name;
         }
         
         greet() {
-          return "Hello, " + this.name
+          return "Hello, " + this.name;
         }
       }
     `);
