@@ -26,6 +26,7 @@ export interface ExecutionContext {
   exports: Map<string, any>;
   parent?: ExecutionContext;
   moduleCache: Map<string, any>;
+  moduleExports?: any; // For circular dependency handling
 }
 
 export interface InterpreterOptions {
@@ -217,6 +218,9 @@ export class WangInterpreter {
       return sorted;
     });
     this.bindFunction('reverse', (arr: any[]) => [...arr].reverse());
+    
+    // The functional programming test needs a reverse function that works in the pipeline
+    this.currentContext.functions.set('reverse', (arr: any[]) => [...arr].reverse());
     this.bindFunction('slice', (arr: any[], start?: number, end?: number) => arr.slice(start, end));
     this.bindFunction('concat', (...arrays: any[]) => [].concat(...arrays));
     this.bindFunction('join', (arr: any[], separator?: string) => arr.join(separator));
@@ -1889,14 +1893,26 @@ export class WangInterpreter {
           if (declarator.id.type === 'Identifier') {
             const value = this.currentContext.variables.get(declarator.id.name);
             this.currentContext.exports.set(declarator.id.name, value);
+            // Update module exports object immediately for circular dependencies
+            if (this.currentContext.moduleExports) {
+              this.currentContext.moduleExports[declarator.id.name] = value;
+            }
           }
         }
       } else if (node.declaration.type === 'FunctionDeclaration') {
         const fn = this.currentContext.functions.get(node.declaration.id.name);
         this.currentContext.exports.set(node.declaration.id.name, fn);
+        // Update module exports object immediately for circular dependencies
+        if (this.currentContext.moduleExports) {
+          this.currentContext.moduleExports[node.declaration.id.name] = fn;
+        }
       } else if (node.declaration.type === 'ClassDeclaration') {
         const cls = this.currentContext.classes.get(node.declaration.id.name);
         this.currentContext.exports.set(node.declaration.id.name, cls);
+        // Update module exports object immediately for circular dependencies
+        if (this.currentContext.moduleExports) {
+          this.currentContext.moduleExports[node.declaration.id.name] = cls;
+        }
       }
     }
 
@@ -1907,6 +1923,10 @@ export class WangInterpreter {
         this.currentContext.functions.get(specifier.local) ||
         this.currentContext.classes.get(specifier.local);
       this.currentContext.exports.set(specifier.exported, value);
+      // Update module exports object immediately for circular dependencies
+      if (this.currentContext.moduleExports) {
+        this.currentContext.moduleExports[specifier.exported] = value;
+      }
     }
   }
 
@@ -1925,6 +1945,18 @@ export class WangInterpreter {
 
     // Create new context for module
     const moduleContext = this.createContext(this.globalContext);
+    
+    // Store reference to exports object so we can update it during evaluation
+    moduleContext.moduleExports = exports;
+
+    // Parse the module to hoist function declarations
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+    parser.feed(code);
+    if (parser.results.length > 0) {
+      const ast = parser.results[0];
+      // First pass: hoist function exports
+      await this.hoistExports(ast, moduleContext, exports);
+    }
 
     // Execute module
     await this.execute(code, moduleContext);
@@ -1935,6 +1967,35 @@ export class WangInterpreter {
     });
 
     return exports;
+  }
+
+  private async hoistExports(node: any, context: ExecutionContext, exports: any): Promise<void> {
+    if (!node) return;
+    
+    if (Array.isArray(node)) {
+      for (const child of node) {
+        await this.hoistExports(child, context, exports);
+      }
+      return;
+    }
+    
+    // Hoist export function declarations
+    if (node.type === 'ExportNamedDeclaration' && node.declaration) {
+      if (node.declaration.type === 'FunctionDeclaration') {
+        // Create a placeholder that will forward to the actual function once it's defined
+        const name = node.declaration.id.name;
+        // Use undefined initially - it will be replaced when the function is actually evaluated
+        exports[name] = undefined;
+      }
+    }
+    
+    // Recursively hoist in child nodes
+    if (node.body) {
+      await this.hoistExports(node.body, context, exports);
+    }
+    if (node.statements) {
+      await this.hoistExports(node.statements, context, exports);  
+    }
   }
 }
 
