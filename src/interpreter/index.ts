@@ -875,6 +875,7 @@ export class WangInterpreter {
     const isAsync = node.async;
 
     // Capture the context at function creation time (for closures)
+    // This captures the entire execution context including local variables
     const capturedContext = this.currentContext;
     
     // For arrow functions, capture 'this' from the current context

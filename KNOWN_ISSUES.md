@@ -38,9 +38,15 @@ Currently **83/90 tests passing** (92.2% coverage)
 - **Required For**: Tagged template literal test
 - **Implementation Needed**: Grammar and interpreter support for tagged templates
 
-### Spread Syntax in Expressions
+### Spread Syntax in Expressions  
 - **Required For**: Functional programming library test (uses `...array` in expressions)
 - **Implementation Needed**: Grammar support for spread operator in call expressions and array literals
+- **Status**: Workaround implemented using `apply()` and `concat()`
+
+### Complex Closure Scenarios
+- **Issue**: Named function expressions inside arrow functions don't properly capture closure variables
+- **Example**: Curry function where `curried` function can't access `arity` from parent scope
+- **Status**: Complex scoping issue requiring significant interpreter changes
 
 ## Workarounds for Common Issues
 
