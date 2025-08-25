@@ -213,10 +213,17 @@ export class WangInterpreter {
     this.bindFunction('concat', (...arrays: any[]) => [].concat(...arrays));
     this.bindFunction('join', (arr: any[], separator?: string) => arr.join(separator));
     this.bindFunction('includes', (arr: any[], item: any) => arr.includes(item));
-    this.bindFunction('indexOf', (arr: any[], item: any) => arr.indexOf(item));
+    this.bindFunction('indexOf', (arr: any[], item: any) => {
+      if (!Array.isArray(arr)) return -1;
+      return arr.indexOf(item);
+    });
     this.bindFunction('push', (arr: any[], ...items: any[]) => {
       arr.push(...items);
       return arr;
+    });
+    this.bindFunction('forEach', (arr: any[], fn: (value: any, index: number, array: any[]) => void) => {
+      if (!Array.isArray(arr)) return;
+      arr.forEach(fn);
     });
     this.bindFunction('pop', (arr: any[]) => arr.pop());
     this.bindFunction('shift', (arr: any[]) => arr.shift());
@@ -425,6 +432,51 @@ export class WangInterpreter {
         }
         return undefined;
         
+      case 'CallExpression':
+        // Handle synchronous function calls for arrow functions
+        let callee;
+        let thisContext = null;
+        
+        if (node.callee.type === 'MemberExpression') {
+          const object = this.evaluateNodeSync(node.callee.object);
+          const property = node.callee.computed
+            ? this.evaluateNodeSync(node.callee.property)
+            : node.callee.property.name;
+          callee = object?.[property];
+          thisContext = object;
+        } else {
+          callee = this.evaluateNodeSync(node.callee);
+        }
+        
+        if (typeof callee !== 'function') {
+          throw new Error(`Not a function: ${node.callee.name || 'expression'}`);
+        }
+        
+        const args = node.arguments.map((arg: any) => {
+          if (arg.type === 'SpreadElement') {
+            const spread = this.evaluateNodeSync(arg.argument);
+            return spread;
+          }
+          return this.evaluateNodeSync(arg);
+        });
+        
+        // Replace underscore with pipeline value
+        const processedArgs = args.map((arg: any) =>
+          arg === undefined && this.lastPipelineValue !== undefined ? this.lastPipelineValue : arg,
+        );
+        
+        // Handle spread arguments
+        const finalArgs = [];
+        for (let i = 0; i < processedArgs.length; i++) {
+          if (node.arguments[i].type === 'SpreadElement') {
+            finalArgs.push(...processedArgs[i]);
+          } else {
+            finalArgs.push(processedArgs[i]);
+          }
+        }
+        
+        return callee.apply(thisContext, finalArgs);
+        
       case 'ThrowStatement':
         throw this.evaluateNodeSync(node.argument);
       
@@ -554,7 +606,7 @@ export class WangInterpreter {
 
       case 'PipelineExpression':
         return this.evaluatePipelineExpression(node);
-
+      
       case 'ThisExpression':
         return this.currentContext.variables.get('this');
 
@@ -739,14 +791,72 @@ export class WangInterpreter {
 
     // Capture the context at function creation time (for closures)
     const capturedContext = this.currentContext;
+    
+    // For arrow functions, capture 'this' from the current context
+    const capturedThis = node.type === 'ArrowFunctionExpression' 
+      ? this.currentContext.variables.get('this')
+      : undefined;
 
-    const fn = async (...args: any[]) => {
+    // For non-async arrow functions with expression bodies, create synchronous functions
+    if (!isAsync && node.type === 'ArrowFunctionExpression' && body.type !== 'BlockStatement') {
+      const fn = (...args: any[]) => {
+        // Create new context for function with captured parent context
+        const fnContext = this.createContext(capturedContext);
+        
+        // Arrow functions always use the captured 'this'
+        fnContext.variables.set('this', capturedThis);
+
+        // Execute function body
+        const previousContext = this.currentContext;
+        this.currentContext = fnContext;
+
+        // Bind parameters in the new context
+        for (let i = 0; i < params.length; i++) {
+          const param = params[i];
+          if (param.type === 'RestElement') {
+            fnContext.variables.set(param.argument.name || param.argument, args.slice(i));
+          } else if (param.type === 'Identifier') {
+            fnContext.variables.set(param.name, args[i]);
+          } else if (param.type === 'AssignmentPattern') {
+            // Handle default parameters
+            const value = args[i] !== undefined ? args[i] : this.evaluateNodeSync(param.right);
+            if (param.left.type === 'Identifier') {
+              fnContext.variables.set(param.left.name, value);
+            }
+          }
+        }
+
+        try {
+          // For arrow functions with expression body, evaluate and return the expression synchronously
+          const result = this.evaluateNodeSync(body);
+          return result;
+        } finally {
+          this.currentContext = previousContext;
+        }
+      };
+
+      return fn;
+    }
+
+    // For async functions or functions with block statements, keep the async behavior
+    // We need to use a regular function (not arrow) to receive 'this' from apply()
+    const interpreter = this;
+    const fn = async function(this: any, ...args: any[]) {
       // Create new context for function with captured parent context
-      const fnContext = this.createContext(capturedContext);
+      const fnContext = interpreter.createContext(capturedContext);
+      
+      // For arrow functions, use captured 'this'; for regular functions, use the passed 'this'
+      if (node.type === 'ArrowFunctionExpression') {
+        // Arrow functions always use the captured 'this', ignoring the passed 'this'
+        fnContext.variables.set('this', capturedThis);
+      } else {
+        // Regular function - use the 'this' passed via apply()
+        fnContext.variables.set('this', this);
+      }
 
       // Execute function body
-      const previousContext = this.currentContext;
-      this.currentContext = fnContext;
+      const previousContext = interpreter.currentContext;
+      interpreter.currentContext = fnContext;
 
       // Bind parameters in the new context
       for (let i = 0; i < params.length; i++) {
@@ -758,22 +868,22 @@ export class WangInterpreter {
           // Handle default parameters
           const value = i < args.length && args[i] !== undefined 
             ? args[i] 
-            : await this.evaluateNode(param.right);
-          this.assignPattern(param.left, value);
+            : await interpreter.evaluateNode(param.right);
+          interpreter.assignPattern(param.left, value);
         } else {
-          this.assignPattern(param, args[i]);
+          interpreter.assignPattern(param, args[i]);
         }
       }
 
       try {
         if (body.type === 'BlockStatement') {
           // Hoist var declarations in function body
-          this.hoistVarDeclarations(body.body);
-          await this.evaluateBlock(body);
+          interpreter.hoistVarDeclarations(body.body);
+          await interpreter.evaluateBlock(body);
           return undefined;
         } else {
           // Arrow function with expression body
-          return await this.evaluateNode(body);
+          return await interpreter.evaluateNode(body);
         }
       } catch (e: any) {
         if (e?.type === 'return') {
@@ -781,7 +891,7 @@ export class WangInterpreter {
         }
         throw e;
       } finally {
-        this.currentContext = previousContext;
+        interpreter.currentContext = previousContext;
       }
     };
 
@@ -1191,6 +1301,12 @@ export class WangInterpreter {
     // Special underscore handling for pipelines
     if (name === '_') {
       return this.lastPipelineValue;
+    }
+
+    // Debug for 'this'
+    if (name === 'this') {
+      console.log('Looking up this, context has:', this.currentContext.variables.has('this'), 
+                  'value:', this.currentContext.variables.get('this'));
     }
 
     // Check variables

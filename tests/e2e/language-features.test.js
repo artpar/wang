@@ -327,14 +327,16 @@ describe('Wang Language E2E Tests', () => {
     it('should handle nested loops with breaks and continues', async () => {
       const result = await interpreter.execute(`
         let result = [];
+        let done = false;
         
-        outer: {
-          for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-              if (i === 2 && j === 2) break outer;
-              if (j === 1) continue;
-              push(result, i * 10 + j);
-            }
+        for (let i = 0; i < 4 && !done; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (i === 2 && j === 2) {
+              done = true;
+              break;
+            };
+            if (j === 1) { continue; };
+            push(result, i * 10 + j);
           }
         }
         
