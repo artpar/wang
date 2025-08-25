@@ -72,15 +72,74 @@ export class WangInterpreter {
     this.bindFunction('error', (...args: any[]) => console.error(...args));
     this.bindFunction('warn', (...args: any[]) => console.warn(...args));
     
-    // Array functions
-    this.bindFunction('filter', (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => arr.filter(predicate));
-    this.bindFunction('map', (arr: any[], mapper: (value: any, index: number, array: any[]) => unknown) => arr.map(mapper));
-    this.bindFunction('reduce', (arr: any[], reducer: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any, initial?: any) => arr.reduce(reducer, initial));
-    this.bindFunction('forEach', (arr: any[], fn: (value: any, index: number, array: any[]) => void) => arr.forEach(fn));
-    this.bindFunction('find', (arr: any[], predicate: (value: any, index: number, obj: any[]) => unknown) => arr.find(predicate));
-    this.bindFunction('some', (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => arr.some(predicate));
-    this.bindFunction('every', (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => arr.every(predicate));
-    this.bindFunction('sort', (arr: any[], compareFn?: (a: any, b: any) => number) => [...arr].sort(compareFn));
+    // Array functions - handle async callbacks
+    this.bindFunction('filter', async (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => {
+      const results = [];
+      for (let i = 0; i < arr.length; i++) {
+        if (await predicate(arr[i], i, arr)) {
+          results.push(arr[i]);
+        }
+      }
+      return results;
+    });
+    this.bindFunction('map', async (arr: any[], mapper: (value: any, index: number, array: any[]) => unknown) => {
+      const results = [];
+      for (let i = 0; i < arr.length; i++) {
+        results.push(await mapper(arr[i], i, arr));
+      }
+      return results;
+    });
+    this.bindFunction('reduce', async (arr: any[], reducer: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any, initial?: any) => {
+      let accumulator = initial !== undefined ? initial : arr[0];
+      const startIndex = initial !== undefined ? 0 : 1;
+      for (let i = startIndex; i < arr.length; i++) {
+        accumulator = await reducer(accumulator, arr[i], i, arr);
+      }
+      return accumulator;
+    });
+    this.bindFunction('forEach', async (arr: any[], fn: (value: any, index: number, array: any[]) => void) => {
+      for (let i = 0; i < arr.length; i++) {
+        await fn(arr[i], i, arr);
+      }
+    });
+    this.bindFunction('find', async (arr: any[], predicate: (value: any, index: number, obj: any[]) => unknown) => {
+      for (let i = 0; i < arr.length; i++) {
+        if (await predicate(arr[i], i, arr)) {
+          return arr[i];
+        }
+      }
+      return undefined;
+    });
+    this.bindFunction('some', async (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => {
+      for (let i = 0; i < arr.length; i++) {
+        if (await predicate(arr[i], i, arr)) {
+          return true;
+        }
+      }
+      return false;
+    });
+    this.bindFunction('every', async (arr: any[], predicate: (value: any, index: number, array: any[]) => unknown) => {
+      for (let i = 0; i < arr.length; i++) {
+        if (!(await predicate(arr[i], i, arr))) {
+          return false;
+        }
+      }
+      return true;
+    });
+    this.bindFunction('sort', async (arr: any[], compareFn?: (a: any, b: any) => number) => {
+      if (!compareFn) return [...arr].sort();
+      // Custom async-aware sort
+      const sorted = [...arr];
+      for (let i = 0; i < sorted.length - 1; i++) {
+        for (let j = i + 1; j < sorted.length; j++) {
+          const compareResult = await compareFn(sorted[i], sorted[j]);
+          if (compareResult > 0) {
+            [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+          }
+        }
+      }
+      return sorted;
+    });
     this.bindFunction('reverse', (arr: any[]) => [...arr].reverse());
     this.bindFunction('slice', (arr: any[], start?: number, end?: number) => arr.slice(start, end));
     this.bindFunction('concat', (...arrays: any[]) => [].concat(...arrays));
@@ -321,7 +380,16 @@ export class WangInterpreter {
     } else if (pattern.type === 'ObjectPattern') {
       for (const prop of pattern.properties) {
         if (prop.type === 'Property') {
-          this.assignPattern(prop.value, value?.[prop.key]);
+          // Handle shorthand properties
+          if (prop.shorthand && typeof prop.value === 'string') {
+            this.currentContext.variables.set(prop.value, value?.[prop.key]);
+          } else {
+            // Handle regular properties with nested patterns
+            const bindingPattern = typeof prop.value === 'string' 
+              ? { type: 'Identifier', name: prop.value }
+              : prop.value;
+            this.assignPattern(bindingPattern, value?.[prop.key]);
+          }
         } else if (prop.type === 'RestElement') {
           const rest = { ...value };
           for (const p of pattern.properties) {
@@ -336,7 +404,7 @@ export class WangInterpreter {
       for (const element of pattern.elements) {
         if (element) {
           if (element.type === 'RestElement') {
-            this.currentContext.variables.set(element.argument, arr.slice(index));
+            this.currentContext.variables.set(element.argument.name || element.argument, arr.slice(index));
           } else {
             this.assignPattern(element, arr[index]);
           }
@@ -356,11 +424,18 @@ export class WangInterpreter {
     const body = node.body;
     const isAsync = node.async;
     
+    // Capture the context at function creation time (for closures)
+    const capturedContext = this.currentContext;
+    
     const fn = async (...args: any[]) => {
-      // Create new context for function
-      const fnContext = this.createContext(this.currentContext);
+      // Create new context for function with captured parent context
+      const fnContext = this.createContext(capturedContext);
       
-      // Bind parameters
+      // Execute function body
+      const previousContext = this.currentContext;
+      this.currentContext = fnContext;
+      
+      // Bind parameters in the new context
       for (let i = 0; i < params.length; i++) {
         const param = params[i];
         if (param.type === 'RestElement') {
@@ -370,10 +445,6 @@ export class WangInterpreter {
           this.assignPattern(param, args[i]);
         }
       }
-      
-      // Execute function body
-      const previousContext = this.currentContext;
-      this.currentContext = fnContext;
       
       try {
         if (body.type === 'BlockStatement') {
@@ -400,26 +471,103 @@ export class WangInterpreter {
   }
 
   private async evaluateClassDeclaration(node: any): Promise<void> {
-    // Simplified class implementation
     const className = node.id.name;
     const superClass = node.superClass ? this.evaluateIdentifier(node.superClass) : null;
     
-    const classConstructor = function(...args: any[]) {
-      // Find constructor method
-      const constructor = node.body.body.find((m: any) => m.kind === 'constructor');
-      if (constructor) {
-        // Execute constructor
-      }
+    // Find constructor method
+    const constructorMethod = node.body.body.find((m: any) => m.kind === 'constructor');
+    
+    // Create the class constructor function
+    const interpreter = this;
+    
+    // Create a regular constructor function (not async) that returns a promise
+    const classConstructor = function(this: any, ...args: any[]) {
+      // Return a promise that creates and initializes the instance
+      return (async () => {
+        // Create instance
+        const instance = Object.create(classConstructor.prototype);
+        
+        // Execute constructor if exists
+        if (constructorMethod) {
+          // Create a new context for constructor execution
+          const constructorContext = interpreter.createContext(interpreter.currentContext);
+          constructorContext.variables.set('this', instance);
+          
+          // Bind constructor parameters
+          for (let i = 0; i < constructorMethod.params.length; i++) {
+            const param = constructorMethod.params[i];
+            if (param.type === 'Identifier') {
+              constructorContext.variables.set(param.name, args[i]);
+            }
+          }
+          
+          // Execute constructor body
+          const prevContext = interpreter.currentContext;
+          interpreter.currentContext = constructorContext;
+          try {
+            // Run constructor body
+            for (const stmt of constructorMethod.body.body) {
+              await interpreter.evaluateNode(stmt);
+            }
+          } finally {
+            interpreter.currentContext = prevContext;
+          }
+        }
+        
+        return instance;
+      })();
     };
     
     // Add methods to prototype
     for (const method of node.body.body) {
       if (method.type === 'MethodDefinition' && method.kind !== 'constructor') {
-        classConstructor.prototype[method.key.name] = this.createFunction(method);
+        const methodName = method.key.name;
+        classConstructor.prototype[methodName] = async function(this: any, ...args: any[]) {
+          // Create context for method execution
+          const methodContext = interpreter.createContext(interpreter.currentContext);
+          methodContext.variables.set('this', this);
+          
+          // Bind method parameters
+          for (let i = 0; i < method.params.length; i++) {
+            const param = method.params[i];
+            if (param.type === 'Identifier') {
+              methodContext.variables.set(param.name, args[i]);
+            }
+          }
+          
+          // Execute method body
+          const prevContext = interpreter.currentContext;
+          interpreter.currentContext = methodContext;
+          try {
+            // Execute statements
+            let lastValue;
+            for (const stmt of method.body.body) {
+              try {
+                lastValue = await interpreter.evaluateNode(stmt);
+              } catch (e: any) {
+                if (e.type === 'return') {
+                  return e.value;
+                }
+                throw e;
+              }
+            }
+            return lastValue;
+          } finally {
+            interpreter.currentContext = prevContext;
+          }
+        };
       }
     }
     
+    // Set up inheritance if needed
+    if (superClass) {
+      classConstructor.prototype = Object.create(superClass.prototype);
+      classConstructor.prototype.constructor = classConstructor;
+    }
+    
+    // Store the class
     this.currentContext.classes.set(className, classConstructor);
+    this.currentContext.variables.set(className, classConstructor);
   }
 
   private async evaluateBlock(node: any): Promise<any> {
@@ -534,7 +682,20 @@ export class WangInterpreter {
   }
 
   private async evaluateCallExpression(node: any): Promise<any> {
-    const callee = await this.evaluateNode(node.callee);
+    // If the callee is a member expression, we need to preserve the object as 'this'
+    let thisContext = null;
+    let callee;
+    
+    if (node.callee.type === 'MemberExpression') {
+      const object = await this.evaluateNode(node.callee.object);
+      const property = node.callee.computed 
+        ? await this.evaluateNode(node.callee.property)
+        : node.callee.property.name;
+      callee = object?.[property];
+      thisContext = object; // Preserve the object as 'this'
+    } else {
+      callee = await this.evaluateNode(node.callee);
+    }
     
     if (typeof callee !== 'function') {
       throw new TypeMismatchError('function', callee, 'call expression');
@@ -553,7 +714,7 @@ export class WangInterpreter {
     // Replace underscore with pipeline value
     const processedArgs = args.map(arg => arg === undefined && this.lastPipelineValue !== undefined ? this.lastPipelineValue : arg);
     
-    return callee.apply(null, processedArgs);
+    return callee.apply(thisContext, processedArgs);
   }
 
   private async evaluatePipelineExpression(node: any): Promise<any> {
@@ -601,6 +762,33 @@ export class WangInterpreter {
   }
 
   private async evaluateUnaryExpression(node: any): Promise<any> {
+    // Handle prefix increment/decrement specially
+    if (node.operator === '++' || node.operator === '--') {
+      if (node.argument.type !== 'Identifier') {
+        throw new WangError('Prefix increment/decrement only supports identifiers', { type: 'RuntimeError' });
+      }
+      
+      const name = node.argument.name;
+      const oldValue = this.evaluateIdentifier(node.argument) || 0;
+      const newValue = node.operator === '++' ? oldValue + 1 : oldValue - 1;
+      
+      // Update in the correct context
+      let ctx: ExecutionContext | undefined = this.currentContext;
+      while (ctx) {
+        if (ctx.variables.has(name)) {
+          ctx.variables.set(name, newValue);
+          break;
+        }
+        ctx = ctx.parent;
+      }
+      if (!ctx) {
+        // Variable doesn't exist, create it in current context
+        this.currentContext.variables.set(name, newValue);
+      }
+      
+      return newValue; // Prefix returns new value
+    }
+    
     const argument = await this.evaluateNode(node.argument);
     
     switch (node.operator) {
@@ -609,9 +797,6 @@ export class WangInterpreter {
       case '-': return -argument;
       case 'typeof': return typeof argument;
       case 'await': return await argument;
-      case '++': 
-      case '--':
-        throw new WangError('Prefix increment/decrement not yet implemented', { type: 'RuntimeError' });
       default:
         throw new WangError(`Unknown unary operator: ${node.operator}`, { type: 'RuntimeError' });
     }
@@ -625,16 +810,79 @@ export class WangInterpreter {
       
       switch (node.operator) {
         case '=':
-          this.currentContext.variables.set(name, value);
+          // Find the right context to set the variable
+          let ctx: ExecutionContext | undefined = this.currentContext;
+          let found = false;
+          while (ctx) {
+            if (ctx.variables.has(name)) {
+              ctx.variables.set(name, value);
+              found = true;
+              break;
+            }
+            ctx = ctx.parent;
+          }
+          if (!found) {
+            // Variable doesn't exist, create in current context
+            this.currentContext.variables.set(name, value);
+          }
           return value;
         case '+=':
-          const oldValue = this.currentContext.variables.get(name) || 0;
+          const oldValue = this.evaluateIdentifier(node.left) || 0;
           const newValue = oldValue + value;
-          this.currentContext.variables.set(name, newValue);
+          // Update in the correct context
+          ctx = this.currentContext;
+          while (ctx) {
+            if (ctx.variables.has(name)) {
+              ctx.variables.set(name, newValue);
+              break;
+            }
+            ctx = ctx.parent;
+          }
+          if (!ctx) {
+            this.currentContext.variables.set(name, newValue);
+          }
           return newValue;
-        // Add other compound assignments as needed
+        case '-=':
+          const oldVal = this.evaluateIdentifier(node.left) || 0;
+          const newVal = oldVal - value;
+          ctx = this.currentContext;
+          while (ctx) {
+            if (ctx.variables.has(name)) {
+              ctx.variables.set(name, newVal);
+              break;
+            }
+            ctx = ctx.parent;
+          }
+          if (!ctx) {
+            this.currentContext.variables.set(name, newVal);
+          }
+          return newVal;
         default:
           throw new WangError(`Assignment operator ${node.operator} not implemented`, { type: 'RuntimeError' });
+      }
+    } else if (node.left.type === 'MemberExpression') {
+      // Handle property assignment (e.g., obj.prop = value)
+      const object = await this.evaluateNode(node.left.object);
+      const property = node.left.computed 
+        ? await this.evaluateNode(node.left.property)
+        : node.left.property.name;
+      
+      if (object == null) {
+        throw new WangError(`Cannot set property '${property}' on null or undefined`, { type: 'RuntimeError' });
+      }
+      
+      switch (node.operator) {
+        case '=':
+          object[property] = value;
+          return value;
+        case '+=':
+          object[property] = (object[property] || 0) + value;
+          return object[property];
+        case '-=':
+          object[property] = (object[property] || 0) - value;
+          return object[property];
+        default:
+          throw new WangError(`Assignment operator ${node.operator} not implemented for member expressions`, { type: 'RuntimeError' });
       }
     }
     
@@ -647,10 +895,22 @@ export class WangInterpreter {
     }
     
     const name = node.argument.name;
-    const oldValue = this.currentContext.variables.get(name) || 0;
+    const oldValue = this.evaluateIdentifier(node.argument) || 0;
     const newValue = node.operator === '++' ? oldValue + 1 : oldValue - 1;
     
-    this.currentContext.variables.set(name, newValue);
+    // Update in the correct context
+    let ctx: ExecutionContext | undefined = this.currentContext;
+    while (ctx) {
+      if (ctx.variables.has(name)) {
+        ctx.variables.set(name, newValue);
+        break;
+      }
+      ctx = ctx.parent;
+    }
+    if (!ctx) {
+      // Variable doesn't exist, create it in current context
+      this.currentContext.variables.set(name, newValue);
+    }
     
     return node.prefix ? newValue : oldValue;
   }
@@ -688,7 +948,10 @@ export class WangInterpreter {
       args.push(await this.evaluateNode(arg));
     }
     
-    return new constructor(...args);
+    // Call the constructor function directly (it handles instance creation)
+    // Since our class constructor returns a promise, we need to await it
+    const instance = await constructor(...args);
+    return instance;
   }
 
   private async evaluateArrayExpression(node: any): Promise<any[]> {

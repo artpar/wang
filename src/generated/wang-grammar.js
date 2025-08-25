@@ -442,46 +442,47 @@ var grammar = {
           argument: d[0],
           prefix: false
         }) },
-    {"name": "MemberExpressionNoFunction", "symbols": ["PrimaryExpressionNoFunction"], "postprocess": id},
-    {"name": "MemberExpressionNoFunction", "symbols": ["MemberExpressionNoFunction", {"literal":"."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
+    {"name": "MemberExpressionNoFunction", "symbols": ["CallExpressionNoFunction"], "postprocess": id},
+    {"name": "MemberExpressionNoFunction$ebnf$1", "symbols": ["Arguments"], "postprocess": id},
+    {"name": "MemberExpressionNoFunction$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "MemberExpressionNoFunction", "symbols": [{"literal":"new"}, "MemberExpressionNoFunction", "MemberExpressionNoFunction$ebnf$1"], "postprocess":  d => ({
+          type: 'NewExpression',
+          callee: d[1],
+          arguments: d[2] || []
+        }) },
+    {"name": "CallExpressionNoFunction", "symbols": ["PrimaryExpressionNoFunction"], "postprocess": id},
+    {"name": "CallExpressionNoFunction", "symbols": ["CallExpressionNoFunction", {"literal":"."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
           type: 'MemberExpression',
           object: d[0],
           property: { type: 'Identifier', name: d[2].value },
           computed: false
         }) },
-    {"name": "MemberExpressionNoFunction", "symbols": ["MemberExpressionNoFunction", {"literal":"?."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
+    {"name": "CallExpressionNoFunction", "symbols": ["CallExpressionNoFunction", {"literal":"?."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
           type: 'MemberExpression',
           object: d[0],
           property: { type: 'Identifier', name: d[2].value },
           computed: false,
           optional: true
         }) },
-    {"name": "MemberExpressionNoFunction", "symbols": ["MemberExpressionNoFunction", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess":  d => ({
+    {"name": "CallExpressionNoFunction", "symbols": ["CallExpressionNoFunction", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess":  d => ({
           type: 'MemberExpression',
           object: d[0],
           property: d[2],
           computed: true
         }) },
-    {"name": "MemberExpressionNoFunction", "symbols": ["MemberExpressionNoFunction", "Arguments"], "postprocess":  d => ({
+    {"name": "CallExpressionNoFunction", "symbols": ["CallExpressionNoFunction", "Arguments"], "postprocess":  d => ({
           type: 'CallExpression',
           callee: d[0],
           arguments: d[1]
         }) },
-    {"name": "MemberExpressionNoFunction$ebnf$1", "symbols": ["Arguments"], "postprocess": id},
-    {"name": "MemberExpressionNoFunction$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MemberExpressionNoFunction", "symbols": [{"literal":"new"}, "MemberExpression", "MemberExpressionNoFunction$ebnf$1"], "postprocess":  d => ({
-          type: 'NewExpression',
-          callee: d[1],
-          arguments: d[2] || []
-        }) },
     {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"this"}], "postprocess": d => ({ type: 'ThisExpression' })},
     {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"super"}], "postprocess": d => ({ type: 'Super' })},
     {"name": "PrimaryExpressionNoFunction", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => ({ type: 'Identifier', name: d[0].value })},
-    {"name": "PrimaryExpressionNoFunction", "symbols": ["Literal"], "postprocess": id},
-    {"name": "PrimaryExpressionNoFunction", "symbols": ["ArrayLiteral"], "postprocess": id},
-    {"name": "PrimaryExpressionNoFunction", "symbols": ["ObjectLiteral"], "postprocess": id},
-    {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"("}, "Expression", {"literal":")"}], "postprocess": d => d[1]},
     {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"_"}], "postprocess": d => ({ type: 'Identifier', name: '_' })},
+    {"name": "PrimaryExpressionNoFunction", "symbols": ["Literal"], "postprocess": id},
+    {"name": "PrimaryExpressionNoFunction", "symbols": ["ArrayLiteralNoFunction"], "postprocess": id},
+    {"name": "PrimaryExpressionNoFunction", "symbols": ["ObjectLiteralNoFunction"], "postprocess": id},
+    {"name": "PrimaryExpressionNoFunction", "symbols": [{"literal":"("}, "PipelineExpressionNoFunction", {"literal":")"}], "postprocess": d => d[1]},
     {"name": "Expression", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ArrowFunction"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
@@ -550,37 +551,38 @@ var grammar = {
           argument: d[0],
           prefix: false
         }) },
-    {"name": "MemberExpression", "symbols": ["PrimaryExpression"], "postprocess": id},
-    {"name": "MemberExpression", "symbols": ["MemberExpression", {"literal":"."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
-          type: 'MemberExpression',
-          object: d[0],
-          property: { type: 'Identifier', name: d[2].value },
-          computed: false
-        }) },
-    {"name": "MemberExpression", "symbols": ["MemberExpression", {"literal":"?."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
-          type: 'MemberExpression',
-          object: d[0],
-          property: { type: 'Identifier', name: d[2].value },
-          computed: false,
-          optional: true
-        }) },
-    {"name": "MemberExpression", "symbols": ["MemberExpression", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess":  d => ({
-          type: 'MemberExpression',
-          object: d[0],
-          property: d[2],
-          computed: true
-        }) },
-    {"name": "MemberExpression", "symbols": ["MemberExpression", "Arguments"], "postprocess":  d => ({
-          type: 'CallExpression',
-          callee: d[0],
-          arguments: d[1]
-        }) },
+    {"name": "MemberExpression", "symbols": ["CallExpression"], "postprocess": id},
     {"name": "MemberExpression$ebnf$1", "symbols": ["Arguments"], "postprocess": id},
     {"name": "MemberExpression$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "MemberExpression", "symbols": [{"literal":"new"}, "MemberExpression", "MemberExpression$ebnf$1"], "postprocess":  d => ({
           type: 'NewExpression',
           callee: d[1],
           arguments: d[2] || []
+        }) },
+    {"name": "CallExpression", "symbols": ["PrimaryExpression"], "postprocess": id},
+    {"name": "CallExpression", "symbols": ["CallExpression", {"literal":"."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
+          type: 'MemberExpression',
+          object: d[0],
+          property: { type: 'Identifier', name: d[2].value },
+          computed: false
+        }) },
+    {"name": "CallExpression", "symbols": ["CallExpression", {"literal":"?."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
+          type: 'MemberExpression',
+          object: d[0],
+          property: { type: 'Identifier', name: d[2].value },
+          computed: false,
+          optional: true
+        }) },
+    {"name": "CallExpression", "symbols": ["CallExpression", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess":  d => ({
+          type: 'MemberExpression',
+          object: d[0],
+          property: d[2],
+          computed: true
+        }) },
+    {"name": "CallExpression", "symbols": ["CallExpression", "Arguments"], "postprocess":  d => ({
+          type: 'CallExpression',
+          callee: d[0],
+          arguments: d[1]
         }) },
     {"name": "Arguments", "symbols": [{"literal":"("}, "ArgumentList", {"literal":")"}], "postprocess": d => d[1]},
     {"name": "ArgumentList", "symbols": [], "postprocess": () => []},
@@ -590,12 +592,12 @@ var grammar = {
     {"name": "PrimaryExpression", "symbols": [{"literal":"this"}], "postprocess": d => ({ type: 'ThisExpression' })},
     {"name": "PrimaryExpression", "symbols": [{"literal":"super"}], "postprocess": d => ({ type: 'Super' })},
     {"name": "PrimaryExpression", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => ({ type: 'Identifier', name: d[0].value })},
+    {"name": "PrimaryExpression", "symbols": [{"literal":"_"}], "postprocess": d => ({ type: 'Identifier', name: '_' })},
     {"name": "PrimaryExpression", "symbols": ["Literal"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["ArrayLiteral"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["ObjectLiteral"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["FunctionExpression"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": [{"literal":"("}, "Expression", {"literal":")"}], "postprocess": d => d[1]},
-    {"name": "PrimaryExpression", "symbols": [{"literal":"_"}], "postprocess": d => ({ type: 'Identifier', name: '_' })},
     {"name": "Literal", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": d => ({ type: 'Literal', value: parseFloat(d[0].value), raw: d[0].value })},
     {"name": "Literal", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => ({ type: 'Literal', value: d[0].value, raw: d[0].text })},
     {"name": "Literal", "symbols": [(lexer.has("templateLiteral") ? {type: "templateLiteral"} : templateLiteral)], "postprocess": d => ({ type: 'TemplateLiteral', value: d[0].value, raw: d[0].text })},
@@ -603,13 +605,20 @@ var grammar = {
     {"name": "Literal", "symbols": [{"literal":"false"}], "postprocess": d => ({ type: 'Literal', value: false, raw: 'false' })},
     {"name": "Literal", "symbols": [{"literal":"null"}], "postprocess": d => ({ type: 'Literal', value: null, raw: 'null' })},
     {"name": "Literal", "symbols": [{"literal":"undefined"}], "postprocess": d => ({ type: 'Literal', value: undefined, raw: 'undefined' })},
-    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, "ArrayElements", {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: d[1] })},
-    {"name": "ArrayElements", "symbols": [], "postprocess": () => []},
-    {"name": "ArrayElements", "symbols": ["ArrayElement"], "postprocess": d => [d[0]]},
-    {"name": "ArrayElements", "symbols": ["ArrayElements", {"literal":","}, "ArrayElement"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: [] })},
+    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, "ArrayElementList", {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: d[1] })},
+    {"name": "ArrayElementList", "symbols": ["ArrayElement"], "postprocess": d => [d[0]]},
+    {"name": "ArrayElementList", "symbols": ["ArrayElementList", {"literal":","}], "postprocess": d => [...d[0], null]},
+    {"name": "ArrayElementList", "symbols": ["ArrayElementList", {"literal":","}, "ArrayElement"], "postprocess": d => [...d[0], d[2]]},
     {"name": "ArrayElement", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "ArrayElement", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => ({ type: 'SpreadElement', argument: d[1] })},
-    {"name": "ArrayElement", "symbols": [], "postprocess": () => null},
+    {"name": "ArrayLiteralNoFunction", "symbols": [{"literal":"["}, {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: [] })},
+    {"name": "ArrayLiteralNoFunction", "symbols": [{"literal":"["}, "ArrayElementListNoFunction", {"literal":"]"}], "postprocess": d => ({ type: 'ArrayExpression', elements: d[1] })},
+    {"name": "ArrayElementListNoFunction", "symbols": ["ArrayElementNoFunction"], "postprocess": d => [d[0]]},
+    {"name": "ArrayElementListNoFunction", "symbols": ["ArrayElementListNoFunction", {"literal":","}], "postprocess": d => [...d[0], null]},
+    {"name": "ArrayElementListNoFunction", "symbols": ["ArrayElementListNoFunction", {"literal":","}, "ArrayElementNoFunction"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "ArrayElementNoFunction", "symbols": ["AssignmentExpressionNoFunction"], "postprocess": id},
+    {"name": "ArrayElementNoFunction", "symbols": [{"literal":"..."}, "AssignmentExpressionNoFunction"], "postprocess": d => ({ type: 'SpreadElement', argument: d[1] })},
     {"name": "ObjectLiteral", "symbols": [{"literal":"{"}, "PropertyList", {"literal":"}"}], "postprocess": d => ({ type: 'ObjectExpression', properties: d[1] })},
     {"name": "PropertyList", "symbols": [], "postprocess": () => []},
     {"name": "PropertyList", "symbols": ["Property"], "postprocess": d => [d[0]]},
@@ -617,6 +626,13 @@ var grammar = {
     {"name": "Property", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => ({ type: 'Property', key: d[0].value, value: d[0].value, shorthand: true })},
     {"name": "Property", "symbols": ["PropertyKey", {"literal":":"}, "AssignmentExpression"], "postprocess": d => ({ type: 'Property', key: d[0], value: d[2], shorthand: false })},
     {"name": "Property", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => ({ type: 'SpreadElement', argument: d[1] })},
+    {"name": "ObjectLiteralNoFunction", "symbols": [{"literal":"{"}, "PropertyListNoFunction", {"literal":"}"}], "postprocess": d => ({ type: 'ObjectExpression', properties: d[1] })},
+    {"name": "PropertyListNoFunction", "symbols": [], "postprocess": () => []},
+    {"name": "PropertyListNoFunction", "symbols": ["PropertyNoFunction"], "postprocess": d => [d[0]]},
+    {"name": "PropertyListNoFunction", "symbols": ["PropertyListNoFunction", {"literal":","}, "PropertyNoFunction"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "PropertyNoFunction", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => ({ type: 'Property', key: d[0].value, value: d[0].value, shorthand: true })},
+    {"name": "PropertyNoFunction", "symbols": ["PropertyKey", {"literal":":"}, "AssignmentExpressionNoFunction"], "postprocess": d => ({ type: 'Property', key: d[0], value: d[2], shorthand: false })},
+    {"name": "PropertyNoFunction", "symbols": [{"literal":"..."}, "AssignmentExpressionNoFunction"], "postprocess": d => ({ type: 'SpreadElement', argument: d[1] })},
     {"name": "PropertyKey", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => ({ type: 'Identifier', name: d[0].value })},
     {"name": "PropertyKey", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => ({ type: 'Literal', value: d[0].value })},
     {"name": "PropertyKey", "symbols": [{"literal":"["}, "Expression", {"literal":"]"}], "postprocess": d => d[1]},

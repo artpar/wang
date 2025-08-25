@@ -533,15 +533,24 @@ PostfixExpressionNoFunction ->
     }) %}
 
 MemberExpressionNoFunction ->
+    CallExpressionNoFunction {% id %}
+  | "new" MemberExpressionNoFunction Arguments:?
+    {% d => ({
+      type: 'NewExpression',
+      callee: d[1],
+      arguments: d[2] || []
+    }) %}
+    
+CallExpressionNoFunction ->
     PrimaryExpressionNoFunction {% id %}
-  | MemberExpressionNoFunction "." %identifier
+  | CallExpressionNoFunction "." %identifier
     {% d => ({
       type: 'MemberExpression',
       object: d[0],
       property: { type: 'Identifier', name: d[2].value },
       computed: false
     }) %}
-  | MemberExpressionNoFunction "?." %identifier
+  | CallExpressionNoFunction "?." %identifier
     {% d => ({
       type: 'MemberExpression',
       object: d[0],
@@ -549,35 +558,29 @@ MemberExpressionNoFunction ->
       computed: false,
       optional: true
     }) %}
-  | MemberExpressionNoFunction "[" Expression "]"
+  | CallExpressionNoFunction "[" Expression "]"
     {% d => ({
       type: 'MemberExpression',
       object: d[0],
       property: d[2],
       computed: true
     }) %}
-  | MemberExpressionNoFunction Arguments
+  | CallExpressionNoFunction Arguments
     {% d => ({
       type: 'CallExpression',
       callee: d[0],
       arguments: d[1]
-    }) %}
-  | "new" MemberExpression Arguments:?
-    {% d => ({
-      type: 'NewExpression',
-      callee: d[1],
-      arguments: d[2] || []
     }) %}
 
 PrimaryExpressionNoFunction ->
     "this" {% d => ({ type: 'ThisExpression' }) %}
   | "super" {% d => ({ type: 'Super' }) %}
   | %identifier {% d => ({ type: 'Identifier', name: d[0].value }) %}
-  | Literal {% id %}
-  | ArrayLiteral {% id %}
-  | ObjectLiteral {% id %}
-  | "(" Expression ")" {% d => d[1] %}
   | "_" {% d => ({ type: 'Identifier', name: '_' }) %}
+  | Literal {% id %}
+  | ArrayLiteralNoFunction {% id %}
+  | ObjectLiteralNoFunction {% id %}
+  | "(" PipelineExpressionNoFunction ")" {% d => d[1] %}
 
 Expression ->
     AssignmentExpression {% id %}
@@ -654,15 +657,24 @@ PostfixExpression ->
     }) %}
 
 MemberExpression ->
+    CallExpression {% id %}
+  | "new" MemberExpression Arguments:?
+    {% d => ({
+      type: 'NewExpression',
+      callee: d[1],
+      arguments: d[2] || []
+    }) %}
+    
+CallExpression ->
     PrimaryExpression {% id %}
-  | MemberExpression "." %identifier
+  | CallExpression "." %identifier
     {% d => ({
       type: 'MemberExpression',
       object: d[0],
       property: { type: 'Identifier', name: d[2].value },
       computed: false
     }) %}
-  | MemberExpression "?." %identifier
+  | CallExpression "?." %identifier
     {% d => ({
       type: 'MemberExpression',
       object: d[0],
@@ -670,24 +682,18 @@ MemberExpression ->
       computed: false,
       optional: true
     }) %}
-  | MemberExpression "[" Expression "]"
+  | CallExpression "[" Expression "]"
     {% d => ({
       type: 'MemberExpression',
       object: d[0],
       property: d[2],
       computed: true
     }) %}
-  | MemberExpression Arguments
+  | CallExpression Arguments
     {% d => ({
       type: 'CallExpression',
       callee: d[0],
       arguments: d[1]
-    }) %}
-  | "new" MemberExpression Arguments:?
-    {% d => ({
-      type: 'NewExpression',
-      callee: d[1],
-      arguments: d[2] || []
     }) %}
 
 Arguments ->
@@ -704,12 +710,12 @@ PrimaryExpression ->
     "this" {% d => ({ type: 'ThisExpression' }) %}
   | "super" {% d => ({ type: 'Super' }) %}
   | %identifier {% d => ({ type: 'Identifier', name: d[0].value }) %}
+  | "_" {% d => ({ type: 'Identifier', name: '_' }) %}
   | Literal {% id %}
   | ArrayLiteral {% id %}
   | ObjectLiteral {% id %}
   | FunctionExpression {% id %}
   | "(" Expression ")" {% d => d[1] %}
-  | "_" {% d => ({ type: 'Identifier', name: '_' }) %}
 
 Literal ->
     %number {% d => ({ type: 'Literal', value: parseFloat(d[0].value), raw: d[0].value }) %}
@@ -721,18 +727,30 @@ Literal ->
   | "undefined" {% d => ({ type: 'Literal', value: undefined, raw: 'undefined' }) %}
 
 ArrayLiteral ->
-    "[" ArrayElements "]"
-    {% d => ({ type: 'ArrayExpression', elements: d[1] }) %}
+    "[" "]" {% d => ({ type: 'ArrayExpression', elements: [] }) %}
+  | "[" ArrayElementList "]" {% d => ({ type: 'ArrayExpression', elements: d[1] }) %}
 
-ArrayElements ->
-    null {% () => [] %}
-  | ArrayElement {% d => [d[0]] %}
-  | ArrayElements "," ArrayElement {% d => [...d[0], d[2]] %}
+ArrayElementList ->
+    ArrayElement {% d => [d[0]] %}
+  | ArrayElementList "," {% d => [...d[0], null] %}
+  | ArrayElementList "," ArrayElement {% d => [...d[0], d[2]] %}
 
 ArrayElement ->
     AssignmentExpression {% id %}
   | "..." AssignmentExpression {% d => ({ type: 'SpreadElement', argument: d[1] }) %}
-  | null {% () => null %}
+
+ArrayLiteralNoFunction ->
+    "[" "]" {% d => ({ type: 'ArrayExpression', elements: [] }) %}
+  | "[" ArrayElementListNoFunction "]" {% d => ({ type: 'ArrayExpression', elements: d[1] }) %}
+
+ArrayElementListNoFunction ->
+    ArrayElementNoFunction {% d => [d[0]] %}
+  | ArrayElementListNoFunction "," {% d => [...d[0], null] %}
+  | ArrayElementListNoFunction "," ArrayElementNoFunction {% d => [...d[0], d[2]] %}
+
+ArrayElementNoFunction ->
+    AssignmentExpressionNoFunction {% id %}
+  | "..." AssignmentExpressionNoFunction {% d => ({ type: 'SpreadElement', argument: d[1] }) %}
 
 ObjectLiteral ->
     "{" PropertyList "}"
@@ -747,6 +765,20 @@ Property ->
     %identifier {% d => ({ type: 'Property', key: d[0].value, value: d[0].value, shorthand: true }) %}
   | PropertyKey ":" AssignmentExpression {% d => ({ type: 'Property', key: d[0], value: d[2], shorthand: false }) %}
   | "..." AssignmentExpression {% d => ({ type: 'SpreadElement', argument: d[1] }) %}
+
+ObjectLiteralNoFunction ->
+    "{" PropertyListNoFunction "}"
+    {% d => ({ type: 'ObjectExpression', properties: d[1] }) %}
+
+PropertyListNoFunction ->
+    null {% () => [] %}
+  | PropertyNoFunction {% d => [d[0]] %}
+  | PropertyListNoFunction "," PropertyNoFunction {% d => [...d[0], d[2]] %}
+
+PropertyNoFunction ->
+    %identifier {% d => ({ type: 'Property', key: d[0].value, value: d[0].value, shorthand: true }) %}
+  | PropertyKey ":" AssignmentExpressionNoFunction {% d => ({ type: 'Property', key: d[0], value: d[2], shorthand: false }) %}
+  | "..." AssignmentExpressionNoFunction {% d => ({ type: 'SpreadElement', argument: d[1] }) %}
 
 PropertyKey ->
     %identifier {% d => ({ type: 'Identifier', name: d[0].value }) %}

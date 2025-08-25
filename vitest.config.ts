@@ -11,13 +11,13 @@ export default defineConfig({
       exclude: [
         'node_modules/',
         'dist/',
-        'test/',
+        'tests/',
         '*.config.ts',
         'scripts/',
         'examples/'
       ]
     },
-    include: ['test/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.js'],
     exclude: ['node_modules', 'dist']
   },
   resolve: {
