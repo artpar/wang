@@ -176,9 +176,13 @@ Statement ->
   | IfStatement {% id %}
   | ForStatement {% id %}
   | WhileStatement {% id %}
+  | DoWhileStatement {% id %}
+  | SwitchStatement {% id %}
   | TryStatement {% id %}
   | ThrowStatement {% id %}
   | ReturnStatement {% id %}
+  | BreakStatement {% id %}
+  | ContinueStatement {% id %}
   | ExpressionStatement {% id %}
   | Block {% id %}
 
@@ -295,6 +299,8 @@ ParameterList ->
 
 Parameter ->
     BindingPattern {% id %}
+  | BindingPattern "=" AssignmentExpression 
+    {% d => ({ type: 'AssignmentPattern', left: d[0], right: d[2] }) %}
   | "..." BindingPattern {% d => ({ type: 'RestElement', argument: d[1] }) %}
 
 # Classes
@@ -419,6 +425,53 @@ WhileStatement ->
       test: d[2],
       body: d[4]
     }) %}
+
+DoWhileStatement ->
+    "do" Statement "while" "(" Expression ")" ";"
+    {% d => ({
+      type: 'DoWhileStatement',
+      body: d[1],
+      test: d[4]
+    }) %}
+
+SwitchStatement ->
+    "switch" "(" Expression ")" "{" SwitchCases "}"
+    {% d => ({
+      type: 'SwitchStatement',
+      discriminant: d[2],
+      cases: d[5]
+    }) %}
+
+SwitchCases ->
+    null {% () => [] %}
+  | SwitchCase {% d => [d[0]] %}
+  | SwitchCases SwitchCase {% d => [...d[0], d[1]] %}
+
+SwitchCase ->
+    "case" Expression ":" Statements
+    {% d => ({
+      type: 'SwitchCase',
+      test: d[1],
+      consequent: d[3]
+    }) %}
+  | "default" ":" Statements
+    {% d => ({
+      type: 'SwitchCase',
+      test: null,
+      consequent: d[2]
+    }) %}
+
+BreakStatement ->
+    "break" ";"
+    {% d => ({ type: 'BreakStatement', label: null }) %}
+  | "break" %identifier ";"
+    {% d => ({ type: 'BreakStatement', label: d[1].value }) %}
+
+ContinueStatement ->
+    "continue" ";"
+    {% d => ({ type: 'ContinueStatement', label: null }) %}
+  | "continue" %identifier ";"
+    {% d => ({ type: 'ContinueStatement', label: d[1].value }) %}
 
 TryStatement ->
     "try" Block CatchClause:? FinallyClause:?

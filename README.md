@@ -20,7 +20,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (66/90 tests passing)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (70/90 tests passing)
 
 ## Installation
 
@@ -499,12 +499,18 @@ Wang comes with many built-in functions:
 ### ✅ Fully Implemented
 - Classes with constructors and methods
 - Class inheritance with `extends` and `super()`
+- Static methods in classes
+- Getters and setters (synchronous execution)
 - Pipeline operators (`|>` and `->`)
 - Variable declarations (let, const, var) with proper scoping
 - Functions (regular and arrow)
+- Default parameters in functions
 - Async/await
 - Arrays and objects
 - Control flow (if/else, for, while, for...of, for...in)
+- Switch statements with fall-through
+- Do-while loops
+- Break and continue statements
 - Try/catch/finally
 - Module imports/exports
 - Template literals (basic)
@@ -513,22 +519,18 @@ Wang comes with many built-in functions:
 - Method chaining
 
 ### 🚧 Partially Implemented
-- Getters and setters (parsing works, execution needs fixes)
 - Destructuring (works in most contexts)
 - Template literals with expressions
 
 ### ❌ Not Yet Implemented
-- Default parameters in functions
-- Static methods in classes
 - Private fields (#field syntax)
 - Labeled break/continue
-- Switch statements
-- Do-while loops
 - Async generators
 - Default exports/imports
 - Namespace imports (import * as)
 - Re-exports
 - Tagged template literals
+- Destructuring in function parameters
 
 ## License
 

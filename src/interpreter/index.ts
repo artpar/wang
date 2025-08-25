@@ -292,6 +292,110 @@ export class WangInterpreter {
     }
   }
 
+  private evaluateNodeSync(node: any): any {
+    if (!node) return undefined;
+
+    switch (node.type) {
+      case 'Literal':
+        return node.value;
+      
+      case 'Identifier':
+        return this.evaluateIdentifier(node);
+      
+      case 'MemberExpression':
+        const obj = this.evaluateNodeSync(node.object);
+        const prop = node.computed 
+          ? this.evaluateNodeSync(node.property)
+          : node.property.name;
+        return obj[prop];
+      
+      case 'BinaryExpression':
+        const left = this.evaluateNodeSync(node.left);
+        const right = this.evaluateNodeSync(node.right);
+        switch (node.operator) {
+          case '+': return left + right;
+          case '-': return left - right;
+          case '*': return left * right;
+          case '/': return left / right;
+          case '%': return left % right;
+          case '==': return left == right;
+          case '!=': return left != right;
+          case '===': return left === right;
+          case '!==': return left !== right;
+          case '<': return left < right;
+          case '<=': return left <= right;
+          case '>': return left > right;
+          case '>=': return left >= right;
+          case '&&': return left && right;
+          case '||': return left || right;
+          default: throw new Error(`Unknown operator: ${node.operator}`);
+        }
+      
+      case 'UnaryExpression':
+        const arg = this.evaluateNodeSync(node.argument);
+        switch (node.operator) {
+          case '!': return !arg;
+          case '-': return -arg;
+          case '+': return +arg;
+          case 'typeof': return typeof arg;
+          default: throw new Error(`Unknown unary operator: ${node.operator}`);
+        }
+      
+      case 'AssignmentExpression':
+        const value = this.evaluateNodeSync(node.right);
+        if (node.left.type === 'MemberExpression') {
+          const obj = this.evaluateNodeSync(node.left.object);
+          const prop = node.left.computed 
+            ? this.evaluateNodeSync(node.left.property)
+            : node.left.property.name;
+          obj[prop] = value;
+        } else if (node.left.type === 'Identifier') {
+          this.currentContext.variables.set(node.left.name, value);
+        }
+        return value;
+      
+      case 'ConditionalExpression':
+        const test = this.evaluateNodeSync(node.test);
+        return test 
+          ? this.evaluateNodeSync(node.consequent)
+          : this.evaluateNodeSync(node.alternate);
+      
+      case 'BlockStatement':
+        let lastValue;
+        for (const stmt of node.body) {
+          lastValue = this.evaluateNodeSync(stmt);
+        }
+        return lastValue;
+      
+      case 'ExpressionStatement':
+        return this.evaluateNodeSync(node.expression);
+      
+      case 'ReturnStatement':
+        throw {
+          type: 'return',
+          value: node.argument ? this.evaluateNodeSync(node.argument) : undefined
+        };
+      
+      case 'IfStatement':
+        const condition = this.evaluateNodeSync(node.test);
+        if (condition) {
+          return this.evaluateNodeSync(node.consequent);
+        } else if (node.alternate) {
+          return this.evaluateNodeSync(node.alternate);
+        }
+        return undefined;
+        
+      case 'ThrowStatement':
+        throw this.evaluateNodeSync(node.argument);
+      
+      case 'ThisExpression':
+        return this.currentContext.variables.get('this');
+      
+      default:
+        throw new Error(`Cannot evaluate node type synchronously: ${node.type}`);
+    }
+  }
+
   private async evaluateNode(node: any): Promise<any> {
     if (!node) return undefined;
 
@@ -324,6 +428,24 @@ export class WangInterpreter {
 
       case 'WhileStatement':
         return this.evaluateWhileStatement(node);
+
+      case 'DoWhileStatement':
+        return this.evaluateDoWhileStatement(node);
+
+      case 'SwitchStatement':
+        return this.evaluateSwitchStatement(node);
+
+      case 'BreakStatement':
+        throw {
+          type: 'break',
+          label: node.label
+        };
+
+      case 'ContinueStatement':
+        throw {
+          type: 'continue',
+          label: node.label
+        };
 
       case 'ReturnStatement':
         throw {
@@ -589,6 +711,12 @@ export class WangInterpreter {
         if (param.type === 'RestElement') {
           fnContext.variables.set(param.argument.name || param.argument, args.slice(i));
           break;
+        } else if (param.type === 'AssignmentPattern') {
+          // Handle default parameters
+          const value = i < args.length && args[i] !== undefined 
+            ? args[i] 
+            : await this.evaluateNode(param.right);
+          this.assignPattern(param.left, value);
         } else {
           this.assignPattern(param, args[i]);
         }
@@ -685,44 +813,145 @@ export class WangInterpreter {
       classConstructor.prototype.constructor = classConstructor;
     }
 
-    // THEN add methods to prototype (after inheritance is set up)
+    // THEN add methods to prototype or class (after inheritance is set up)
     for (const method of node.body.body) {
       if (method.type === 'MethodDefinition' && method.kind !== 'constructor') {
         const methodName = method.key.name;
-        classConstructor.prototype[methodName] = async function (this: any, ...args: any[]) {
-          // Create context for method execution
-          const methodContext = interpreter.createContext(interpreter.currentContext);
-          methodContext.variables.set('this', this);
-
-          // Bind method parameters
-          for (let i = 0; i < method.params.length; i++) {
-            const param = method.params[i];
-            if (param.type === 'Identifier') {
-              methodContext.variables.set(param.name, args[i]);
-            }
-          }
-
-          // Execute method body
-          const prevContext = interpreter.currentContext;
-          interpreter.currentContext = methodContext;
-          try {
-            // Execute statements
-            let lastValue;
-            for (const stmt of method.body.body) {
+        
+        // Handle getters and setters differently
+        if (method.kind === 'get' || method.kind === 'set') {
+          // For getters and setters, we need synchronous execution
+          // We'll compile the body to a simple synchronous function
+          const target = method.static ? classConstructor : classConstructor.prototype;
+          const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(target, methodName) || {
+            configurable: true,
+            enumerable: true
+          };
+          
+          if (method.kind === 'get') {
+            descriptor.get = function(this: any) {
+              // Create context for getter execution
+              const getterContext = interpreter.createContext(interpreter.currentContext);
+              getterContext.variables.set('this', this);
+              
+              // Execute getter body synchronously
+              const prevContext = interpreter.currentContext;
+              interpreter.currentContext = getterContext;
               try {
-                lastValue = await interpreter.evaluateNode(stmt);
-              } catch (e: any) {
-                if (e.type === 'return') {
-                  return e.value;
+                // For simple getters, we can evaluate synchronously
+                // This assumes the getter body doesn't use async operations
+                let lastValue;
+                for (const stmt of method.body.body) {
+                  try {
+                    lastValue = interpreter.evaluateNodeSync(stmt);
+                  } catch (e: any) {
+                    if (e.type === 'return') {
+                      return e.value;
+                    }
+                    throw e;
+                  }
                 }
-                throw e;
+                return lastValue;
+              } finally {
+                interpreter.currentContext = prevContext;
+              }
+            };
+          } else {
+            descriptor.set = function(this: any, value: any) {
+              // Create context for setter execution
+              const setterContext = interpreter.createContext(interpreter.currentContext);
+              setterContext.variables.set('this', this);
+              
+              // Bind setter parameter
+              if (method.params.length > 0) {
+                const param = method.params[0];
+                if (param.type === 'Identifier') {
+                  setterContext.variables.set(param.name, value);
+                }
+              }
+              
+              // Execute setter body synchronously
+              const prevContext = interpreter.currentContext;
+              interpreter.currentContext = setterContext;
+              try {
+                for (const stmt of method.body.body) {
+                  // Synchronously evaluate statements
+                  if (stmt.type === 'ExpressionStatement') {
+                    interpreter.evaluateNodeSync(stmt.expression);
+                  } else if (stmt.type === 'IfStatement') {
+                    const condition = interpreter.evaluateNodeSync(stmt.test);
+                    if (condition) {
+                      interpreter.evaluateNodeSync(stmt.consequent);
+                    } else if (stmt.alternate) {
+                      interpreter.evaluateNodeSync(stmt.alternate);
+                    }
+                  } else if (stmt.type === 'ThrowStatement') {
+                    throw interpreter.evaluateNodeSync(stmt.argument);
+                  }
+                }
+              } finally {
+                interpreter.currentContext = prevContext;
+              }
+            };
+          }
+          
+          Object.defineProperty(target, methodName, descriptor);
+          
+        } else {
+          // Regular method
+          const methodFunction = async function (this: any, ...args: any[]) {
+            // Create context for method execution
+            const methodContext = interpreter.createContext(interpreter.currentContext);
+            
+            // For static methods, 'this' is the class itself
+            // For instance methods, 'this' is the instance
+            methodContext.variables.set('this', method.static ? classConstructor : this);
+
+            // Bind method parameters
+            for (let i = 0; i < method.params.length; i++) {
+              const param = method.params[i];
+              if (param.type === 'Identifier') {
+                methodContext.variables.set(param.name, args[i]);
+              } else if (param.type === 'AssignmentPattern') {
+                // Handle default parameters
+                const value = i < args.length && args[i] !== undefined 
+                  ? args[i] 
+                  : await interpreter.evaluateNode(param.right);
+                if (param.left.type === 'Identifier') {
+                  methodContext.variables.set(param.left.name, value);
+                }
               }
             }
-            return lastValue;
-          } finally {
-            interpreter.currentContext = prevContext;
+
+            // Execute method body
+            const prevContext = interpreter.currentContext;
+            interpreter.currentContext = methodContext;
+            try {
+              // Execute statements
+              let lastValue;
+              for (const stmt of method.body.body) {
+                try {
+                  lastValue = await interpreter.evaluateNode(stmt);
+                } catch (e: any) {
+                  if (e.type === 'return') {
+                    return e.value;
+                  }
+                  throw e;
+                }
+              }
+              return lastValue;
+            } finally {
+              interpreter.currentContext = prevContext;
+            }
+          };
+          
+          // Add method to class (static) or prototype (instance)
+          if (method.static) {
+            (classConstructor as any)[methodName] = methodFunction;
+          } else {
+            classConstructor.prototype[methodName] = methodFunction;
           }
-        };
+        }
       }
     }
 
@@ -764,7 +993,16 @@ export class WangInterpreter {
         if (node.left.type === 'VariableDeclaration') {
           this.assignPattern(node.left.declarations[0].id, item);
         }
-        await this.evaluateNode(node.body);
+        try {
+          await this.evaluateNode(node.body);
+        } catch (e: any) {
+          if (e.type === 'break') {
+            break;
+          } else if (e.type === 'continue') {
+            continue;
+          }
+          throw e;
+        }
       }
     } else if (node.type === 'ForInStatement') {
       const obj = await this.evaluateNode(node.right);
@@ -772,13 +1010,32 @@ export class WangInterpreter {
         if (node.left.type === 'VariableDeclaration') {
           this.assignPattern(node.left.declarations[0].id, key);
         }
-        await this.evaluateNode(node.body);
+        try {
+          await this.evaluateNode(node.body);
+        } catch (e: any) {
+          if (e.type === 'break') {
+            break;
+          } else if (e.type === 'continue') {
+            continue;
+          }
+          throw e;
+        }
       }
     } else {
       // Regular for loop
       if (node.init) await this.evaluateNode(node.init);
       while (node.test ? await this.evaluateNode(node.test) : true) {
-        await this.evaluateNode(node.body);
+        try {
+          await this.evaluateNode(node.body);
+        } catch (e: any) {
+          if (e.type === 'break') {
+            break;
+          } else if (e.type === 'continue') {
+            if (node.update) await this.evaluateNode(node.update);
+            continue;
+          }
+          throw e;
+        }
         if (node.update) await this.evaluateNode(node.update);
       }
     }
@@ -786,7 +1043,66 @@ export class WangInterpreter {
 
   private async evaluateWhileStatement(node: any): Promise<any> {
     while (await this.evaluateNode(node.test)) {
-      await this.evaluateNode(node.body);
+      try {
+        await this.evaluateNode(node.body);
+      } catch (e: any) {
+        if (e.type === 'break') {
+          break;
+        } else if (e.type === 'continue') {
+          continue;
+        }
+        throw e;
+      }
+    }
+  }
+
+  private async evaluateDoWhileStatement(node: any): Promise<any> {
+    do {
+      try {
+        await this.evaluateNode(node.body);
+      } catch (e: any) {
+        if (e.type === 'break') {
+          break;
+        } else if (e.type === 'continue') {
+          continue;
+        }
+        throw e;
+      }
+    } while (await this.evaluateNode(node.test));
+  }
+
+  private async evaluateSwitchStatement(node: any): Promise<any> {
+    const discriminant = await this.evaluateNode(node.discriminant);
+    let foundMatch = false;
+    
+    for (const switchCase of node.cases) {
+      // Check if this case matches or we're in fall-through mode
+      if (!foundMatch) {
+        if (switchCase.test === null) {
+          // default case
+          foundMatch = true;
+        } else {
+          const caseValue = await this.evaluateNode(switchCase.test);
+          if (discriminant === caseValue) {
+            foundMatch = true;
+          }
+        }
+      }
+      
+      // Execute the case if we've found a match
+      if (foundMatch) {
+        try {
+          // Execute all statements in the case
+          for (const stmt of switchCase.consequent) {
+            await this.evaluateNode(stmt);
+          }
+        } catch (e: any) {
+          if (e.type === 'break') {
+            break; // Exit the switch
+          }
+          throw e;
+        }
+      }
     }
   }
 
