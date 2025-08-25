@@ -1,0 +1,133 @@
+{
+  "name": "@wang-lang/core",
+  "version": "0.1.0",
+  "description": "A CSP-safe workflow programming language for browser automation",
+  "keywords": [
+    "workflow",
+    "automation",
+    "browser",
+    "CSP-safe",
+    "service-worker",
+    "interpreter",
+    "language",
+    "pipeline"
+  ],
+  "homepage": "https://github.com/artpar/wang#readme",
+  "bugs": {
+    "url": "https://github.com/artpar/wang/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artpar/wang.git"
+  },
+  "license": "MIT",
+  "author": "Your Name",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "browser": "./dist/browser/wang.min.js"
+    },
+    "./parser": {
+      "types": "./dist/types/parser.d.ts",
+      "import": "./dist/esm/parser.js"
+    },
+    "./interpreter": {
+      "types": "./dist/types/interpreter.d.ts",
+      "import": "./dist/esm/interpreter.js"
+    },
+    "./resolvers": {
+      "types": "./dist/types/resolvers/index.d.ts",
+      "import": "./dist/esm/resolvers/index.js"
+    }
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build:grammar": "nearleyc src/grammar/wang.ne -o src/generated/wang-grammar.js",
+    "build": "npm run clean && npm run build:grammar && npm run build:esm && npm run build:cjs && npm run build:browser && npm run build:types",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && npm run add-cjs-extension",
+    "build:browser": "rollup -c rollup.config.js",
+    "build:types": "tsc -p tsconfig.types.json",
+    "add-cjs-extension": "node scripts/add-cjs-extension.js",
+    "clean": "rimraf dist src/generated",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "test:browser": "playwright test",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
+    "typecheck": "tsc --noEmit",
+    "docs": "typedoc --out docs src/index.ts",
+    "prepublishOnly": "npm run clean && npm run lint && npm run test && npm run build",
+    "prepare": "husky install",
+    "release": "standard-version",
+    "release:patch": "npm run release -- --release-as patch",
+    "release:minor": "npm run release -- --release-as minor",
+    "release:major": "npm run release -- --release-as major",
+    "railroad": "nearley-railroad src/grammar/wang.ne -o docs/grammar.html"
+  },
+  "dependencies": {
+    "moo": "^0.5.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@playwright/test": "^1.40.1",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/moo": "^0.5.9",
+    "@types/nearley": "^2.11.5",
+    "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "nearley": "^2.20.1",
+    "prettier": "^3.1.1",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.9.1",
+    "standard-version": "^9.5.0",
+    "tslib": "^2.6.2",
+    "typedoc": "^0.25.4",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vitest": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  }
+}

@@ -1,0 +1,179 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Wang is a modern workflow programming language that runs inside JavaScript, designed for browser automation and data transformation. The language features:
+- Modern JavaScript-like syntax with pipelines (`|>` and `->`)
+- Full module system with imports/exports
+- Classes, interfaces, and type annotations
+- CSP-safe execution (no eval/new Function)
+- Pluggable module resolution (memory, IndexedDB, HTTP)
+- Comprehensive error reporting with recovery suggestions
+
+## Critical Security Requirements
+
+**MUST BE CSP-SAFE**: This project must run safely in Chrome service worker contexts. This means:
+- **NO `eval()` usage** - all code must be interpreted without dynamic code evaluation
+- **NO `new Function()` usage** - cannot create functions from strings
+- **NO dynamic code generation** - all parsing and execution must be static
+- Must be safe for dynamic generation and execution in restricted browser contexts
+- Uses Nearly parser which is CSP-safe by default
+
+## Architecture
+
+### New Implementation (Nearly-based)
+
+1. **Lexer** (`wang-lexer.js`): Tokenizes Wang source code
+   - Full JavaScript-like token set
+   - Support for template literals, operators, keywords
+   - Error recovery and detailed error messages
+   
+2. **Parser** (`wang-parser.js`): Builds CST using Nearly
+   - CSP-safe by default (no code generation)
+   - Full error recovery with suggestions
+   - Location tracking for error reporting
+   - Supports classes, modules, async/await, pipelines
+
+3. **Interpreter** (`wang-interpreter.js`): Executes the CST
+   - Pluggable module resolver interface
+   - Multiple resolver implementations (Memory, IndexedDB, HTTP, Composite)
+   - Execution contexts with variable/function scoping
+   - Comprehensive error reporting with stack traces
+
+4. **Module Resolvers**:
+   - `InMemoryModuleResolver`: For testing and temporary modules
+   - `IndexedDBModuleResolver`: Browser persistent storage
+   - `HTTPModuleResolver`: Load modules from URLs
+   - `CompositeModuleResolver`: Chain multiple resolvers with fallback
+
+## Language Syntax
+
+### Modern JavaScript-like Syntax
+
+```javascript
+// Variables and imports
+import { ProfileExtractor } from "./modules/extractor.wang"
+let profiles = querySelectorAll(".profile-card")
+const API_URL = "https://api.example.com"
+
+// Pipeline operators
+profiles 
+  |> filter(_, "active")           // Pipe operator
+  |> map(_, extractProfile)
+  -> store("results")              // Arrow operator
+
+// Classes and interfaces
+class LinkedInWorkflow extends Workflow {
+  async process(profiles) {
+    for (let profile of profiles) {
+      let decision = await this.judge(profile)
+      if (decision === "save") {
+        profile |> querySelector(".save-btn") |> click
+      }
+    }
+  }
+}
+
+// Template literals and modern features
+let url = `${API_URL}/user/${userId}`
+let { name, email } = getUserData()
+let filtered = profiles?.filter(p => p.active) ?? []
+```
+
+## How to Use
+
+### Basic Usage
+
+```javascript
+import { WangInterpreter, InMemoryModuleResolver } from "./wang-interpreter.js"
+
+// Create module resolver
+const resolver = new InMemoryModuleResolver()
+resolver.addModule("myModule", `
+  export function processData(data) {
+    return data |> filter(_, active) |> sort()
+  }
+`)
+
+// Create interpreter with custom functions
+const interpreter = new WangInterpreter({
+  moduleResolver: resolver,
+  functions: {
+    querySelector: (s) => document.querySelector(s),
+    filter: (arr, pred) => arr.filter(pred),
+    sort: (arr) => arr.sort()
+  }
+})
+
+// Execute Wang code
+await interpreter.execute(`
+  import { processData } from "myModule"
+  let result = processData(myData)
+  log(result)
+`)
+```
+
+### Module Resolution
+
+Implement your own module resolver:
+
+```javascript
+class MyCustomResolver extends ModuleResolver {
+  async resolve(modulePath, fromPath) {
+    // Your logic to find and return module code
+    return { code: moduleCode, path: resolvedPath }
+  }
+  
+  async exists(modulePath) {
+    // Check if module exists
+    return true/false
+  }
+  
+  async list(prefix) {
+    // Return available modules for autocomplete
+    return ["module1", "module2"]
+  }
+}
+```
+
+## Development Commands
+
+```bash
+# Run examples
+node example-usage.js
+
+```
+
+## Key Features
+
+1. **CSP-Safe Execution**:
+   - Nearly parser generates CST without eval/new Function
+   - Interpreter walks CST nodes, never generates code
+   - All functions are pre-registered JavaScript functions
+   - Safe for Chrome service worker execution
+
+2. **Pluggable Module System**:
+   - Abstract `ModuleResolver` interface
+   - Built-in resolvers: Memory, IndexedDB, HTTP, Composite
+   - Easy to implement custom resolvers for any storage backend
+   - Module caching for performance
+
+3. **Modern Syntax**:
+   - JavaScript-like syntax familiar to developers
+   - Pipeline operators (`|>` and `->`) for data flow
+   - Classes, interfaces, async/await support
+   - Destructuring, template literals, optional chaining
+
+4. **Comprehensive Error Handling**:
+   - Detailed error messages with line/column info
+   - Suggestions for fixing common mistakes
+   - Stack traces and variable state
+   - Recovery suggestions
+
+5. **Browser Automation Focus**:
+   - Bind any DOM manipulation functions
+   - Support for async operations and waiting
+   - Perfect for LinkedIn/web scraping workflows
+   - LLM integration for intelligent decisions
