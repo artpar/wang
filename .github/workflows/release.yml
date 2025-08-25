@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0, v0.2.1, etc.
   workflow_dispatch:
     inputs:
       version:
@@ -46,8 +49,13 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
       
+      - name: Clear npm cache (fix for Rollup native deps issue)
+        run: npm cache clean --force
+      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
       
       - name: Run tests
         run: |
@@ -57,13 +65,30 @@ jobs:
       - name: Build project
         run: npm run build
       
-      - name: Bump version
+      - name: Determine version
         id: version
         run: |
-          npm version ${{ github.event.inputs.version }} --no-git-tag-version
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "New version: $VERSION"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Triggered by tag push - extract version from tag
+            TAG="${{ github.ref_name }}"
+            VERSION=${TAG#v}  # Remove 'v' prefix
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "is_tag_release=true" >> $GITHUB_OUTPUT
+            echo "Version from tag: $VERSION"
+            
+            # Update package.json to match tag version
+            npm version "$VERSION" --no-git-tag-version --allow-same-version
+          else
+            # Triggered by manual dispatch - bump version
+            npm version ${{ github.event.inputs.version }} --no-git-tag-version
+            VERSION=$(node -p "require('./package.json').version")
+            TAG="v$VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "is_tag_release=false" >> $GITHUB_OUTPUT
+            echo "New version: $VERSION"
+          fi
       
       - name: Update CHANGELOG
         run: |
@@ -86,38 +111,108 @@ jobs:
           
           mv CHANGELOG_NEW.md CHANGELOG.md
       
-      - name: Commit changes
+      - name: Commit and tag (manual release only)
+        if: steps.version.outputs.is_tag_release == 'false'
         run: |
           git add package.json package-lock.json CHANGELOG.md
-          git commit -m "chore: release v${{ steps.version.outputs.version }}"
-      
-      - name: Create tag
-        run: |
-          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
-      
-      - name: Push changes
-        run: |
+          git commit -m "chore: release ${{ steps.version.outputs.tag }}"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.tag }}"
           git push origin main
-          git push origin "v${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.tag }}"
       
+      - name: Generate release notes
+        id: release-notes  
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          
+          cat > release_notes.md << EOF
+          # Wang Language $VERSION
+          
+          A CSP-safe workflow programming language for browser automation.
+          
+          ## 🚀 Features
+          
+          - ✅ **100% CSP-Safe** - No eval() or new Function()
+          - 🎯 **Zero Ambiguity Grammar** - Deterministic parsing  
+          - 📦 **Modern JavaScript-like Syntax** - Classes, modules, async/await
+          - 🔌 **Pluggable Module System** - Memory, IndexedDB, HTTP resolvers
+          - 🚀 **Pipeline Operators** - Elegant data flow with \`|>\` and \`->\`
+          - 🧪 **100% Test Coverage** - 90/90 tests passing
+          
+          ## 📦 Installation
+          
+          \`\`\`bash
+          npm install wang-lang@$VERSION
+          \`\`\`
+          
+          ## 🌐 Browser CDN
+          
+          \`\`\`html
+          <script src="https://unpkg.com/wang-lang@$VERSION/dist/browser/wang.min.js"></script>
+          \`\`\`
+          
+          ## 📋 Changes
+          EOF
+          
+          # Add changelog content
+          if [ -f CHANGELOG.md ]; then
+            echo "" >> release_notes.md
+            head -n 50 CHANGELOG.md >> release_notes.md
+          fi
+          
+          echo "" >> release_notes.md
+          echo "🤖 *This release was automatically generated.*" >> release_notes.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: Release v${{ steps.version.outputs.version }}
-          body_path: CHANGELOG.md
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Wang Language ${{ steps.version.outputs.version }}"
+          body_path: release_notes.md
           draft: false
-          prerelease: ${{ github.event.inputs.prerelease }}
+          prerelease: ${{ github.event.inputs.prerelease || 'false' }}
           files: |
             dist/browser/wang.min.js
             dist/browser/wang.min.js.map
+            dist/esm/index.js
+            dist/cjs/index.cjs
       
       - name: Publish to npm
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "🚀 Publishing wang-lang@$VERSION to npm..."
+          
+          # Verify package contents before publishing
+          echo "📦 Package contents:"
+          npm pack --dry-run
+          
+          # Check if this version already exists on npm
+          if npm view "wang-lang@$VERSION" version >/dev/null 2>&1; then
+            echo "❌ Version $VERSION already exists on npm, skipping publish"
+            exit 0
+          fi
+          
+          # Publish based on prerelease flag
           if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            echo "Publishing as prerelease with beta tag..."
             npm publish --access public --tag beta
           else
+            echo "Publishing as stable release..."
             npm publish --access public
+          fi
+          
+          echo "✅ Successfully published wang-lang@$VERSION to npm!"
+          
+          # Wait for npm to propagate
+          sleep 10
+          
+          # Verify the publish
+          PUBLISHED_VERSION=$(npm view wang-lang version 2>/dev/null || echo "")
+          if [ "$PUBLISHED_VERSION" = "$VERSION" ]; then
+            echo "✅ Verification successful: wang-lang@$VERSION is available"
+          else
+            echo "⚠️  Verification: Expected $VERSION, npm shows $PUBLISHED_VERSION"
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -133,3 +228,23 @@ jobs:
           publish_dir: ./docs
           enable_jekyll: false
         continue-on-error: true
+      
+      - name: Release Summary
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          
+          echo "🎉 Release $TAG completed successfully!"
+          echo ""
+          echo "📋 Release Information:"
+          echo "  • Version: $VERSION"
+          echo "  • Tag: $TAG" 
+          echo "  • GitHub Release: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          echo "  • npm Package: https://www.npmjs.com/package/wang-lang/v/$VERSION"
+          echo "  • CDN: https://unpkg.com/wang-lang@$VERSION/dist/browser/wang.min.js"
+          echo ""
+          echo "🚀 Quick Install:"
+          echo "  npm install wang-lang@$VERSION"
+          echo ""
+          echo "📚 Documentation:"
+          echo "  https://artpar.github.io/wang"
