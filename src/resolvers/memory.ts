@@ -1,5 +1,5 @@
-import { ModuleResolver, ModuleResolution, resolveRelativePath, addExtension } from "./base";
-import { ModuleNotFoundError } from "../utils/errors";
+import { ModuleResolver, ModuleResolution, resolveRelativePath, addExtension } from './base';
+import { ModuleNotFoundError } from '../utils/errors';
 
 /**
  * In-memory module resolver for testing and temporary modules
@@ -20,11 +20,11 @@ export class InMemoryModuleResolver extends ModuleResolver {
   addModule(path: string, code: string, metadata?: Record<string, any>): this {
     const normalizedPath = addExtension(path);
     this.modules.set(normalizedPath, code);
-    
+
     if (metadata) {
       this.metadata.set(normalizedPath, metadata);
     }
-    
+
     return this;
   }
 
@@ -51,35 +51,35 @@ export class InMemoryModuleResolver extends ModuleResolver {
     // Resolve relative paths
     const resolvedPath = resolveRelativePath(modulePath, fromPath);
     const normalizedPath = addExtension(resolvedPath);
-    
+
     // Try exact match first
     if (this.modules.has(normalizedPath)) {
       return {
         code: this.modules.get(normalizedPath)!,
         path: normalizedPath,
-        metadata: this.metadata.get(normalizedPath)
+        metadata: this.metadata.get(normalizedPath),
       };
     }
-    
+
     // Try without extension
     if (this.modules.has(resolvedPath)) {
       return {
         code: this.modules.get(resolvedPath)!,
         path: resolvedPath,
-        metadata: this.metadata.get(resolvedPath)
+        metadata: this.metadata.get(resolvedPath),
       };
     }
-    
+
     // Try index file
-    const indexPath = addExtension(resolvedPath + "/index");
+    const indexPath = addExtension(resolvedPath + '/index');
     if (this.modules.has(indexPath)) {
       return {
         code: this.modules.get(indexPath)!,
         path: indexPath,
-        metadata: this.metadata.get(indexPath)
+        metadata: this.metadata.get(indexPath),
       };
     }
-    
+
     // Module not found
     const availableModules = await this.list();
     throw new ModuleNotFoundError(modulePath, availableModules);
@@ -96,11 +96,11 @@ export class InMemoryModuleResolver extends ModuleResolver {
 
   async list(prefix?: string): Promise<string[]> {
     const modules = Array.from(this.modules.keys());
-    
+
     if (prefix) {
-      return modules.filter(path => path.startsWith(prefix));
+      return modules.filter((path) => path.startsWith(prefix));
     }
-    
+
     return modules;
   }
 
@@ -134,14 +134,14 @@ export class InMemoryModuleResolver extends ModuleResolver {
    */
   exportModules(): Record<string, { code: string; metadata?: Record<string, any> }> {
     const result: Record<string, { code: string; metadata?: Record<string, any> }> = {};
-    
+
     this.modules.forEach((code, path) => {
       result[path] = {
         code,
-        metadata: this.metadata.get(path)
+        metadata: this.metadata.get(path),
       };
     });
-    
+
     return result;
   }
 
@@ -155,7 +155,7 @@ export class InMemoryModuleResolver extends ModuleResolver {
         this.metadata.set(path, metadata);
       }
     });
-    
+
     return this;
   }
 }

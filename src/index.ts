@@ -5,12 +5,12 @@
  */
 
 // Core exports
-export { WangInterpreter } from "./interpreter";
-export type { ExecutionContext, InterpreterOptions } from "./interpreter";
+export { WangInterpreter } from './interpreter';
+export type { ExecutionContext, InterpreterOptions } from './interpreter';
 
 // Resolver exports
-export { ModuleResolver, type ModuleResolution } from "./resolvers/base";
-export { InMemoryModuleResolver } from "./resolvers/memory";
+export { ModuleResolver, type ModuleResolution } from './resolvers/base';
+export { InMemoryModuleResolver } from './resolvers/memory';
 
 // Error exports
 export {
@@ -20,15 +20,15 @@ export {
   TypeMismatchError,
   UndefinedVariableError,
   FunctionNotFoundError,
-  type ErrorContext
-} from "./utils/errors";
+  type ErrorContext,
+} from './utils/errors';
 
 // Import for createInterpreter
-import { WangInterpreter } from "./interpreter";
-import type { InterpreterOptions } from "./interpreter";
+import { WangInterpreter } from './interpreter';
+import type { InterpreterOptions } from './interpreter';
 
 // Version
-export const VERSION = "0.1.0";
+export const VERSION = '0.1.0';
 
 /**
  * Quick start helper to create an interpreter

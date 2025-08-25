@@ -52,37 +52,37 @@ export abstract class ModuleResolver {
  * Helper to normalize module paths
  */
 export function normalizePath(path: string): string {
-  const parts = path.split("/");
+  const parts = path.split('/');
   const normalized: string[] = [];
-  
+
   for (const part of parts) {
-    if (part === "..") {
+    if (part === '..') {
       normalized.pop();
-    } else if (part && part !== ".") {
+    } else if (part && part !== '.') {
       normalized.push(part);
     }
   }
-  
-  return normalized.join("/");
+
+  return normalized.join('/');
 }
 
 /**
  * Helper to resolve relative paths
  */
 export function resolveRelativePath(modulePath: string, fromPath?: string): string {
-  if (!fromPath || !modulePath.startsWith(".")) {
+  if (!fromPath || !modulePath.startsWith('.')) {
     return modulePath;
   }
-  
-  const basePath = fromPath.split("/").slice(0, -1).join("/");
-  return normalizePath(basePath + "/" + modulePath);
+
+  const basePath = fromPath.split('/').slice(0, -1).join('/');
+  return normalizePath(basePath + '/' + modulePath);
 }
 
 /**
  * Helper to add file extension if missing
  */
-export function addExtension(path: string, extension: string = ".wang"): string {
-  if (path.endsWith(extension) || path.includes(".")) {
+export function addExtension(path: string, extension: string = '.wang'): string {
+  if (path.endsWith(extension) || path.includes('.')) {
     return path;
   }
   return path + extension;
