@@ -592,12 +592,27 @@ var grammar = {
           prefix: false
         }) },
     {"name": "MemberExpression", "symbols": ["CallExpression"], "postprocess": id},
+    {"name": "MemberExpression$subexpression$1", "symbols": ["PrimaryExpression"]},
+    {"name": "MemberExpression$subexpression$1", "symbols": ["MemberAccessExpression"]},
     {"name": "MemberExpression$ebnf$1", "symbols": ["Arguments"], "postprocess": id},
     {"name": "MemberExpression$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MemberExpression", "symbols": [{"literal":"new"}, "MemberExpression", "MemberExpression$ebnf$1"], "postprocess":  d => ({
+    {"name": "MemberExpression", "symbols": [{"literal":"new"}, "MemberExpression$subexpression$1", "MemberExpression$ebnf$1"], "postprocess":  d => ({
           type: 'NewExpression',
-          callee: d[1],
+          callee: d[1][0],
           arguments: d[2] || []
+        }) },
+    {"name": "MemberAccessExpression", "symbols": ["PrimaryExpression"], "postprocess": id},
+    {"name": "MemberAccessExpression", "symbols": ["MemberAccessExpression", {"literal":"."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({
+          type: 'MemberExpression',
+          object: d[0],
+          property: { type: 'Identifier', name: d[2].value },
+          computed: false
+        }) },
+    {"name": "MemberAccessExpression", "symbols": ["MemberAccessExpression", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess":  d => ({
+          type: 'MemberExpression',
+          object: d[0],
+          property: d[2],
+          computed: true
         }) },
     {"name": "CallExpression", "symbols": ["PrimaryExpression"], "postprocess": id},
     {"name": "CallExpression", "symbols": ["CallExpression", {"literal":"."}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => ({

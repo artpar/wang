@@ -86,15 +86,23 @@ export class WangInterpreter {
     this.bindFunction('isInteger', (val: any) => Number.isInteger(val));
     
     // Error constructor - needs to work as both function and constructor
-    const ErrorConstructor = function(message?: string) {
-      const error = new Error(message);
-      // Make sure the error has the message property accessible
-      if (message) {
-        error.message = message;
+    // We need to set it as a variable so it can be used with 'new'
+    const ErrorConstructor = function(this: any, message?: string): any {
+      // When called with new, 'this' is bound to the new instance
+      // When called as a function, we create a new Error
+      if (!(this instanceof ErrorConstructor)) {
+        return new Error(message);
       }
-      return error;
+      // Called with new - set up the instance
+      const error = new Error(message);
+      Object.setPrototypeOf(this, error);
+      (this as any).message = message || '';
+      (this as any).name = 'Error';
+      return this;
     };
+    // Set as both function and variable so it can be used with 'new'
     this.bindFunction('Error', ErrorConstructor);
+    this.currentContext.variables.set('Error', ErrorConstructor);
     
     // Special values
     this.currentContext.variables.set('Infinity', Infinity);

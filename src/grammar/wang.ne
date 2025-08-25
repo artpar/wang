@@ -725,11 +725,29 @@ PostfixExpression ->
 
 MemberExpression ->
     CallExpression {% id %}
-  | "new" MemberExpression Arguments:?
+  | "new" (PrimaryExpression | MemberAccessExpression) Arguments:?
     {% d => ({
       type: 'NewExpression',
-      callee: d[1],
+      callee: d[1][0],
       arguments: d[2] || []
+    }) %}
+
+# For new expressions, we need member access but not calls
+MemberAccessExpression ->
+    PrimaryExpression {% id %}
+  | MemberAccessExpression "." %identifier
+    {% d => ({
+      type: 'MemberExpression',
+      object: d[0],
+      property: { type: 'Identifier', name: d[2].value },
+      computed: false
+    }) %}
+  | MemberAccessExpression "[" Expression "]"
+    {% d => ({
+      type: 'MemberExpression',
+      object: d[0],
+      property: d[2],
+      computed: true
     }) %}
     
 CallExpression ->
