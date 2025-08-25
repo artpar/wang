@@ -17,8 +17,11 @@ describe('Wang Language E2E Tests', () => {
       functions: {
         // Test helpers
         testLog: vi.fn(),
-        getValue: vi.fn(x => x),
-        push: (arr, item) => { arr.push(item); return arr; },
+        getValue: vi.fn((x) => x),
+        push: (arr, item) => {
+          arr.push(item);
+          return arr;
+        },
         fetch: () => Promise.resolve({ json: () => Promise.resolve({ data: 'test' }) }),
         filter: (arr, pred) => arr.filter(pred),
         map: (arr, fn) => arr.map(fn),
@@ -28,7 +31,7 @@ describe('Wang Language E2E Tests', () => {
         indexOf: (arr, item) => arr.indexOf(item),
         slice: (arr, start, end) => arr.slice(start, end),
         concat: (arr, ...items) => arr.concat(...items),
-      }
+      },
     });
   });
 
@@ -56,10 +59,12 @@ describe('Wang Language E2E Tests', () => {
     });
 
     it('should enforce const immutability', async () => {
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         const x = 10;
         x = 20
-      `)).rejects.toThrow();
+      `),
+      ).rejects.toThrow();
     });
 
     it('should handle var hoisting behavior', async () => {
@@ -168,7 +173,7 @@ describe('Wang Language E2E Tests', () => {
         
         [greet(), greet("Alice"), greet("Bob", "Hi")]
       `);
-      expect(result).toEqual(["Hello, World", "Hello, Alice", "Hi, Bob"]);
+      expect(result).toEqual(['Hello, World', 'Hello, Alice', 'Hi, Bob']);
     });
 
     it('should handle immediately invoked function expressions (IIFE)', async () => {
@@ -213,7 +218,7 @@ describe('Wang Language E2E Tests', () => {
         const dog = new Dog("Max", "Golden Retriever");
         [dog.speak(), dog.getBreed(), dog.name]
       `);
-      expect(result).toEqual(["Max barks", "Golden Retriever", "Max"]);
+      expect(result).toEqual(['Max barks', 'Golden Retriever', 'Max']);
     });
 
     it('should handle static methods', async () => {
@@ -270,7 +275,8 @@ describe('Wang Language E2E Tests', () => {
 
     it('should reject private methods and properties (unsupported)', async () => {
       // Private fields are intentionally unsupported - use conventions instead
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         class BankAccount {
           constructor(balance) {
             this.#balance = balance  // Unsupported: private fields
@@ -287,7 +293,8 @@ describe('Wang Language E2E Tests', () => {
         };
         
         new BankAccount(100);
-      `)).rejects.toThrow(); // Expected to fail - private fields not supported
+      `),
+      ).rejects.toThrow(); // Expected to fail - private fields not supported
     });
 
     it('should handle method chaining', async () => {
@@ -315,7 +322,7 @@ describe('Wang Language E2E Tests', () => {
         const sb = new StringBuilder();
         sb.append("Hello").append(" ").append("World").prepend("Say: ").toString()
       `);
-      expect(result).toBe("Say: Hello World");
+      expect(result).toBe('Say: Hello World');
     });
   });
 
@@ -361,7 +368,7 @@ describe('Wang Language E2E Tests', () => {
         
         [getDayType("Monday"), getDayType("Sunday"), getDayType("Holiday")]
       `);
-      expect(result).toEqual(["Weekday", "Weekend", "Invalid"]);
+      expect(result).toEqual(['Weekday', 'Weekend', 'Invalid']);
     });
 
     it('should handle do-while loops', async () => {
@@ -393,7 +400,7 @@ describe('Wang Language E2E Tests', () => {
         
         [classify(150), classify(35), classify(5), classify(0), classify(-10)]
       `);
-      expect(result).toEqual(["huge", "medium", "tiny", "zero", "negative"]);
+      expect(result).toEqual(['huge', 'medium', 'tiny', 'zero', 'negative']);
     });
   });
 
@@ -477,7 +484,7 @@ describe('Wang Language E2E Tests', () => {
         const { name, address: { city, coordinates: { lat } } } = person;
         [name, city, lat]
       `);
-      expect(result).toEqual(["Alice", "Boston", 42.3601]);
+      expect(result).toEqual(['Alice', 'Boston', 42.3601]);
     });
 
     it('should handle array destructuring with rest', async () => {
@@ -492,13 +499,15 @@ describe('Wang Language E2E Tests', () => {
 
     it('should reject destructuring with defaults in parameters (unsupported)', async () => {
       // Destructuring with defaults in parameters is unsupported - handle defaults manually
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         function processUser({ name, age = 18 }) {  // Unsupported: default in destructuring
           return name + " is " + age
         };
         
         processUser({ name: "Bob" });
-      `)).rejects.toThrow(); // Expected to fail - destructuring defaults not supported
+      `),
+      ).rejects.toThrow(); // Expected to fail - destructuring defaults not supported
     });
 
     it('should handle destructuring with renaming', async () => {
@@ -551,7 +560,7 @@ describe('Wang Language E2E Tests', () => {
           obj.missing ?? "default" // "default"
         ]
       `);
-      expect(result).toEqual([42, undefined, undefined, "default", 0, false, "default"]);
+      expect(result).toEqual([42, undefined, undefined, 'default', 0, false, 'default']);
     });
 
     it('should handle comparison operators with type coercion', async () => {
@@ -593,9 +602,9 @@ describe('Wang Language E2E Tests', () => {
 
   describe('Async/Await - Complex Scenarios', () => {
     it('should handle async function composition', async () => {
-      interpreter.bindFunction('delay', ms => new Promise(r => setTimeout(r, ms)));
+      interpreter.bindFunction('delay', (ms) => new Promise((r) => setTimeout(r, ms)));
       interpreter.bindFunction('fetchValue', async (x) => {
-        await new Promise(r => setTimeout(r, 10));
+        await new Promise((r) => setTimeout(r, 10));
         return x * 2;
       });
 
@@ -619,12 +628,15 @@ describe('Wang Language E2E Tests', () => {
         const par = await processParallel(input);
         [seq, par]
       `);
-      expect(result).toEqual([[2, 4, 6], [2, 4, 6]]);
+      expect(result).toEqual([
+        [2, 4, 6],
+        [2, 4, 6],
+      ]);
     });
 
     it('should handle async error handling', async () => {
       interpreter.bindFunction('failAsync', async () => {
-        throw new Error("Async failure");
+        throw new Error('Async failure');
       });
 
       const result = await interpreter.execute(`
@@ -639,12 +651,13 @@ describe('Wang Language E2E Tests', () => {
         
         await safeCall()
       `);
-      expect(result).toBe("caught: Async failure");
+      expect(result).toBe('caught: Async failure');
     });
 
     it('should reject async generators (unsupported)', async () => {
       // Async generators are unsupported - use regular async functions with arrays
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         async function* asyncGenerator() {  // Unsupported: async generators
           yield 1;
           yield 2;
@@ -652,13 +665,16 @@ describe('Wang Language E2E Tests', () => {
         };
         
         asyncGenerator();
-      `)).rejects.toThrow(); // Expected to fail - async generators not supported
+      `),
+      ).rejects.toThrow(); // Expected to fail - async generators not supported
     });
   });
 
   describe('Module System - Advanced', () => {
     it('should throw error for circular dependencies with immediate calls', async () => {
-      resolver.addModule('moduleA', `
+      resolver.addModule(
+        'moduleA',
+        `
         import { functionB } from "moduleB";
         
         export function functionA() {
@@ -668,70 +684,92 @@ describe('Wang Language E2E Tests', () => {
         export function helperA() {
           return "Helper A"
         }
-      `);
+      `,
+      );
 
-      resolver.addModule('moduleB', `
+      resolver.addModule(
+        'moduleB',
+        `
         import { helperA } from "moduleA";
         
         export function functionB() {
           return "B uses " + helperA()
         }
-      `);
+      `,
+      );
 
       // This should throw because helperA is undefined when functionB tries to call it
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         import { functionA } from "moduleA";
         functionA()
-      `)).rejects.toThrow('Type mismatch in call expression');
+      `),
+      ).rejects.toThrow('Type mismatch in call expression');
     });
 
     it('should reject default exports and imports (unsupported)', async () => {
       // Default imports/exports are unsupported - use named imports/exports instead
-      resolver.addModule('math', `
+      resolver.addModule(
+        'math',
+        `
         export function sum(...nums) {  // Use named export instead
           return reduce(nums, (a, b) => a + b, 0)
         };
-      `);
+      `,
+      );
 
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         import sum from "math";  // Unsupported: default import
         sum(1, 2, 3);
-      `)).rejects.toThrow(); // Expected to fail - default imports not supported
+      `),
+      ).rejects.toThrow(); // Expected to fail - default imports not supported
     });
 
     it('should handle namespace imports', async () => {
-      resolver.addModule('utils', `
+      resolver.addModule(
+        'utils',
+        `
         export function add(a, b) { return a + b };
         export function multiply(a, b) { return a * b };
         export const VERSION = "1.0.0";
-      `);
+      `,
+      );
 
       const result = await interpreter.execute(`
         import * as Utils from "utils";
         [Utils.add(5, 3), Utils.multiply(4, 2), Utils.VERSION]
       `);
-      expect(result).toEqual([8, 8, "1.0.0"]);
+      expect(result).toEqual([8, 8, '1.0.0']);
     });
 
     it('should reject re-exports (unsupported)', async () => {
       // Re-exports are unsupported - import then export manually instead
-      resolver.addModule('core', `
+      resolver.addModule(
+        'core',
+        `
         export function coreFunction() {
           return "core"
         }
-      `);
+      `,
+      );
 
-      resolver.addModule('extended', `
+      resolver.addModule(
+        'extended',
+        `
         export { coreFunction } from "core";  // Unsupported: re-export
         export function extendedFunction() {
           return "extended"
         }
-      `);
+      `,
+      );
 
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         import { coreFunction } from "extended";
         coreFunction();
-      `)).rejects.toThrow(); // Expected to fail - re-exports not supported
+      `),
+      ).rejects.toThrow(); // Expected to fail - re-exports not supported
     });
   });
 
@@ -760,12 +798,12 @@ describe('Wang Language E2E Tests', () => {
         log
       `);
       expect(result).toEqual([
-        "outer try",
-        "inner try",
-        "inner catch: inner error",
-        "inner finally",
-        "outer catch: outer error",
-        "outer finally"
+        'outer try',
+        'inner try',
+        'inner catch: inner error',
+        'inner finally',
+        'outer catch: outer error',
+        'outer finally',
       ]);
     });
 
@@ -785,17 +823,19 @@ describe('Wang Language E2E Tests', () => {
         
         await handleError()
       `);
-      expect(result).toBe("Handled: Async error");
+      expect(result).toBe('Handled: Async error');
     });
 
     it('should propagate errors correctly', async () => {
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         function level1() { level2() };
         function level2() { level3() };
         function level3() { throw new Error("Deep error") };
         
         level1()
-      `)).rejects.toThrow("Deep error");
+      `),
+      ).rejects.toThrow('Deep error');
     });
   });
 
@@ -816,21 +856,25 @@ describe('Wang Language E2E Tests', () => {
         const b = 10;
         \`The sum of \${a} and \${b} is \${a + b}, and the product is \${a * b}\`
       `);
-      expect(result).toBe("The sum of 5 and 10 is 15, and the product is 50");
+      expect(result).toBe('The sum of 5 and 10 is 15, and the product is 50');
     });
 
     it('should reject tagged template literals (unsupported)', async () => {
       // Tagged template literals are unsupported - use regular function calls instead
       interpreter.bindFunction('tag', (strings, ...values) => {
-        return strings.reduce((acc, str, i) => 
-          acc + str + (values[i] !== undefined ? `[${values[i]}]` : ''), '');
+        return strings.reduce(
+          (acc, str, i) => acc + str + (values[i] !== undefined ? `[${values[i]}]` : ''),
+          '',
+        );
       });
 
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         const x = 10;
         const y = 20;
         tag\`Value x=\${x} and y=\${y}\`  // Unsupported: tagged template literals
-      `)).rejects.toThrow(); // Expected to fail - tagged templates not supported
+      `),
+      ).rejects.toThrow(); // Expected to fail - tagged templates not supported
     });
   });
 
@@ -841,7 +885,18 @@ describe('Wang Language E2E Tests', () => {
         map(values, v => !!v)
       `);
       expect(result).toEqual([
-        false, true, true, false, true, false, false, false, true, true, true, false
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
       ]);
     });
 
@@ -858,7 +913,7 @@ describe('Wang Language E2E Tests', () => {
           Boolean("false")
         ]
       `);
-      expect(result).toEqual([42, NaN, "42", "true", true, false, false, true]);
+      expect(result).toEqual([42, NaN, '42', 'true', true, false, false, true]);
     });
 
     it('should handle special number values', async () => {
@@ -874,9 +929,7 @@ describe('Wang Language E2E Tests', () => {
           isFinite(Infinity)  // false
         ]
       `);
-      expect(result).toEqual([
-        Infinity, -Infinity, NaN, Infinity, NaN, false, true, false
-      ]);
+      expect(result).toEqual([Infinity, -Infinity, NaN, Infinity, NaN, false, true, false]);
     });
   });
 
@@ -932,7 +985,8 @@ describe('Wang Language E2E Tests', () => {
   describe('Real-world Scenarios', () => {
     it('should partially support functional programming (closure limitations)', async () => {
       // Complex closure scenarios with named function expressions have limitations
-      await expect(interpreter.execute(`
+      await expect(
+        interpreter.execute(`
         // Functional utilities - this specific pattern has closure issues
         const curry = (fn, arity) => {
           return function curried(...args) {
@@ -945,7 +999,8 @@ describe('Wang Language E2E Tests', () => {
         
         const add = curry((a, b) => a + b, 2);
         add(5)(10);
-      `)).rejects.toThrow(); // Expected to fail - complex closure capture issue
+      `),
+      ).rejects.toThrow(); // Expected to fail - complex closure capture issue
     });
 
     it('should implement a state machine', async () => {
@@ -993,7 +1048,7 @@ describe('Wang Language E2E Tests', () => {
         push(states, sm.trigger("stop"));
         states
       `);
-      expect(result).toEqual(["idle", "running", "paused", "running", "idle"]);
+      expect(result).toEqual(['idle', 'running', 'paused', 'running', 'idle']);
     });
 
     it('should implement a reactive observable pattern', async () => {
@@ -1033,11 +1088,7 @@ describe('Wang Language E2E Tests', () => {
         
         results
       `);
-      expect(result).toEqual([
-        "Observer1: First",
-        "Observer2: First",
-        "Observer2: Second"
-      ]);
+      expect(result).toEqual(['Observer1: First', 'Observer2: First', 'Observer2: Second']);
     });
   });
 });

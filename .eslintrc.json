@@ -13,19 +13,17 @@
     "node": true,
     "es2021": true
   },
-  "ignorePatterns": [
-    "dist/",
-    "node_modules/",
-    "coverage/",
-    "*.min.js",
-    "src/generated/"
-  ],
+  "ignorePatterns": ["dist/", "node_modules/", "coverage/", "*.min.js", "src/generated/", "scripts/", "*.config.js", "rollup.config.js", "vitest.config.ts"],
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-this-alias": "off",
     "no-console": "off",
-    "prettier/prettier": "error"
+    "no-case-declarations": "off",
+    "no-useless-escape": "off",
+    "prettier/prettier": ["error", { "endOfLine": "auto" }]
   }
 }

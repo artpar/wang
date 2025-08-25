@@ -50,7 +50,7 @@ describe('Wang Interpreter', () => {
         let name = "World";
         greeting + ", " + name + "!"
       `);
-      expect(result).toBe("Hello, World!");
+      expect(result).toBe('Hello, World!');
     });
 
     it('should handle update expressions', async () => {
@@ -137,7 +137,7 @@ describe('Wang Interpreter', () => {
     it('should handle array methods', async () => {
       const ctx = new TestContext();
       ctx.addFunction('sum', (arr) => arr.reduce((a, b) => a + b, 0));
-      
+
       const result = await ctx.execute(`
         const numbers = [1, 2, 3, 4, 5];
         const doubled = map(numbers, x => x * 2);
@@ -155,7 +155,7 @@ describe('Wang Interpreter', () => {
         };
         person.name + " is " + person.age
       `);
-      expect(result).toBe("Alice is 30");
+      expect(result).toBe('Alice is 30');
     });
 
     it('should handle object destructuring', async () => {
@@ -165,7 +165,7 @@ describe('Wang Interpreter', () => {
         const { name, age } = person;
         name + " - " + age
       `);
-      expect(result).toBe("Bob - 25");
+      expect(result).toBe('Bob - 25');
     });
 
     it('should handle array destructuring', async () => {
@@ -194,7 +194,7 @@ describe('Wang Interpreter', () => {
         
         result
       `);
-      expect(result).toBe("big");
+      expect(result).toBe('big');
     });
 
     it('should handle for loops', async () => {
@@ -276,21 +276,23 @@ describe('Wang Interpreter', () => {
         };
         result
       `);
-      expect(result).toBe("caught: error");
+      expect(result).toBe('caught: error');
     });
 
     it('should throw error for undefined variables', async () => {
       const ctx = new TestContext();
-      await expect(ctx.execute('undefinedVar')).rejects.toThrow('Variable "undefinedVar" is not defined');
+      await expect(ctx.execute('undefinedVar')).rejects.toThrow(
+        'Variable "undefinedVar" is not defined',
+      );
     });
   });
 
   describe('Pipeline Operators', () => {
     it('should handle pipeline expressions', async () => {
       const ctx = new TestContext();
-      ctx.addFunction('double', x => x * 2);
-      ctx.addFunction('addOne', x => x + 1);
-      
+      ctx.addFunction('double', (x) => x * 2);
+      ctx.addFunction('addOne', (x) => x + 1);
+
       const result = await ctx.execute(`
         5 |> double(_) |> addOne(_)
       `);
@@ -301,13 +303,16 @@ describe('Wang Interpreter', () => {
   describe('Modules', () => {
     it('should handle import/export', async () => {
       const ctx = new TestContext();
-      ctx.addModule('math', `
+      ctx.addModule(
+        'math',
+        `
         export function square(x) {
           return x * x
         };
         export const PI = 3.14159
-      `);
-      
+      `,
+      );
+
       const result = await ctx.execute(`
         import { square, PI } from "math";
         square(5) + PI

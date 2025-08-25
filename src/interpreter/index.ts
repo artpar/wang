@@ -5,13 +5,7 @@
 
 import { ModuleResolver } from '../resolvers/base';
 import { InMemoryModuleResolver } from '../resolvers/memory';
-import {
-  WangError,
-  UndefinedVariableError,
-  FunctionNotFoundError,
-  TypeMismatchError,
-  ModuleNotFoundError,
-} from '../utils/errors';
+import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/errors';
 
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
@@ -75,20 +69,20 @@ export class WangInterpreter {
     this.bindFunction('log', (...args: any[]) => console.log(...args));
     this.bindFunction('error', (...args: any[]) => console.error(...args));
     this.bindFunction('warn', (...args: any[]) => console.warn(...args));
-    
+
     // Type conversion functions
     this.bindFunction('Number', (val: any) => Number(val));
     this.bindFunction('String', (val: any) => String(val));
     this.bindFunction('Boolean', (val: any) => Boolean(val));
-    
+
     // Type checking functions
     this.bindFunction('isNaN', (val: any) => isNaN(val));
     this.bindFunction('isFinite', (val: any) => isFinite(val));
     this.bindFunction('isInteger', (val: any) => Number.isInteger(val));
-    
+
     // Error constructor - needs to work as both function and constructor
     // We need to set it as a variable so it can be used with 'new'
-    const ErrorConstructor = function(this: any, message?: string): any {
+    const ErrorConstructor = function (this: any, message?: string): any {
       // When called with new, 'this' is bound to the new instance
       // When called as a function, we create a new Error
       if (!(this instanceof ErrorConstructor)) {
@@ -104,12 +98,12 @@ export class WangInterpreter {
     // Set as both function and variable so it can be used with 'new'
     this.bindFunction('Error', ErrorConstructor);
     this.currentContext.variables.set('Error', ErrorConstructor);
-    
+
     // Special values
     this.currentContext.variables.set('Infinity', Infinity);
     this.currentContext.variables.set('NaN', NaN);
     this.currentContext.variables.set('undefined', undefined);
-    
+
     // Promise support
     this.currentContext.variables.set('Promise', {
       all: (promises: Promise<any>[]) => Promise.all(promises),
@@ -218,7 +212,7 @@ export class WangInterpreter {
       return sorted;
     });
     this.bindFunction('reverse', (arr: any[]) => [...arr].reverse());
-    
+
     // The functional programming test needs a reverse function that works in the pipeline
     this.currentContext.functions.set('reverse', (arr: any[]) => [...arr].reverse());
     this.bindFunction('slice', (arr: any[], start?: number, end?: number) => arr.slice(start, end));
@@ -233,10 +227,13 @@ export class WangInterpreter {
       arr.push(...items);
       return arr;
     });
-    this.bindFunction('forEach', (arr: any[], fn: (value: any, index: number, array: any[]) => void) => {
-      if (!Array.isArray(arr)) return;
-      arr.forEach(fn);
-    });
+    this.bindFunction(
+      'forEach',
+      (arr: any[], fn: (value: any, index: number, array: any[]) => void) => {
+        if (!Array.isArray(arr)) return;
+        arr.forEach(fn);
+      },
+    );
     this.bindFunction('pop', (arr: any[]) => arr.pop());
     this.bindFunction('shift', (arr: any[]) => arr.shift());
     this.bindFunction('unshift', (arr: any[], ...items: any[]) => {
@@ -355,16 +352,16 @@ export class WangInterpreter {
     const capturedContext = this.currentContext;
     const capturedThis = this.currentContext.variables.get('this');
     const interpreter = this;
-    
-    const fn = function(this: any, ...args: any[]) {
+
+    const fn = function (this: any, ...args: any[]) {
       // Create new context for function with captured parent context
       const fnContext = interpreter.createContext(capturedContext);
-      
+
       // For named function expressions, add the function name to scope
       if (node.id && node.id.name) {
         fnContext.variables.set(node.id.name, fn);
       }
-      
+
       // For arrow functions, preserve captured 'this'
       if (node.type === 'ArrowFunctionExpression') {
         fnContext.variables.set('this', capturedThis);
@@ -372,7 +369,7 @@ export class WangInterpreter {
         // Regular functions get 'this' from call context
         fnContext.variables.set('this', this);
       }
-      
+
       // Bind parameters
       node.params.forEach((param: any, i: number) => {
         if (param.type === 'Identifier') {
@@ -386,18 +383,18 @@ export class WangInterpreter {
           }
         }
       });
-      
+
       const previousContext = interpreter.currentContext;
       interpreter.currentContext = fnContext;
-      
+
       try {
         const body = node.body;
-        
+
         // Arrow functions with expression body
         if (node.type === 'ArrowFunctionExpression' && body.type !== 'BlockStatement') {
           return interpreter.evaluateNodeSync(body);
         }
-        
+
         // Functions with block body
         let lastValue;
         for (const stmt of body.body) {
@@ -415,7 +412,7 @@ export class WangInterpreter {
         interpreter.currentContext = previousContext;
       }
     };
-    
+
     return fn;
   }
 
@@ -425,54 +422,73 @@ export class WangInterpreter {
     switch (node.type) {
       case 'Literal':
         return node.value;
-      
+
       case 'Identifier':
         return this.evaluateIdentifier(node);
-      
+
       case 'MemberExpression':
         const obj = this.evaluateNodeSync(node.object);
-        const prop = node.computed 
-          ? this.evaluateNodeSync(node.property)
-          : node.property.name;
+        const prop = node.computed ? this.evaluateNodeSync(node.property) : node.property.name;
         return obj[prop];
-      
+
       case 'BinaryExpression':
         const left = this.evaluateNodeSync(node.left);
         const right = this.evaluateNodeSync(node.right);
         switch (node.operator) {
-          case '+': return left + right;
-          case '-': return left - right;
-          case '*': return left * right;
-          case '/': return left / right;
-          case '%': return left % right;
-          case '==': return left == right;
-          case '!=': return left != right;
-          case '===': return left === right;
-          case '!==': return left !== right;
-          case '<': return left < right;
-          case '<=': return left <= right;
-          case '>': return left > right;
-          case '>=': return left >= right;
-          case '&&': return left && right;
-          case '||': return left || right;
-          default: throw new Error(`Unknown operator: ${node.operator}`);
+          case '+':
+            return left + right;
+          case '-':
+            return left - right;
+          case '*':
+            return left * right;
+          case '/':
+            return left / right;
+          case '%':
+            return left % right;
+          case '==':
+            return left == right;
+          case '!=':
+            return left != right;
+          case '===':
+            return left === right;
+          case '!==':
+            return left !== right;
+          case '<':
+            return left < right;
+          case '<=':
+            return left <= right;
+          case '>':
+            return left > right;
+          case '>=':
+            return left >= right;
+          case '&&':
+            return left && right;
+          case '||':
+            return left || right;
+          default:
+            throw new Error(`Unknown operator: ${node.operator}`);
         }
-      
+
       case 'UnaryExpression':
         const arg = this.evaluateNodeSync(node.argument);
         switch (node.operator) {
-          case '!': return !arg;
-          case '-': return -arg;
-          case '+': return +arg;
-          case 'typeof': return typeof arg;
-          default: throw new Error(`Unknown unary operator: ${node.operator}`);
+          case '!':
+            return !arg;
+          case '-':
+            return -arg;
+          case '+':
+            return +arg;
+          case 'typeof':
+            return typeof arg;
+          default:
+            throw new Error(`Unknown unary operator: ${node.operator}`);
         }
-      
+
       case 'AssignmentExpression':
         const value = this.evaluateNodeSync(node.right);
         if (node.left.type === 'MemberExpression') {
           const obj = this.evaluateNodeSync(node.left.object);
-          const prop = node.left.computed 
+          const prop = node.left.computed
             ? this.evaluateNodeSync(node.left.property)
             : node.left.property.name;
           obj[prop] = value;
@@ -480,29 +496,29 @@ export class WangInterpreter {
           this.currentContext.variables.set(node.left.name, value);
         }
         return value;
-      
+
       case 'ConditionalExpression':
         const test = this.evaluateNodeSync(node.test);
-        return test 
+        return test
           ? this.evaluateNodeSync(node.consequent)
           : this.evaluateNodeSync(node.alternate);
-      
+
       case 'BlockStatement':
         let lastValue;
         for (const stmt of node.body) {
           lastValue = this.evaluateNodeSync(stmt);
         }
         return lastValue;
-      
+
       case 'ExpressionStatement':
         return this.evaluateNodeSync(node.expression);
-      
+
       case 'ReturnStatement':
         throw {
           type: 'return',
-          value: node.argument ? this.evaluateNodeSync(node.argument) : undefined
+          value: node.argument ? this.evaluateNodeSync(node.argument) : undefined,
         };
-      
+
       case 'IfStatement':
         const condition = this.evaluateNodeSync(node.test);
         if (condition) {
@@ -511,12 +527,12 @@ export class WangInterpreter {
           return this.evaluateNodeSync(node.alternate);
         }
         return undefined;
-        
+
       case 'CallExpression':
         // Handle synchronous function calls for arrow functions
         let callee;
         let thisContext = null;
-        
+
         if (node.callee.type === 'MemberExpression') {
           const object = this.evaluateNodeSync(node.callee.object);
           const property = node.callee.computed
@@ -527,11 +543,11 @@ export class WangInterpreter {
         } else {
           callee = this.evaluateNodeSync(node.callee);
         }
-        
+
         if (typeof callee !== 'function') {
           throw new Error(`Not a function: ${node.callee.name || 'expression'}`);
         }
-        
+
         const args = node.arguments.map((arg: any) => {
           if (arg.type === 'SpreadElement') {
             const spread = this.evaluateNodeSync(arg.argument);
@@ -539,12 +555,12 @@ export class WangInterpreter {
           }
           return this.evaluateNodeSync(arg);
         });
-        
+
         // Replace underscore with pipeline value
         const processedArgs = args.map((arg: any) =>
           arg === undefined && this.lastPipelineValue !== undefined ? this.lastPipelineValue : arg,
         );
-        
+
         // Handle spread arguments
         const finalArgs = [];
         for (let i = 0; i < processedArgs.length; i++) {
@@ -554,20 +570,20 @@ export class WangInterpreter {
             finalArgs.push(processedArgs[i]);
           }
         }
-        
+
         return callee.apply(thisContext, finalArgs);
-        
+
       case 'ThrowStatement':
         throw this.evaluateNodeSync(node.argument);
-      
+
       case 'ThisExpression':
         return this.currentContext.variables.get('this');
-      
+
       case 'ArrowFunctionExpression':
       case 'FunctionExpression':
         // Create a synchronous function for arrow/function expressions
         return this.createSyncFunction(node);
-      
+
       default:
         throw new Error(`Cannot evaluate node type synchronously: ${node.type}`);
     }
@@ -615,13 +631,13 @@ export class WangInterpreter {
       case 'BreakStatement':
         throw {
           type: 'break',
-          label: node.label
+          label: node.label,
         };
 
       case 'ContinueStatement':
         throw {
           type: 'continue',
-          label: node.label
+          label: node.label,
         };
 
       case 'LabeledStatement':
@@ -691,7 +707,7 @@ export class WangInterpreter {
 
       case 'PipelineExpression':
         return this.evaluatePipelineExpression(node);
-      
+
       case 'ThisExpression':
         return this.currentContext.variables.get('this');
 
@@ -877,18 +893,19 @@ export class WangInterpreter {
     // Capture the context at function creation time (for closures)
     // This captures the entire execution context including local variables
     const capturedContext = this.currentContext;
-    
+
     // For arrow functions, capture 'this' from the current context
-    const capturedThis = node.type === 'ArrowFunctionExpression' 
-      ? this.currentContext.variables.get('this')
-      : undefined;
+    const capturedThis =
+      node.type === 'ArrowFunctionExpression'
+        ? this.currentContext.variables.get('this')
+        : undefined;
 
     // For non-async arrow functions with expression bodies, create synchronous functions
     if (!isAsync && node.type === 'ArrowFunctionExpression' && body.type !== 'BlockStatement') {
       const fn = (...args: any[]) => {
         // Create new context for function with captured parent context
         const fnContext = this.createContext(capturedContext);
-        
+
         // Arrow functions always use the captured 'this'
         fnContext.variables.set('this', capturedThis);
 
@@ -927,15 +944,15 @@ export class WangInterpreter {
     // For async functions or functions with block statements, keep the async behavior
     // We need to use a regular function (not arrow) to receive 'this' from apply()
     const interpreter = this;
-    const fn = async function(this: any, ...args: any[]) {
+    const fn = async function (this: any, ...args: any[]) {
       // Create new context for function with captured parent context
       const fnContext = interpreter.createContext(capturedContext);
-      
+
       // For named function expressions, add the function name to scope
       if (node.id && node.id.name) {
         fnContext.variables.set(node.id.name, fn);
       }
-      
+
       // For arrow functions, use captured 'this'; for regular functions, use the passed 'this'
       if (node.type === 'ArrowFunctionExpression') {
         // Arrow functions always use the captured 'this', ignoring the passed 'this'
@@ -957,9 +974,10 @@ export class WangInterpreter {
           break;
         } else if (param.type === 'AssignmentPattern') {
           // Handle default parameters
-          const value = i < args.length && args[i] !== undefined 
-            ? args[i] 
-            : await interpreter.evaluateNode(param.right);
+          const value =
+            i < args.length && args[i] !== undefined
+              ? args[i]
+              : await interpreter.evaluateNode(param.right);
           interpreter.assignPattern(param.left, value);
         } else {
           interpreter.assignPattern(param, args[i]);
@@ -1061,23 +1079,26 @@ export class WangInterpreter {
     for (const method of node.body.body) {
       if (method.type === 'MethodDefinition' && method.kind !== 'constructor') {
         const methodName = method.key.name;
-        
+
         // Handle getters and setters differently
         if (method.kind === 'get' || method.kind === 'set') {
           // For getters and setters, we need synchronous execution
           // We'll compile the body to a simple synchronous function
           const target = method.static ? classConstructor : classConstructor.prototype;
-          const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(target, methodName) || {
+          const descriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(
+            target,
+            methodName,
+          ) || {
             configurable: true,
-            enumerable: true
+            enumerable: true,
           };
-          
+
           if (method.kind === 'get') {
-            descriptor.get = function(this: any) {
+            descriptor.get = function (this: any) {
               // Create context for getter execution
               const getterContext = interpreter.createContext(interpreter.currentContext);
               getterContext.variables.set('this', this);
-              
+
               // Execute getter body synchronously
               const prevContext = interpreter.currentContext;
               interpreter.currentContext = getterContext;
@@ -1101,11 +1122,11 @@ export class WangInterpreter {
               }
             };
           } else {
-            descriptor.set = function(this: any, value: any) {
+            descriptor.set = function (this: any, value: any) {
               // Create context for setter execution
               const setterContext = interpreter.createContext(interpreter.currentContext);
               setterContext.variables.set('this', this);
-              
+
               // Bind setter parameter
               if (method.params.length > 0) {
                 const param = method.params[0];
@@ -1113,7 +1134,7 @@ export class WangInterpreter {
                   setterContext.variables.set(param.name, value);
                 }
               }
-              
+
               // Execute setter body synchronously
               const prevContext = interpreter.currentContext;
               interpreter.currentContext = setterContext;
@@ -1138,15 +1159,14 @@ export class WangInterpreter {
               }
             };
           }
-          
+
           Object.defineProperty(target, methodName, descriptor);
-          
         } else {
           // Regular method
           const methodFunction = async function (this: any, ...args: any[]) {
             // Create context for method execution
             const methodContext = interpreter.createContext(interpreter.currentContext);
-            
+
             // For static methods, 'this' is the class itself
             // For instance methods, 'this' is the instance
             methodContext.variables.set('this', method.static ? classConstructor : this);
@@ -1158,9 +1178,10 @@ export class WangInterpreter {
                 methodContext.variables.set(param.name, args[i]);
               } else if (param.type === 'AssignmentPattern') {
                 // Handle default parameters
-                const value = i < args.length && args[i] !== undefined 
-                  ? args[i] 
-                  : await interpreter.evaluateNode(param.right);
+                const value =
+                  i < args.length && args[i] !== undefined
+                    ? args[i]
+                    : await interpreter.evaluateNode(param.right);
                 if (param.left.type === 'Identifier') {
                   methodContext.variables.set(param.left.name, value);
                 }
@@ -1188,7 +1209,7 @@ export class WangInterpreter {
               interpreter.currentContext = prevContext;
             }
           };
-          
+
           // Add method to class (static) or prototype (instance)
           if (method.static) {
             (classConstructor as any)[methodName] = methodFunction;
@@ -1336,7 +1357,7 @@ export class WangInterpreter {
   private async evaluateSwitchStatement(node: any): Promise<any> {
     const discriminant = await this.evaluateNode(node.discriminant);
     let foundMatch = false;
-    
+
     for (const switchCase of node.cases) {
       // Check if this case matches or we're in fall-through mode
       if (!foundMatch) {
@@ -1350,7 +1371,7 @@ export class WangInterpreter {
           }
         }
       }
-      
+
       // Execute the case if we've found a match
       if (foundMatch) {
         try {
@@ -1396,8 +1417,12 @@ export class WangInterpreter {
 
     // Debug for 'this'
     if (name === 'this') {
-      console.log('Looking up this, context has:', this.currentContext.variables.has('this'), 
-                  'value:', this.currentContext.variables.get('this'));
+      console.log(
+        'Looking up this, context has:',
+        this.currentContext.variables.has('this'),
+        'value:',
+        this.currentContext.variables.get('this'),
+      );
     }
 
     // Check variables
@@ -1840,87 +1865,92 @@ export class WangInterpreter {
   private async evaluateTemplateLiteral(node: any): Promise<string> {
     // Handle template literal interpolation
     const raw = node.raw || node.value;
-    
+
     // If it's a raw template literal, we need to parse and evaluate expressions
     if (typeof raw === 'string' && raw.startsWith('`') && raw.endsWith('`')) {
       // Get the content without backticks
       const content = raw.slice(1, -1);
-      
+
       // Replace ${...} expressions with evaluated values
       const result = await this.interpolateTemplate(content);
       return result;
     }
-    
+
     // If value is already processed (shouldn't happen but for safety)
     if (typeof node.value === 'string') {
       return await this.interpolateTemplate(node.value);
     }
-    
+
     return node.value;
   }
-  
+
   private async interpolateTemplate(template: string): Promise<string> {
     // Match ${...} expressions
     const expressionRegex = /\$\{([^}]+)\}/g;
     let result = template;
     let match;
-    
-    const replacements: Array<{start: number, end: number, value: string}> = [];
-    
+
+    const replacements: Array<{ start: number; end: number; value: string }> = [];
+
     while ((match = expressionRegex.exec(template)) !== null) {
       const expression = match[1];
       try {
         // Parse and evaluate the expression
         // Create a mini parser for the expression
         const exprCode = expression.trim();
-        
+
         // Try to evaluate as a simple expression
         const value = await this.evaluateTemplateExpression(exprCode);
         replacements.push({
           start: match.index,
           end: match.index + match[0].length,
-          value: String(value)
+          value: String(value),
         });
       } catch (error) {
         // If evaluation fails, leave as is
         console.warn(`Failed to evaluate template expression: ${expression}`);
       }
     }
-    
+
     // Apply replacements in reverse order to maintain indices
     for (let i = replacements.length - 1; i >= 0; i--) {
       const r = replacements[i];
       result = result.slice(0, r.start) + r.value + result.slice(r.end);
     }
-    
+
     return result;
   }
-  
+
   private async evaluateTemplateExpression(expression: string): Promise<any> {
     // This is a simplified expression evaluator
     // For full support, we'd need to parse the expression properly
-    
+
     // Handle simple variable references
     if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(expression)) {
       return this.evaluateIdentifier({ name: expression });
     }
-    
+
     // Handle binary operations (a + b, a * b, etc.)
     const binaryOpMatch = expression.match(/^(.+?)\s*([\+\-\*\/])\s*(.+)$/);
     if (binaryOpMatch) {
       const left = await this.evaluateTemplateExpression(binaryOpMatch[1].trim());
       const right = await this.evaluateTemplateExpression(binaryOpMatch[3].trim());
       const op = binaryOpMatch[2];
-      
+
       switch (op) {
-        case '+': return left + right;
-        case '-': return left - right;
-        case '*': return left * right;
-        case '/': return left / right;
-        default: return expression;
+        case '+':
+          return left + right;
+        case '-':
+          return left - right;
+        case '*':
+          return left * right;
+        case '/':
+          return left / right;
+        default:
+          return expression;
       }
     }
-    
+
     // Handle member expressions (a.b)
     if (expression.includes('.')) {
       const parts = expression.split('.');
@@ -1930,13 +1960,13 @@ export class WangInterpreter {
       }
       return obj;
     }
-    
+
     // Handle numbers
     const num = Number(expression);
     if (!isNaN(num)) {
       return num;
     }
-    
+
     // Handle strings
     if (expression.startsWith('"') && expression.endsWith('"')) {
       return expression.slice(1, -1);
@@ -1944,7 +1974,7 @@ export class WangInterpreter {
     if (expression.startsWith("'") && expression.endsWith("'")) {
       return expression.slice(1, -1);
     }
-    
+
     return expression;
   }
 
@@ -2024,7 +2054,7 @@ export class WangInterpreter {
 
     // Create new context for module
     const moduleContext = this.createContext(this.globalContext);
-    
+
     // Store reference to exports object so we can update it during evaluation
     moduleContext.moduleExports = exports;
 

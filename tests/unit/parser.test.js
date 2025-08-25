@@ -5,7 +5,7 @@ describe('Wang Parser', () => {
   it('should parse simple variable declaration', () => {
     const ctx = new TestContext();
     const results = ctx.parse('let x = 5');
-    
+
     expect(results).toHaveLength(1);
     const ast = results[0];
     expect(ast.type).toBe('Program');
@@ -20,7 +20,7 @@ describe('Wang Parser', () => {
       let y = 10;
       x + y
     `);
-    
+
     expect(results).toHaveLength(1);
     const ast = results[0];
     expect(ast.body).toHaveLength(3);
@@ -29,7 +29,7 @@ describe('Wang Parser', () => {
   it('should parse binary expression precedence correctly', () => {
     const ctx = new TestContext();
     const results = ctx.parse('2 + 3 * 4');
-    
+
     expect(results).toHaveLength(1);
     const expr = results[0].body[0].expression;
     expect(expr.type).toBe('BinaryExpression');
@@ -45,7 +45,7 @@ describe('Wang Parser', () => {
         return a + b
       };
     `);
-    
+
     expect(results).toHaveLength(1);
     const fn = results[0].body[0];
     expect(fn.type).toBe('FunctionDeclaration');
@@ -56,7 +56,7 @@ describe('Wang Parser', () => {
   it('should parse arrow function', () => {
     const ctx = new TestContext();
     const results = ctx.parse('const add = (a, b) => a + b');
-    
+
     expect(results).toHaveLength(1);
     const decl = results[0].body[0];
     const arrow = decl.declarations[0].init;
@@ -73,7 +73,7 @@ describe('Wang Parser', () => {
         nested: { x: 1 }
       }
     `);
-    
+
     expect(results).toHaveLength(1);
     const obj = results[0].body[0].declarations[0].init;
     expect(obj.type).toBe('ObjectExpression');
@@ -83,7 +83,7 @@ describe('Wang Parser', () => {
   it('should parse array literal', () => {
     const ctx = new TestContext();
     const results = ctx.parse('const arr = [1, 2, 3, ...other]');
-    
+
     expect(results).toHaveLength(1);
     const arr = results[0].body[0].declarations[0].init;
     expect(arr.type).toBe('ArrayExpression');
@@ -94,7 +94,7 @@ describe('Wang Parser', () => {
   it('should parse empty array correctly', () => {
     const ctx = new TestContext();
     const results = ctx.parse('const arr = []');
-    
+
     expect(results).toHaveLength(1);
     const arr = results[0].body[0].declarations[0].init;
     expect(arr.type).toBe('ArrayExpression');
@@ -104,10 +104,10 @@ describe('Wang Parser', () => {
   it('should parse pipeline expression', () => {
     const ctx = new TestContext();
     const results = ctx.parse('data |> filter(_, active) |> sort()');
-    
+
     // Note: Currently returns 2 identical parses due to harmless grammar ambiguity
     expect(results.length).toBeLessThanOrEqual(2);
-    
+
     const ast = results[0];
     const expr = ast.body[0].expression;
     expect(expr.type).toBe('PipelineExpression');
@@ -128,7 +128,7 @@ describe('Wang Parser', () => {
         }
       };
     `);
-    
+
     expect(results).toHaveLength(1);
     const cls = results[0].body[0];
     expect(cls.type).toBe('ClassDeclaration');
@@ -138,13 +138,13 @@ describe('Wang Parser', () => {
 
   it('should parse import/export statements', () => {
     const ctx = new TestContext();
-    
+
     const importResults = ctx.parse('import { foo, bar } from "module"');
     expect(importResults).toHaveLength(1);
     const imp = importResults[0].body[0];
     expect(imp.type).toBe('ImportDeclaration');
     expect(imp.specifiers).toHaveLength(2);
-    
+
     const exportResults = ctx.parse('export const value = 42');
     expect(exportResults).toHaveLength(1);
     const exp = exportResults[0].body[0];
@@ -162,7 +162,7 @@ describe('Wang Parser', () => {
         cleanup()
       };
     `);
-    
+
     expect(results).toHaveLength(1);
     const tryStmt = results[0].body[0];
     expect(tryStmt.type).toBe('TryStatement');
@@ -172,13 +172,13 @@ describe('Wang Parser', () => {
 
   it('should parse destructuring patterns', () => {
     const ctx = new TestContext();
-    
+
     // Object destructuring
     const objResults = ctx.parse('const { a, b: renamed } = obj');
     const objPattern = objResults[0].body[0].declarations[0].id;
     expect(objPattern.type).toBe('ObjectPattern');
     expect(objPattern.properties).toHaveLength(2);
-    
+
     // Array destructuring
     const arrResults = ctx.parse('const [first, , third, ...rest] = array');
     const arrPattern = arrResults[0].body[0].declarations[0].id;

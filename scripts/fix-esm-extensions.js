@@ -11,11 +11,11 @@ const distEsmDir = path.join(__dirname, '..', 'dist', 'esm');
 
 function addJsExtension(dir) {
   const files = fs.readdirSync(dir);
-  
-  files.forEach(file => {
+
+  files.forEach((file) => {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
-    
+
     if (stat.isDirectory()) {
       addJsExtension(filePath);
     } else if (file.endsWith('.js')) {
@@ -26,7 +26,7 @@ function addJsExtension(dir) {
             // Check if the path corresponds to a directory with index.js
             const fullPath = path.join(dir, p1);
             const indexPath = path.join(fullPath, 'index.js');
-            
+
             if (fs.existsSync(indexPath)) {
               return match.replace(p1, p1 + '/index.js');
             } else {
@@ -40,7 +40,7 @@ function addJsExtension(dir) {
             // Check if the path corresponds to a directory with index.js
             const fullPath = path.join(dir, p1);
             const indexPath = path.join(fullPath, 'index.js');
-            
+
             if (fs.existsSync(indexPath)) {
               return match.replace(p1, p1 + '/index.js');
             } else {
@@ -49,7 +49,7 @@ function addJsExtension(dir) {
           }
           return match;
         });
-      
+
       if (content !== updatedContent) {
         fs.writeFileSync(filePath, updatedContent);
       }

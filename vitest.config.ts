@@ -8,21 +8,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        'tests/',
-        '*.config.ts',
-        'scripts/',
-        'examples/'
-      ]
+      exclude: ['node_modules/', 'dist/', 'tests/', '*.config.ts', 'scripts/', 'examples/'],
     },
     include: ['tests/**/*.test.ts', 'tests/**/*.test.js'],
-    exclude: ['node_modules', 'dist']
+    exclude: ['node_modules', 'dist'],
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src')
-    }
-  }
+      '@': resolve(__dirname, './src'),
+    },
+  },
 });

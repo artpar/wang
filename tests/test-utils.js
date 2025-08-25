@@ -24,7 +24,7 @@ export class TestContext {
   createInterpreter() {
     this.interpreter = new WangInterpreter({
       moduleResolver: this.resolver,
-      functions: this.customFunctions
+      functions: this.customFunctions,
     });
     return this.interpreter;
   }
@@ -70,7 +70,9 @@ export function assertThrows(fn, errorType, testName) {
     throw new Error(`${testName}: Expected error to be thrown`);
   }
   if (errorType && !(error instanceof errorType)) {
-    throw new Error(`${testName}: Expected error type ${errorType.name}, got ${error.constructor.name}`);
+    throw new Error(
+      `${testName}: Expected error type ${errorType.name}, got ${error.constructor.name}`,
+    );
   }
 }
 
@@ -87,7 +89,9 @@ export async function assertAsyncThrows(fn, errorType, testName) {
     throw new Error(`${testName}: Expected error to be thrown`);
   }
   if (errorType && !(error instanceof errorType)) {
-    throw new Error(`${testName}: Expected error type ${errorType.name}, got ${error.constructor.name}`);
+    throw new Error(
+      `${testName}: Expected error type ${errorType.name}, got ${error.constructor.name}`,
+    );
   }
 }
 
@@ -101,7 +105,7 @@ export function runTest(name, fn) {
       } catch (error) {
         return { name, passed: false, error: error.message };
       }
-    }
+    },
   };
 }
 
@@ -109,7 +113,7 @@ export async function runTests(tests) {
   console.log('🧪 Running tests...\n');
   let passed = 0;
   let failed = 0;
-  
+
   for (const test of tests) {
     const result = await test.run();
     if (result.passed) {
@@ -121,9 +125,9 @@ export async function runTests(tests) {
       failed++;
     }
   }
-  
+
   console.log(`\n📊 Results: ${passed} passed, ${failed} failed, ${passed + failed} total`);
-  
+
   if (failed > 0) {
     process.exit(1);
   }

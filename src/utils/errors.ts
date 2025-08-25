@@ -37,7 +37,7 @@ export class WangError extends Error {
   /**
    * Get a formatted error message with suggestions
    */
-  getFormattedMessage(sourceCode?: string): string {
+  getFormattedMessage(_sourceCode?: string): string {
     let formatted = this.message;
 
     if (this.context.suggestions && this.context.suggestions.length > 0) {

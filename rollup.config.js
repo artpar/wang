@@ -9,18 +9,18 @@ export default {
     file: 'dist/browser/wang.min.js',
     format: 'umd',
     name: 'Wang',
-    sourcemap: true
+    sourcemap: true,
   },
   plugins: [
     nodeResolve({
       browser: true,
-      preferBuiltins: false
+      preferBuiltins: false,
     }),
     commonjs(),
     typescript({
       tsconfig: './tsconfig.json',
-      outputToFilesystem: false
+      outputToFilesystem: false,
     }),
-    terser()
-  ]
+    terser(),
+  ],
 };
