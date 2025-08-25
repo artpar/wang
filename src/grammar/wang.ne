@@ -141,6 +141,19 @@ function buildPipeline(left, op, right) {
 
 @lexer lexer
 
+# Helper rules
+semicolon -> ";"
+staticAsyncGetSet -> "static" | "async" | "get" | "set"
+static -> "static"
+assignment -> "=" AssignmentExpression
+asIdentifier -> "as" %identifier {% d => d[1].value %}
+defaultAssignment -> "=" AssignmentExpression {% d => d[1] %}
+async -> "async"
+extendsClause -> "extends" %identifier {% d => d[1].value %}
+elseClause -> "else" Statement {% d => d[1] %}
+catchParam -> "(" BindingPattern ")" {% d => d[1] %}
+functionName -> %identifier {% d => d[0].value %}
+
 # Main program
 Program -> Statement:* {% d => ({ type: 'Program', body: d[0].filter(s => s) }) %}
 
@@ -148,25 +161,25 @@ Program -> Statement:* {% d => ({ type: 'Program', body: d[0].filter(s => s) }) 
 Statement ->
     ImportStatement {% id %}
   | ExportStatement {% id %}
-  | VariableDeclaration ";"? {% d => d[0] %}
+  | VariableDeclaration semicolon:? {% d => d[0] %}
   | FunctionDeclaration {% id %}
   | ClassDeclaration {% id %}
   | IfStatement {% id %}
   | ForStatement {% id %}
   | WhileStatement {% id %}
   | TryStatement {% id %}
-  | ThrowStatement ";"? {% d => d[0] %}
-  | ReturnStatement ";"? {% d => d[0] %}
-  | ExpressionStatement ";"? {% d => d[0] %}
+  | ThrowStatement semicolon:? {% d => d[0] %}
+  | ReturnStatement semicolon:? {% d => d[0] %}
+  | ExpressionStatement semicolon:? {% d => d[0] %}
   | Block {% id %}
   | ";" {% () => null %}
   | %NL {% () => null %}
 
 # Import/Export
 ImportStatement ->
-    "import" ImportSpecifiers "from" %string ";"?
+    "import" ImportSpecifiers "from" %string semicolon:?
     {% d => ({ type: 'ImportDeclaration', specifiers: d[1], source: d[3].value }) %}
-  | "import" %string ";"?
+  | "import" %string semicolon:?
     {% d => ({ type: 'ImportDeclaration', specifiers: [], source: d[1].value }) %}
 
 ImportSpecifiers ->
@@ -178,29 +191,29 @@ ImportSpecifierList ->
   | ImportSpecifierList "," ImportSpecifier {% d => [...d[0], d[2]] %}
 
 ImportSpecifier ->
-    %identifier ("as" %identifier):?
+    %identifier asIdentifier:?
     {% d => ({ 
       type: 'ImportSpecifier', 
       imported: d[0].value,
-      local: d[1] ? d[1][1].value : d[0].value 
+      local: d[1] ? d[1] : d[0].value 
     }) %}
 
 ExportStatement ->
     "export" VariableDeclaration {% d => ({ type: 'ExportNamedDeclaration', declaration: d[1] }) %}
   | "export" FunctionDeclaration {% d => ({ type: 'ExportNamedDeclaration', declaration: d[1] }) %}
   | "export" ClassDeclaration {% d => ({ type: 'ExportNamedDeclaration', declaration: d[1] }) %}
-  | "export" "{" ExportSpecifierList "}" ";"? {% d => ({ type: 'ExportNamedDeclaration', specifiers: d[2] }) %}
+  | "export" "{" ExportSpecifierList "}" semicolon:? {% d => ({ type: 'ExportNamedDeclaration', specifiers: d[2] }) %}
 
 ExportSpecifierList ->
     ExportSpecifier {% d => [d[0]] %}
   | ExportSpecifierList "," ExportSpecifier {% d => [...d[0], d[2]] %}
 
 ExportSpecifier ->
-    %identifier ("as" %identifier):?
+    %identifier asIdentifier:?
     {% d => ({ 
       type: 'ExportSpecifier',
       local: d[0].value,
-      exported: d[1] ? d[1][1].value : d[0].value
+      exported: d[1] ? d[1] : d[0].value
     }) %}
 
 # Variable Declarations
@@ -213,8 +226,8 @@ VariableDeclaratorList ->
   | VariableDeclaratorList "," VariableDeclarator {% d => [...d[0], d[2]] %}
 
 VariableDeclarator ->
-    BindingPattern ("=" AssignmentExpression):?
-    {% d => ({ type: 'VariableDeclarator', id: d[0], init: d[1] ? d[1][1] : null }) %}
+    BindingPattern defaultAssignment:?
+    {% d => ({ type: 'VariableDeclarator', id: d[0], init: d[1] ? d[1] : null }) %}
 
 BindingPattern ->
     %identifier {% d => ({ type: 'Identifier', name: d[0].value }) %}
@@ -251,7 +264,7 @@ ArrayPatternElement ->
 
 # Functions
 FunctionDeclaration ->
-    "async":? "function" %identifier "(" ParameterList ")" Block
+    async:? "function" %identifier "(" ParameterList ")" Block
     {% d => ({
       type: 'FunctionDeclaration',
       async: !!d[0],
@@ -271,11 +284,11 @@ Parameter ->
 
 # Classes
 ClassDeclaration ->
-    "class" %identifier ("extends" %identifier):? ClassBody
+    "class" %identifier extendsClause:? ClassBody
     {% d => ({
       type: 'ClassDeclaration',
       id: { type: 'Identifier', name: d[1].value },
-      superClass: d[2] ? { type: 'Identifier', name: d[2][1].value } : null,
+      superClass: d[2] ? { type: 'Identifier', name: d[2] } : null,
       body: d[3]
     }) %}
 
@@ -290,7 +303,7 @@ ClassMember ->
   | %NL {% () => null %}
 
 MethodDefinition ->
-    ("static" | "async" | "get" | "set"):* %identifier "(" ParameterList ")" Block
+    staticAsyncGetSet:* %identifier "(" ParameterList ")" Block
     {% d => ({
       type: 'MethodDefinition',
       static: d[0].some(k => k && k[0].value === 'static'),
@@ -310,22 +323,22 @@ MethodDefinition ->
     }) %}
 
 PropertyDefinition ->
-    ("static"):? %identifier ("=" AssignmentExpression):? ";"
+    static:? %identifier assignment:? semicolon
     {% d => ({
       type: 'PropertyDefinition',
       static: !!d[0],
       key: { type: 'Identifier', name: d[1].value },
-      value: d[2] ? d[2][1] : null
+      value: d[2] ? d[2] : null
     }) %}
 
 # Control Flow
 IfStatement ->
-    "if" "(" Expression ")" Statement ("else" Statement):?
+    "if" "(" Expression ")" Statement elseClause:?
     {% d => ({
       type: 'IfStatement',
       test: d[2],
       consequent: d[4],
-      alternate: d[5] ? d[5][1] : null
+      alternate: d[5] ? d[5] : null
     }) %}
 
 ForStatement ->
@@ -375,10 +388,10 @@ TryStatement ->
     }) %}
 
 CatchClause ->
-    "catch" ("(" BindingPattern ")"):? Block
+    "catch" catchParam:? Block
     {% d => ({
       type: 'CatchClause',
-      param: d[1] ? d[1][1] : null,
+      param: d[1] ? d[1] : null,
       body: d[2]
     }) %}
 
@@ -591,17 +604,17 @@ PropertyKey ->
   | "[" Expression "]" {% d => d[1] %}
 
 FunctionExpression ->
-    "async":? "function" %identifier:? "(" ParameterList ")" Block
+    async:? "function" functionName:? "(" ParameterList ")" Block
     {% d => ({
       type: 'FunctionExpression',
       async: !!d[0],
-      id: d[2] ? { type: 'Identifier', name: d[2].value } : null,
+      id: d[2] ? { type: 'Identifier', name: d[2] } : null,
       params: d[4],
       body: d[6]
     }) %}
 
 ArrowFunction ->
-    "async":? ArrowParameters %fatArrow ArrowBody
+    async:? ArrowParameters %fatArrow ArrowBody
     {% d => ({
       type: 'ArrowFunctionExpression',
       async: !!d[0],
