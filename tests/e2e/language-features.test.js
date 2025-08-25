@@ -1,0 +1,1064 @@
+/**
+ * Comprehensive E2E tests for Wang language features
+ * Tests all language constructs, edge cases, and integration scenarios
+ */
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js';
+
+describe('Wang Language E2E Tests', () => {
+  let interpreter;
+  let resolver;
+
+  beforeEach(() => {
+    resolver = new InMemoryModuleResolver();
+    interpreter = new WangInterpreter({
+      moduleResolver: resolver,
+      functions: {
+        // Test helpers
+        testLog: vi.fn(),
+        getValue: vi.fn(x => x),
+      }
+    });
+  });
+
+  describe('Variable Declarations and Scoping', () => {
+    it('should handle let declarations with various scopes', async () => {
+      const result = await interpreter.execute(`
+        let outer = 10;
+        let result = [];
+        
+        {
+          let inner = 20;
+          push(result, outer + inner);
+          {
+            let deep = 30;
+            push(result, outer + inner + deep);
+            outer = 15
+          };
+          push(result, outer + inner)
+        };
+        
+        push(result, outer);
+        result
+      `);
+      expect(result).toEqual([30, 60, 35, 15]);
+    });
+
+    it('should enforce const immutability', async () => {
+      await expect(interpreter.execute(`
+        const x = 10;
+        x = 20
+      `)).rejects.toThrow();
+    });
+
+    it('should handle var hoisting behavior', async () => {
+      const result = await interpreter.execute(`
+        let result = [];
+        push(result, typeof x);
+        var x = 10;
+        push(result, x);
+        result
+      `);
+      expect(result).toEqual(['undefined', 10]);
+    });
+
+    it('should handle shadowing correctly', async () => {
+      const result = await interpreter.execute(`
+        let x = 10;
+        let results = [];
+        
+        function test() {
+          let x = 20;
+          push(results, x);
+          
+          {
+            let x = 30;
+            push(results, x)
+          };
+          
+          push(results, x)
+        };
+        
+        test();
+        push(results, x);
+        results
+      `);
+      expect(result).toEqual([20, 30, 20, 10]);
+    });
+  });
+
+  describe('Functions - Advanced Features', () => {
+    it('should handle closures with multiple levels', async () => {
+      const result = await interpreter.execute(`
+        function outermost(x) {
+          return function middle(y) {
+            return function innermost(z) {
+              return x + y + z
+            }
+          }
+        };
+        
+        const f1 = outermost(10);
+        const f2 = f1(20);
+        const result = f2(30);
+        result
+      `);
+      expect(result).toBe(60);
+    });
+
+    it('should handle mutual recursion', async () => {
+      const result = await interpreter.execute(`
+        function isEven(n) {
+          if (n === 0) return true;
+          if (n === 1) return false;
+          return isOdd(n - 1)
+        };
+        
+        function isOdd(n) {
+          if (n === 0) return false;
+          if (n === 1) return true;
+          return isEven(n - 1)
+        };
+        
+        [isEven(10), isOdd(10), isEven(11), isOdd(11)]
+      `);
+      expect(result).toEqual([true, false, false, true]);
+    });
+
+    it('should handle function as first-class citizens', async () => {
+      const result = await interpreter.execute(`
+        function add(x) { return y => x + y };
+        function multiply(x) { return y => x * y };
+        
+        const operations = [add(5), multiply(3)];
+        const results = map(operations, fn => fn(10));
+        results
+      `);
+      expect(result).toEqual([15, 30]);
+    });
+
+    it('should handle rest parameters and spread', async () => {
+      const result = await interpreter.execute(`
+        function sum(...numbers) {
+          return reduce(numbers, (acc, n) => acc + n, 0)
+        };
+        
+        const nums = [1, 2, 3];
+        [sum(1, 2, 3, 4), sum(...nums), sum()]
+      `);
+      expect(result).toEqual([10, 6, 0]);
+    });
+
+    it('should handle default parameters', async () => {
+      const result = await interpreter.execute(`
+        function greet(name = "World", greeting = "Hello") {
+          return greeting + ", " + name
+        };
+        
+        [greet(), greet("Alice"), greet("Bob", "Hi")]
+      `);
+      expect(result).toEqual(["Hello, World", "Hello, Alice", "Hi, Bob"]);
+    });
+
+    it('should handle immediately invoked function expressions (IIFE)', async () => {
+      const result = await interpreter.execute(`
+        const result = (function(x) {
+          return x * 2
+        })(21);
+        result
+      `);
+      expect(result).toBe(42);
+    });
+  });
+
+  describe('Classes - Complete OOP', () => {
+    it('should handle class inheritance', async () => {
+      const result = await interpreter.execute(`
+        class Animal {
+          constructor(name) {
+            this.name = name
+          }
+          
+          speak() {
+            return this.name + " makes a sound"
+          }
+        };
+        
+        class Dog extends Animal {
+          constructor(name, breed) {
+            super(name);
+            this.breed = breed
+          }
+          
+          speak() {
+            return this.name + " barks"
+          }
+          
+          getBreed() {
+            return this.breed
+          }
+        };
+        
+        const dog = new Dog("Max", "Golden Retriever");
+        [dog.speak(), dog.getBreed(), dog.name]
+      `);
+      expect(result).toEqual(["Max barks", "Golden Retriever", "Max"]);
+    });
+
+    it('should handle static methods', async () => {
+      const result = await interpreter.execute(`
+        class MathUtils {
+          static add(a, b) {
+            return a + b
+          }
+          
+          static multiply(a, b) {
+            return a * b
+          }
+          
+          static factorial(n) {
+            if (n <= 1) return 1;
+            return n * MathUtils.factorial(n - 1)
+          }
+        };
+        
+        [MathUtils.add(5, 3), MathUtils.multiply(4, 7), MathUtils.factorial(5)]
+      `);
+      expect(result).toEqual([8, 28, 120]);
+    });
+
+    it('should handle getters and setters', async () => {
+      const result = await interpreter.execute(`
+        class Circle {
+          constructor(radius) {
+            this._radius = radius
+          }
+          
+          get radius() {
+            return this._radius
+          }
+          
+          set radius(value) {
+            if (value < 0) throw "Radius cannot be negative";
+            this._radius = value
+          }
+          
+          get area() {
+            return 3.14159 * this._radius * this._radius
+          }
+        };
+        
+        const c = new Circle(5);
+        const initial = c.area;
+        c.radius = 10;
+        [initial, c.area]
+      `);
+      expect(result[0]).toBeCloseTo(78.54, 2);
+      expect(result[1]).toBeCloseTo(314.159, 2);
+    });
+
+    it('should handle private methods and properties', async () => {
+      const result = await interpreter.execute(`
+        class BankAccount {
+          constructor(balance) {
+            this.#balance = balance
+          }
+          
+          #balance;
+          
+          #validateAmount(amount) {
+            if (amount <= 0) throw "Invalid amount";
+            return true
+          }
+          
+          deposit(amount) {
+            this.#validateAmount(amount);
+            this.#balance = this.#balance + amount;
+            return this.#balance
+          }
+          
+          getBalance() {
+            return this.#balance
+          }
+        };
+        
+        const account = new BankAccount(100);
+        account.deposit(50);
+        account.getBalance()
+      `);
+      expect(result).toBe(150);
+    });
+
+    it('should handle method chaining', async () => {
+      const result = await interpreter.execute(`
+        class StringBuilder {
+          constructor() {
+            this.str = ""
+          }
+          
+          append(text) {
+            this.str = this.str + text;
+            return this
+          }
+          
+          prepend(text) {
+            this.str = text + this.str;
+            return this
+          }
+          
+          toString() {
+            return this.str
+          }
+        };
+        
+        const sb = new StringBuilder();
+        sb.append("Hello").append(" ").append("World").prepend("Say: ").toString()
+      `);
+      expect(result).toBe("Say: Hello World");
+    });
+  });
+
+  describe('Control Flow - Complex Scenarios', () => {
+    it('should handle nested loops with breaks and continues', async () => {
+      const result = await interpreter.execute(`
+        let result = [];
+        
+        outer: for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (i === 2 && j === 2) break outer;
+            if (j === 1) continue;
+            push(result, i * 10 + j)
+          }
+        };
+        
+        result
+      `);
+      expect(result).toEqual([0, 2, 3, 10, 12, 13, 20]);
+    });
+
+    it('should handle switch statements', async () => {
+      const result = await interpreter.execute(`
+        function getDayType(day) {
+          switch(day) {
+            case "Monday":
+            case "Tuesday":
+            case "Wednesday":
+            case "Thursday":
+            case "Friday":
+              return "Weekday";
+            case "Saturday":
+            case "Sunday":
+              return "Weekend";
+            default:
+              return "Invalid"
+          }
+        };
+        
+        [getDayType("Monday"), getDayType("Sunday"), getDayType("Holiday")]
+      `);
+      expect(result).toEqual(["Weekday", "Weekend", "Invalid"]);
+    });
+
+    it('should handle do-while loops', async () => {
+      const result = await interpreter.execute(`
+        let i = 0;
+        let sum = 0;
+        
+        do {
+          sum = sum + i;
+          i = i + 1
+        } while (i < 5);
+        
+        sum
+      `);
+      expect(result).toBe(10);
+    });
+
+    it('should handle complex conditional chains', async () => {
+      const result = await interpreter.execute(`
+        function classify(n) {
+          return n > 100 ? "huge" :
+                 n > 50 ? "large" :
+                 n > 20 ? "medium" :
+                 n > 10 ? "small" :
+                 n > 0 ? "tiny" :
+                 n === 0 ? "zero" :
+                 "negative"
+        };
+        
+        [classify(150), classify(35), classify(5), classify(0), classify(-10)]
+      `);
+      expect(result).toEqual(["huge", "medium", "tiny", "zero", "negative"]);
+    });
+  });
+
+  describe('Pipeline Operators - Advanced Usage', () => {
+    it('should handle complex pipeline chains', async () => {
+      const result = await interpreter.execute(`
+        const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        
+        const result = data
+          |> filter(_, n => n % 2 === 0)
+          |> map(_, n => n * n)
+          |> reduce(_, (sum, n) => sum + n, 0);
+          
+        result
+      `);
+      expect(result).toBe(220); // 4 + 16 + 36 + 64 + 100
+    });
+
+    it('should handle pipeline with method calls', async () => {
+      const result = await interpreter.execute(`
+        class DataProcessor {
+          constructor(data) {
+            this.data = data
+          }
+          
+          filter(predicate) {
+            this.data = filter(this.data, predicate);
+            return this
+          }
+          
+          map(mapper) {
+            this.data = map(this.data, mapper);
+            return this
+          }
+          
+          getData() {
+            return this.data
+          }
+        };
+        
+        const processor = new DataProcessor([1, 2, 3, 4, 5]);
+        processor
+          |> _.filter(n => n > 2)
+          |> _.map(n => n * 2)
+          |> _.getData();
+      `);
+      expect(result).toEqual([6, 8, 10]);
+    });
+
+    it('should handle arrow pipeline operator', async () => {
+      const result = await interpreter.execute(`
+        const process = x => x * 2;
+        const store = [];
+        
+        [1, 2, 3]
+          |> map(_, n => n + 10)
+          -> forEach(_, n => push(store, n));
+          
+        store
+      `);
+      expect(result).toEqual([11, 12, 13]);
+    });
+  });
+
+  describe('Destructuring - All Contexts', () => {
+    it('should handle nested object destructuring', async () => {
+      const result = await interpreter.execute(`
+        const person = {
+          name: "Alice",
+          age: 30,
+          address: {
+            street: "123 Main St",
+            city: "Boston",
+            coordinates: {
+              lat: 42.3601,
+              lng: -71.0589
+            }
+          }
+        };
+        
+        const { name, address: { city, coordinates: { lat } } } = person;
+        [name, city, lat]
+      `);
+      expect(result).toEqual(["Alice", "Boston", 42.3601]);
+    });
+
+    it('should handle array destructuring with rest', async () => {
+      const result = await interpreter.execute(`
+        const [first, second, ...rest] = [1, 2, 3, 4, 5];
+        const [a, , , d] = [10, 20, 30, 40];
+        
+        [first, second, rest, a, d]
+      `);
+      expect(result).toEqual([1, 2, [3, 4, 5], 10, 40]);
+    });
+
+    it('should handle destructuring in function parameters', async () => {
+      const result = await interpreter.execute(`
+        function processUser({ name, age = 18 }) {
+          return name + " is " + age
+        };
+        
+        function sumFirst([first, second]) {
+          return first + second
+        };
+        
+        [
+          processUser({ name: "Bob", age: 25 }),
+          processUser({ name: "Alice" }),
+          sumFirst([10, 20, 30])
+        ]
+      `);
+      expect(result).toEqual(["Bob is 25", "Alice is 18", 30]);
+    });
+
+    it('should handle destructuring with renaming', async () => {
+      const result = await interpreter.execute(`
+        const obj = { x: 1, y: 2 };
+        const { x: newX, y: newY } = obj;
+        [newX, newY]
+      `);
+      expect(result).toEqual([1, 2]);
+    });
+  });
+
+  describe('Operators - Precedence and Edge Cases', () => {
+    it('should handle operator precedence correctly', async () => {
+      const result = await interpreter.execute(`
+        [
+          2 + 3 * 4,           // 14
+          2 * 3 + 4,           // 10
+          2 * 3 ** 2,          // 18
+          (2 * 3) ** 2,        // 36
+          10 - 5 - 2,          // 3 (left associative)
+          2 ** 3 ** 2,         // 512 (right associative)
+          true || false && false, // true
+          false && true || true   // true
+        ]
+      `);
+      expect(result).toEqual([14, 10, 18, 36, 3, 512, true, true]);
+    });
+
+    it('should handle nullish coalescing and optional chaining', async () => {
+      const result = await interpreter.execute(`
+        const obj = {
+          a: {
+            b: {
+              c: 42
+            }
+          },
+          x: null,
+          y: 0,
+          z: false
+        };
+        
+        [
+          obj.a?.b?.c,           // 42
+          obj.x?.y?.z,           // undefined
+          obj.missing?.value,    // undefined
+          obj.x ?? "default",    // "default"
+          obj.y ?? "default",    // 0
+          obj.z ?? "default",    // false
+          obj.missing ?? "default" // "default"
+        ]
+      `);
+      expect(result).toEqual([42, undefined, undefined, "default", 0, false, "default"]);
+    });
+
+    it('should handle comparison operators with type coercion', async () => {
+      const result = await interpreter.execute(`
+        [
+          "5" == 5,      // true
+          "5" === 5,     // false
+          null == undefined,  // true
+          null === undefined, // false
+          0 == false,    // true
+          0 === false,   // false
+          "" == false,   // true
+          [] == false,   // true
+          [] == []       // false (different objects)
+        ]
+      `);
+      expect(result).toEqual([true, false, true, false, true, false, true, true, false]);
+    });
+
+    it('should handle increment and decrement operators', async () => {
+      const result = await interpreter.execute(`
+        let x = 5;
+        let results = [];
+        
+        push(results, x++);  // 5
+        push(results, x);    // 6
+        push(results, ++x);  // 7
+        push(results, x);    // 7
+        push(results, x--);  // 7
+        push(results, x);    // 6
+        push(results, --x);  // 5
+        push(results, x);    // 5
+        
+        results
+      `);
+      expect(result).toEqual([5, 6, 7, 7, 7, 6, 5, 5]);
+    });
+  });
+
+  describe('Async/Await - Complex Scenarios', () => {
+    it('should handle async function composition', async () => {
+      interpreter.bindFunction('delay', ms => new Promise(r => setTimeout(r, ms)));
+      interpreter.bindFunction('fetchValue', async (x) => {
+        await new Promise(r => setTimeout(r, 10));
+        return x * 2;
+      });
+
+      const result = await interpreter.execute(`
+        async function processSequentially(values) {
+          const results = [];
+          for (let value of values) {
+            const result = await fetchValue(value);
+            push(results, result)
+          };
+          return results
+        };
+        
+        async function processParallel(values) {
+          const promises = map(values, v => fetchValue(v));
+          return await Promise.all(promises)
+        };
+        
+        const input = [1, 2, 3];
+        const seq = await processSequentially(input);
+        const par = await processParallel(input);
+        [seq, par]
+      `);
+      expect(result).toEqual([[2, 4, 6], [2, 4, 6]]);
+    });
+
+    it('should handle async error handling', async () => {
+      interpreter.bindFunction('failAsync', async () => {
+        throw new Error("Async failure");
+      });
+
+      const result = await interpreter.execute(`
+        async function safeCall() {
+          try {
+            await failAsync();
+            return "success"
+          } catch (e) {
+            return "caught: " + e.message
+          }
+        };
+        
+        await safeCall()
+      `);
+      expect(result).toBe("caught: Async failure");
+    });
+
+    it('should handle async generators', async () => {
+      const result = await interpreter.execute(`
+        async function* asyncGenerator() {
+          yield 1;
+          yield 2;
+          yield 3
+        };
+        
+        async function collect() {
+          const results = [];
+          for await (let value of asyncGenerator()) {
+            push(results, value)
+          };
+          return results
+        };
+        
+        await collect()
+      `);
+      expect(result).toEqual([1, 2, 3]);
+    });
+  });
+
+  describe('Module System - Advanced', () => {
+    it('should handle circular dependencies', async () => {
+      resolver.addModule('moduleA', `
+        import { functionB } from "moduleB";
+        
+        export function functionA() {
+          return "A calls " + functionB()
+        };
+        
+        export function helperA() {
+          return "Helper A"
+        }
+      `);
+
+      resolver.addModule('moduleB', `
+        import { helperA } from "moduleA";
+        
+        export function functionB() {
+          return "B uses " + helperA()
+        }
+      `);
+
+      const result = await interpreter.execute(`
+        import { functionA } from "moduleA";
+        functionA()
+      `);
+      expect(result).toBe("A calls B uses Helper A");
+    });
+
+    it('should handle default exports and imports', async () => {
+      resolver.addModule('math', `
+        export default function sum(...nums) {
+          return reduce(nums, (a, b) => a + b, 0)
+        };
+        
+        export const PI = 3.14159;
+      `);
+
+      const result = await interpreter.execute(`
+        import sum, { PI } from "math";
+        sum(1, 2, 3) + PI
+      `);
+      expect(result).toBeCloseTo(9.14159, 5);
+    });
+
+    it('should handle namespace imports', async () => {
+      resolver.addModule('utils', `
+        export function add(a, b) { return a + b };
+        export function multiply(a, b) { return a * b };
+        export const VERSION = "1.0.0";
+      `);
+
+      const result = await interpreter.execute(`
+        import * as Utils from "utils";
+        [Utils.add(5, 3), Utils.multiply(4, 2), Utils.VERSION]
+      `);
+      expect(result).toEqual([8, 8, "1.0.0"]);
+    });
+
+    it('should handle re-exports', async () => {
+      resolver.addModule('core', `
+        export function coreFunction() {
+          return "core"
+        }
+      `);
+
+      resolver.addModule('extended', `
+        export { coreFunction } from "core";
+        export function extendedFunction() {
+          return "extended"
+        }
+      `);
+
+      const result = await interpreter.execute(`
+        import { coreFunction, extendedFunction } from "extended";
+        [coreFunction(), extendedFunction()]
+      `);
+      expect(result).toEqual(["core", "extended"]);
+    });
+  });
+
+  describe('Error Handling - Edge Cases', () => {
+    it('should handle nested try-catch-finally', async () => {
+      const result = await interpreter.execute(`
+        let log = [];
+        
+        try {
+          push(log, "outer try");
+          try {
+            push(log, "inner try");
+            throw "inner error"
+          } catch (e) {
+            push(log, "inner catch: " + e);
+            throw "outer error"
+          } finally {
+            push(log, "inner finally")
+          }
+        } catch (e) {
+          push(log, "outer catch: " + e)
+        } finally {
+          push(log, "outer finally")
+        };
+        
+        log
+      `);
+      expect(result).toEqual([
+        "outer try",
+        "inner try",
+        "inner catch: inner error",
+        "inner finally",
+        "outer catch: outer error",
+        "outer finally"
+      ]);
+    });
+
+    it('should handle errors in async contexts', async () => {
+      const result = await interpreter.execute(`
+        async function riskyOperation() {
+          throw new Error("Async error")
+        };
+        
+        async function handleError() {
+          try {
+            await riskyOperation()
+          } catch (e) {
+            return "Handled: " + e.message
+          }
+        };
+        
+        await handleError()
+      `);
+      expect(result).toBe("Handled: Async error");
+    });
+
+    it('should propagate errors correctly', async () => {
+      await expect(interpreter.execute(`
+        function level1() { level2() };
+        function level2() { level3() };
+        function level3() { throw new Error("Deep error") };
+        
+        level1()
+      `)).rejects.toThrow("Deep error");
+    });
+  });
+
+  describe('Template Literals - Advanced', () => {
+    it('should handle nested template literals', async () => {
+      const result = await interpreter.execute(`
+        const name = "World";
+        const greeting = \`Hello, \${name}!\`;
+        const message = \`Message: "\${greeting}" has \${greeting.length} characters\`;
+        message
+      `);
+      expect(result).toBe('Message: "Hello, World!" has 13 characters');
+    });
+
+    it('should handle template literals with expressions', async () => {
+      const result = await interpreter.execute(`
+        const a = 5;
+        const b = 10;
+        \`The sum of \${a} and \${b} is \${a + b}, and the product is \${a * b}\`
+      `);
+      expect(result).toBe("The sum of 5 and 10 is 15, and the product is 50");
+    });
+
+    it('should handle tagged template literals', async () => {
+      interpreter.bindFunction('tag', (strings, ...values) => {
+        return strings.reduce((acc, str, i) => 
+          acc + str + (values[i] !== undefined ? `[${values[i]}]` : ''), '');
+      });
+
+      const result = await interpreter.execute(`
+        const x = 10;
+        const y = 20;
+        tag\`Value x=\${x} and y=\${y}\`
+      `);
+      expect(result).toBe("Value x=[10] and y=[20]");
+    });
+  });
+
+  describe('Type Coercion and Edge Cases', () => {
+    it('should handle truthiness correctly', async () => {
+      const result = await interpreter.execute(`
+        const values = [0, 1, -1, "", "hello", null, undefined, false, true, [], {}, NaN];
+        map(values, v => !!v)
+      `);
+      expect(result).toEqual([
+        false, true, true, false, true, false, false, false, true, true, true, false
+      ]);
+    });
+
+    it('should handle type conversions', async () => {
+      const result = await interpreter.execute(`
+        [
+          Number("42"),
+          Number("hello"),
+          String(42),
+          String(true),
+          Boolean(1),
+          Boolean(0),
+          Boolean(""),
+          Boolean("false")
+        ]
+      `);
+      expect(result).toEqual([42, NaN, "42", "true", true, false, false, true]);
+    });
+
+    it('should handle special number values', async () => {
+      const result = await interpreter.execute(`
+        [
+          1 / 0,              // Infinity
+          -1 / 0,             // -Infinity
+          0 / 0,              // NaN
+          Infinity + 1,       // Infinity
+          Infinity - Infinity, // NaN
+          NaN === NaN,        // false
+          isNaN(NaN),         // true
+          isFinite(Infinity)  // false
+        ]
+      `);
+      expect(result).toEqual([
+        Infinity, -Infinity, NaN, Infinity, NaN, false, true, false
+      ]);
+    });
+  });
+
+  describe('Performance and Stress Tests', () => {
+    it('should handle deep recursion', async () => {
+      const result = await interpreter.execute(`
+        function sum(n) {
+          if (n <= 0) return 0;
+          return n + sum(n - 1)
+        };
+        
+        sum(100)
+      `);
+      expect(result).toBe(5050);
+    });
+
+    it('should handle large arrays efficiently', async () => {
+      const result = await interpreter.execute(`
+        const arr = [];
+        for (let i = 0; i < 1000; i++) {
+          push(arr, i)
+        };
+        
+        const sum = reduce(arr, (a, b) => a + b, 0);
+        sum
+      `);
+      expect(result).toBe(499500);
+    });
+
+    it('should handle complex nested structures', async () => {
+      const result = await interpreter.execute(`
+        function createTree(depth) {
+          if (depth === 0) return { value: 1 };
+          return {
+            value: depth,
+            left: createTree(depth - 1),
+            right: createTree(depth - 1)
+          }
+        };
+        
+        function countNodes(tree) {
+          if (!tree) return 0;
+          return 1 + countNodes(tree.left) + countNodes(tree.right)
+        };
+        
+        const tree = createTree(5);
+        countNodes(tree)
+      `);
+      expect(result).toBe(63); // 2^6 - 1
+    });
+  });
+
+  describe('Real-world Scenarios', () => {
+    it('should implement a functional programming library', async () => {
+      const result = await interpreter.execute(`
+        // Functional utilities
+        const pipe = (...fns) => x => reduce(fns, (v, f) => f(v), x);
+        const compose = (...fns) => pipe(...reverse(fns));
+        const curry = (fn, arity = fn.length) => {
+          return function curried(...args) {
+            if (args.length >= arity) {
+              return fn(...args)
+            };
+            return (...nextArgs) => curried(...args, ...nextArgs)
+          }
+        };
+        
+        // Test them
+        const add = curry((a, b) => a + b);
+        const multiply = curry((a, b) => a * b);
+        const add5 = add(5);
+        const double = multiply(2);
+        
+        const pipeline = pipe(add5, double);
+        pipeline(10) // (10 + 5) * 2 = 30
+      `);
+      expect(result).toBe(30);
+    });
+
+    it('should implement a state machine', async () => {
+      const result = await interpreter.execute(`
+        class StateMachine {
+          constructor(initialState) {
+            this.state = initialState;
+            this.transitions = {}
+          }
+          
+          addTransition(from, event, to, action) {
+            const key = from + ":" + event;
+            this.transitions[key] = { to, action };
+            return this
+          }
+          
+          trigger(event) {
+            const key = this.state + ":" + event;
+            const transition = this.transitions[key];
+            
+            if (!transition) {
+              throw "Invalid transition: " + key
+            };
+            
+            if (transition.action) {
+              transition.action()
+            };
+            
+            this.state = transition.to;
+            return this.state
+          }
+        };
+        
+        const sm = new StateMachine("idle");
+        sm.addTransition("idle", "start", "running")
+          .addTransition("running", "pause", "paused")
+          .addTransition("paused", "resume", "running")
+          .addTransition("running", "stop", "idle");
+        
+        const states = [];
+        push(states, sm.state);
+        push(states, sm.trigger("start"));
+        push(states, sm.trigger("pause"));
+        push(states, sm.trigger("resume"));
+        push(states, sm.trigger("stop"));
+        states
+      `);
+      expect(result).toEqual(["idle", "running", "paused", "running", "idle"]);
+    });
+
+    it('should implement a reactive observable pattern', async () => {
+      const result = await interpreter.execute(`
+        class Observable {
+          constructor() {
+            this.observers = []
+          }
+          
+          subscribe(observer) {
+            push(this.observers, observer);
+            return {
+              unsubscribe: () => {
+                const index = indexOf(this.observers, observer);
+                if (index > -1) {
+                  this.observers = [...slice(this.observers, 0, index), ...slice(this.observers, index + 1)]
+                }
+              }
+            }
+          }
+          
+          notify(data) {
+            forEach(this.observers, obs => obs(data))
+          }
+        };
+        
+        const observable = new Observable();
+        const results = [];
+        
+        const sub1 = observable.subscribe(data => push(results, "Observer1: " + data));
+        const sub2 = observable.subscribe(data => push(results, "Observer2: " + data));
+        
+        observable.notify("First");
+        sub1.unsubscribe();
+        observable.notify("Second");
+        
+        results
+      `);
+      expect(result).toEqual([
+        "Observer1: First",
+        "Observer2: First",
+        "Observer2: Second"
+      ]);
+    });
+  });
+});

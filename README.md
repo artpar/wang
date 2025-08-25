@@ -16,6 +16,8 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🌐 **Browser Automation Focus** - Built for DOM manipulation and web workflows
 - 🚀 **Pipeline Operators** - Elegant data flow with `|>` and `->` operators
 - ✨ **Full Class Support** - Classes with constructors, methods, inheritance, and proper `this` binding
+- 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
+- ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
 - 🧪 **Fully Tested** - Comprehensive test suite using Vitest
 
 ## Installation
@@ -75,9 +77,29 @@ await interpreter.execute(`
 Wang supports most modern JavaScript features:
 
 ```javascript
-// Variables and constants
-let mutable = 10;
-const immutable = 20;
+// Variables with proper scoping semantics
+let mutable = 10;        // Block-scoped
+const immutable = 20;    // Block-scoped and immutable
+var hoisted = 30;        // Function-scoped with hoisting
+
+// Const immutability is enforced
+const PI = 3.14159;
+// PI = 3.14;  // ❌ Error: Cannot reassign const variable
+
+// Var hoisting works correctly
+log(typeof x);           // "undefined" (not an error!)
+var x = 42;
+log(x);                  // 42
+
+// Block scoping with proper shadowing
+let outer = 1;
+{
+  let outer = 2;         // Shadows outer variable
+  const inner = 3;
+  log(outer);            // 2
+}
+log(outer);              // 1
+// log(inner);           // ❌ Error: inner is not defined
 
 // Destructuring
 const { name, age } = person;
@@ -310,6 +332,8 @@ wang/
 │   ├── unit/            # Unit tests
 │   │   ├── parser.test.js    # Parser tests (13 tests)
 │   │   └── interpreter.test.js # Interpreter tests (25 tests)
+│   ├── e2e/             # End-to-end tests
+│   │   └── language-features.test.js # Comprehensive language tests (52 tests)
 │   └── test-utils.js    # Test utilities
 ├── dist/                # Built files
 │   ├── esm/            # ES modules
@@ -325,6 +349,8 @@ The Wang grammar is **completely deterministic** with zero ambiguity:
 - Separate expression rules for different contexts
 - Proper precedence and associativity
 - Clean separation between statements and expressions
+- Proper typeof operator handling for hoisted variables
+- Memory-efficient circular module dependency resolution
 
 ## CSP Safety
 

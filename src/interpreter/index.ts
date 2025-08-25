@@ -20,6 +20,7 @@ import nearley from 'nearley';
 
 export interface ExecutionContext {
   variables: Map<string, any>;
+  variableKinds: Map<string, 'const' | 'let' | 'var'>; // Track variable kinds
   functions: Map<string, Function>;
   classes: Map<string, any>;
   exports: Map<string, any>;
@@ -38,6 +39,7 @@ export class WangInterpreter {
   private globalContext: ExecutionContext;
   private currentContext: ExecutionContext;
   private lastPipelineValue: any = undefined;
+  private globalModuleCache: Map<string, any> = new Map();
 
   constructor(options: InterpreterOptions = {}) {
     this.moduleResolver = options.moduleResolver || new InMemoryModuleResolver();
@@ -58,6 +60,7 @@ export class WangInterpreter {
   private createContext(parent?: ExecutionContext): ExecutionContext {
     return {
       variables: new Map(),
+      variableKinds: new Map(),
       functions: new Map(),
       classes: new Map(),
       exports: new Map(),
@@ -360,35 +363,120 @@ export class WangInterpreter {
   }
 
   private async evaluateProgram(node: any): Promise<any> {
+    // Hoist var declarations
+    this.hoistVarDeclarations(node.body);
+    
     let lastValue;
     for (const statement of node.body) {
       lastValue = await this.evaluateNode(statement);
     }
     return lastValue;
   }
+  
+  private hoistVarDeclarations(statements: any[]): void {
+    for (const statement of statements) {
+      if (statement.type === 'VariableDeclaration' && statement.kind === 'var') {
+        for (const declarator of statement.declarations) {
+          this.hoistVarPattern(declarator.id);
+        }
+      } else if (statement.type === 'FunctionDeclaration') {
+        // Function declarations are also hoisted
+        this.currentContext.functions.set(statement.id.name, this.createFunction(statement));
+      }
+    }
+  }
+  
+  private hoistVarPattern(pattern: any): void {
+    if (pattern.type === 'Identifier') {
+      // Pre-declare var with undefined
+      if (!this.currentContext.variables.has(pattern.name)) {
+        this.currentContext.variables.set(pattern.name, undefined);
+        this.currentContext.variableKinds.set(pattern.name, 'var');
+      }
+    } else if (pattern.type === 'ObjectPattern') {
+      for (const prop of pattern.properties) {
+        if (prop.type === 'Property') {
+          if (prop.shorthand && typeof prop.value === 'string') {
+            if (!this.currentContext.variables.has(prop.value)) {
+              this.currentContext.variables.set(prop.value, undefined);
+              this.currentContext.variableKinds.set(prop.value, 'var');
+            }
+          } else {
+            const bindingPattern = typeof prop.value === 'string' 
+              ? { type: 'Identifier', name: prop.value }
+              : prop.value;
+            this.hoistVarPattern(bindingPattern);
+          }
+        } else if (prop.type === 'RestElement') {
+          if (!this.currentContext.variables.has(prop.argument)) {
+            this.currentContext.variables.set(prop.argument, undefined);
+            this.currentContext.variableKinds.set(prop.argument, 'var');
+          }
+        }
+      }
+    } else if (pattern.type === 'ArrayPattern') {
+      for (const element of pattern.elements) {
+        if (element) {
+          if (element.type === 'RestElement') {
+            const name = element.argument.name || element.argument;
+            if (!this.currentContext.variables.has(name)) {
+              this.currentContext.variables.set(name, undefined);
+              this.currentContext.variableKinds.set(name, 'var');
+            }
+          } else {
+            this.hoistVarPattern(element);
+          }
+        }
+      }
+    }
+  }
 
   private async evaluateVariableDeclaration(node: any): Promise<void> {
     for (const declarator of node.declarations) {
       const value = declarator.init ? await this.evaluateNode(declarator.init) : undefined;
-      this.assignPattern(declarator.id, value);
+      this.assignPattern(declarator.id, value, node.kind);
     }
   }
 
-  private assignPattern(pattern: any, value: any): void {
+  private assignPattern(pattern: any, value: any, kind?: 'const' | 'let' | 'var'): void {
     if (pattern.type === 'Identifier') {
-      this.currentContext.variables.set(pattern.name, value);
+      if (kind === 'var') {
+        // For var, update in the hoisted scope
+        let ctx: ExecutionContext | undefined = this.currentContext;
+        while (ctx) {
+          if (ctx.variables.has(pattern.name)) {
+            ctx.variables.set(pattern.name, value);
+            break;
+          }
+          ctx = ctx.parent;
+        }
+        if (!ctx) {
+          // Not hoisted yet, set in current context
+          this.currentContext.variables.set(pattern.name, value);
+          this.currentContext.variableKinds.set(pattern.name, 'var');
+        }
+      } else {
+        // For let/const, always create in current scope
+        this.currentContext.variables.set(pattern.name, value);
+        if (kind) {
+          this.currentContext.variableKinds.set(pattern.name, kind);
+        }
+      }
     } else if (pattern.type === 'ObjectPattern') {
       for (const prop of pattern.properties) {
         if (prop.type === 'Property') {
           // Handle shorthand properties
           if (prop.shorthand && typeof prop.value === 'string') {
             this.currentContext.variables.set(prop.value, value?.[prop.key]);
+            if (kind) {
+              this.currentContext.variableKinds.set(prop.value, kind);
+            }
           } else {
             // Handle regular properties with nested patterns
             const bindingPattern = typeof prop.value === 'string' 
               ? { type: 'Identifier', name: prop.value }
               : prop.value;
-            this.assignPattern(bindingPattern, value?.[prop.key]);
+            this.assignPattern(bindingPattern, value?.[prop.key], kind);
           }
         } else if (prop.type === 'RestElement') {
           const rest = { ...value };
@@ -396,6 +484,9 @@ export class WangInterpreter {
             if (p.type === 'Property') delete rest[p.key];
           }
           this.currentContext.variables.set(prop.argument, rest);
+          if (kind) {
+            this.currentContext.variableKinds.set(prop.argument, kind);
+          }
         }
       }
     } else if (pattern.type === 'ArrayPattern') {
@@ -405,8 +496,11 @@ export class WangInterpreter {
         if (element) {
           if (element.type === 'RestElement') {
             this.currentContext.variables.set(element.argument.name || element.argument, arr.slice(index));
+            if (kind) {
+              this.currentContext.variableKinds.set(element.argument.name || element.argument, kind);
+            }
           } else {
-            this.assignPattern(element, arr[index]);
+            this.assignPattern(element, arr[index], kind);
           }
         }
         index++;
@@ -448,6 +542,8 @@ export class WangInterpreter {
       
       try {
         if (body.type === 'BlockStatement') {
+          // Hoist var declarations in function body
+          this.hoistVarDeclarations(body.body);
           await this.evaluateBlock(body);
           return undefined;
         } else {
@@ -571,11 +667,20 @@ export class WangInterpreter {
   }
 
   private async evaluateBlock(node: any): Promise<any> {
-    let lastValue;
-    for (const statement of node.body) {
-      lastValue = await this.evaluateNode(statement);
+    // Create a new scope for block-scoped variables (let/const)
+    const blockContext = this.createContext(this.currentContext);
+    const previousContext = this.currentContext;
+    this.currentContext = blockContext;
+    
+    try {
+      let lastValue;
+      for (const statement of node.body) {
+        lastValue = await this.evaluateNode(statement);
+      }
+      return lastValue;
+    } finally {
+      this.currentContext = previousContext;
     }
-    return lastValue;
   }
 
   private async evaluateIfStatement(node: any): Promise<any> {
@@ -789,13 +894,41 @@ export class WangInterpreter {
       return newValue; // Prefix returns new value
     }
     
+    // Special handling for typeof - don't throw if variable doesn't exist
+    if (node.operator === 'typeof') {
+      if (node.argument.type === 'Identifier') {
+        const name = node.argument.name;
+        // Check if variable exists without evaluating
+        let ctx: ExecutionContext | undefined = this.currentContext;
+        while (ctx) {
+          if (ctx.variables.has(name)) {
+            const value = ctx.variables.get(name);
+            return typeof value;
+          }
+          if (ctx.functions.has(name)) {
+            return 'function';
+          }
+          ctx = ctx.parent;
+        }
+        // Check global functions
+        if (this.currentContext.functions.has(name)) {
+          return 'function';
+        }
+        // Variable doesn't exist, typeof returns 'undefined'
+        return 'undefined';
+      } else {
+        // For non-identifiers, evaluate normally
+        const argument = await this.evaluateNode(node.argument);
+        return typeof argument;
+      }
+    }
+    
     const argument = await this.evaluateNode(node.argument);
     
     switch (node.operator) {
       case '!': return !argument;
       case '+': return +argument;
       case '-': return -argument;
-      case 'typeof': return typeof argument;
       case 'await': return await argument;
       default:
         throw new WangError(`Unknown unary operator: ${node.operator}`, { type: 'RuntimeError' });
@@ -815,6 +948,10 @@ export class WangInterpreter {
           let found = false;
           while (ctx) {
             if (ctx.variables.has(name)) {
+              // Check if it's a const variable
+              if (ctx.variableKinds.get(name) === 'const') {
+                throw new WangError(`Cannot reassign const variable "${name}"`);
+              }
               ctx.variables.set(name, value);
               found = true;
               break;
@@ -833,6 +970,10 @@ export class WangInterpreter {
           ctx = this.currentContext;
           while (ctx) {
             if (ctx.variables.has(name)) {
+              // Check if it's a const variable
+              if (ctx.variableKinds.get(name) === 'const') {
+                throw new WangError(`Cannot reassign const variable "${name}"`);
+              }
               ctx.variables.set(name, newValue);
               break;
             }
@@ -902,6 +1043,10 @@ export class WangInterpreter {
     let ctx: ExecutionContext | undefined = this.currentContext;
     while (ctx) {
       if (ctx.variables.has(name)) {
+        // Check if it's a const variable
+        if (ctx.variableKinds.get(name) === 'const') {
+          throw new WangError(`Cannot reassign const variable "${name}"`);
+        }
         ctx.variables.set(name, newValue);
         break;
       }
@@ -1045,10 +1190,14 @@ export class WangInterpreter {
   }
 
   private async importModule(modulePath: string): Promise<any> {
-    // Check cache
-    if (this.currentContext.moduleCache.has(modulePath)) {
-      return this.currentContext.moduleCache.get(modulePath);
+    // Check global cache
+    if (this.globalModuleCache.has(modulePath)) {
+      return this.globalModuleCache.get(modulePath);
     }
+    
+    // Create placeholder to prevent circular imports
+    const exports: any = {};
+    this.globalModuleCache.set(modulePath, exports);
     
     // Resolve and load module
     const { code } = await this.moduleResolver.resolve(modulePath);
@@ -1059,14 +1208,10 @@ export class WangInterpreter {
     // Execute module
     await this.execute(code, moduleContext);
     
-    // Get exports
-    const exports: any = {};
+    // Get exports and copy to the cached object
     moduleContext.exports.forEach((value, key) => {
       exports[key] = value;
     });
-    
-    // Cache
-    this.currentContext.moduleCache.set(modulePath, exports);
     
     return exports;
   }
