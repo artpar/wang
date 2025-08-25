@@ -1,7 +1,7 @@
 # Known Issues and Limitations
 
 ## Test Coverage
-Currently **81/90 tests passing** (90% coverage)
+Currently **83/90 tests passing** (92.2% coverage)
 
 ## Reserved Keywords as Identifiers
 - **Issue**: Reserved keywords cannot be used as parameter names or variable names

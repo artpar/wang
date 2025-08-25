@@ -22,6 +22,12 @@ describe('Wang Language E2E Tests', () => {
         fetch: () => Promise.resolve({ json: () => Promise.resolve({ data: 'test' }) }),
         filter: (arr, pred) => arr.filter(pred),
         map: (arr, fn) => arr.map(fn),
+        reduce: (arr, fn, initial) => arr.reduce(fn, initial),
+        reverse: (arr) => [...arr].reverse(),
+        forEach: (arr, fn) => arr.forEach(fn),
+        indexOf: (arr, item) => arr.indexOf(item),
+        slice: (arr, start, end) => arr.slice(start, end),
+        concat: (arr, ...items) => arr.concat(...items),
       }
     });
   });
@@ -956,19 +962,19 @@ describe('Wang Language E2E Tests', () => {
       const result = await interpreter.execute(`
         // Functional utilities
         const pipe = (...fns) => x => reduce(fns, (v, f) => f(v), x);
-        const compose = (...fns) => pipe(...reverse(fns));
-        const curry = (fn, arity = fn.length) => {
+        const compose = (...fns) => pipe.apply(null, reverse(fns));
+        const curry = (fn, arity) => {
           return function curried(...args) {
             if (args.length >= arity) {
-              return fn(...args)
+              return fn.apply(null, args)
             };
-            return (...nextArgs) => curried(...args, ...nextArgs)
+            return (...nextArgs) => curried.apply(null, concat(args, nextArgs))
           }
         };
         
         // Test them
-        const add = curry((a, b) => a + b);
-        const multiply = curry((a, b) => a * b);
+        const add = curry((a, b) => a + b, 2);
+        const multiply = curry((a, b) => a * b, 2);
         const add5 = add(5);
         const double = multiply(2);
         
@@ -986,8 +992,8 @@ describe('Wang Language E2E Tests', () => {
             this.transitions = {}
           }
           
-          addTransition(from, event, to, action) {
-            const key = from + ":" + event;
+          addTransition(fromState, event, to, action) {
+            const key = fromState + ":" + event;
             this.transitions[key] = { to, action };
             return this
           }
@@ -1035,11 +1041,12 @@ describe('Wang Language E2E Tests', () => {
           
           subscribe(observer) {
             push(this.observers, observer);
+            const self = this;
             return {
-              unsubscribe: () => {
-                const index = indexOf(this.observers, observer);
+              unsubscribe: function() {
+                const index = indexOf(self.observers, observer);
                 if (index > -1) {
-                  this.observers = [...slice(this.observers, 0, index), ...slice(this.observers, index + 1)]
+                  self.observers = [...slice(self.observers, 0, index), ...slice(self.observers, index + 1)]
                 }
               }
             }

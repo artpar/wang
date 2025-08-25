@@ -351,6 +351,74 @@ export class WangInterpreter {
     }
   }
 
+  private createSyncFunction(node: any): Function {
+    const capturedContext = this.currentContext;
+    const capturedThis = this.currentContext.variables.get('this');
+    const interpreter = this;
+    
+    const fn = function(this: any, ...args: any[]) {
+      // Create new context for function with captured parent context
+      const fnContext = interpreter.createContext(capturedContext);
+      
+      // For named function expressions, add the function name to scope
+      if (node.id && node.id.name) {
+        fnContext.variables.set(node.id.name, fn);
+      }
+      
+      // For arrow functions, preserve captured 'this'
+      if (node.type === 'ArrowFunctionExpression') {
+        fnContext.variables.set('this', capturedThis);
+      } else {
+        // Regular functions get 'this' from call context
+        fnContext.variables.set('this', this);
+      }
+      
+      // Bind parameters
+      node.params.forEach((param: any, i: number) => {
+        if (param.type === 'Identifier') {
+          fnContext.variables.set(param.name, args[i]);
+        } else if (param.type === 'RestElement') {
+          fnContext.variables.set(param.argument.name, args.slice(i));
+        } else if (param.type === 'AssignmentPattern') {
+          const value = args[i] !== undefined ? args[i] : interpreter.evaluateNodeSync(param.right);
+          if (param.left.type === 'Identifier') {
+            fnContext.variables.set(param.left.name, value);
+          }
+        }
+      });
+      
+      const previousContext = interpreter.currentContext;
+      interpreter.currentContext = fnContext;
+      
+      try {
+        const body = node.body;
+        
+        // Arrow functions with expression body
+        if (node.type === 'ArrowFunctionExpression' && body.type !== 'BlockStatement') {
+          return interpreter.evaluateNodeSync(body);
+        }
+        
+        // Functions with block body
+        let lastValue;
+        for (const stmt of body.body) {
+          try {
+            lastValue = interpreter.evaluateNodeSync(stmt);
+          } catch (e: any) {
+            if (e.type === 'return') {
+              return e.value;
+            }
+            throw e;
+          }
+        }
+        return lastValue;
+      } finally {
+        interpreter.currentContext = previousContext;
+      }
+    };
+    
+    return fn;
+  }
+
   private evaluateNodeSync(node: any): any {
     if (!node) return undefined;
 
@@ -494,6 +562,11 @@ export class WangInterpreter {
       
       case 'ThisExpression':
         return this.currentContext.variables.get('this');
+      
+      case 'ArrowFunctionExpression':
+      case 'FunctionExpression':
+        // Create a synchronous function for arrow/function expressions
+        return this.createSyncFunction(node);
       
       default:
         throw new Error(`Cannot evaluate node type synchronously: ${node.type}`);
@@ -856,6 +929,11 @@ export class WangInterpreter {
     const fn = async function(this: any, ...args: any[]) {
       // Create new context for function with captured parent context
       const fnContext = interpreter.createContext(capturedContext);
+      
+      // For named function expressions, add the function name to scope
+      if (node.id && node.id.name) {
+        fnContext.variables.set(node.id.name, fn);
+      }
       
       // For arrow functions, use captured 'this'; for regular functions, use the passed 'this'
       if (node.type === 'ArrowFunctionExpression') {
