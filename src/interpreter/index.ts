@@ -16,7 +16,7 @@ import {
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 import grammar from '../generated/wang-grammar.js';
-import * as nearley from 'nearley';
+import nearley from 'nearley';
 
 export interface ExecutionContext {
   variables: Map<string, any>;
