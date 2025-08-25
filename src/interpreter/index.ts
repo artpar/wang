@@ -74,6 +74,21 @@ export class WangInterpreter {
     this.bindFunction('log', (...args: any[]) => console.log(...args));
     this.bindFunction('error', (...args: any[]) => console.error(...args));
     this.bindFunction('warn', (...args: any[]) => console.warn(...args));
+    
+    // Type conversion functions
+    this.bindFunction('Number', (val: any) => Number(val));
+    this.bindFunction('String', (val: any) => String(val));
+    this.bindFunction('Boolean', (val: any) => Boolean(val));
+    
+    // Type checking functions
+    this.bindFunction('isNaN', (val: any) => isNaN(val));
+    this.bindFunction('isFinite', (val: any) => isFinite(val));
+    this.bindFunction('isInteger', (val: any) => Number.isInteger(val));
+    
+    // Special values
+    this.currentContext.variables.set('Infinity', Infinity);
+    this.currentContext.variables.set('NaN', NaN);
+    this.currentContext.variables.set('undefined', undefined);
 
     // Array functions - handle async callbacks
     this.bindFunction(
@@ -446,6 +461,9 @@ export class WangInterpreter {
           type: 'continue',
           label: node.label
         };
+
+      case 'LabeledStatement':
+        return this.evaluateLabeledStatement(node);
 
       case 'ReturnStatement':
         throw {
@@ -996,9 +1014,9 @@ export class WangInterpreter {
         try {
           await this.evaluateNode(node.body);
         } catch (e: any) {
-          if (e.type === 'break') {
+          if (e.type === 'break' && !e.label) {
             break;
-          } else if (e.type === 'continue') {
+          } else if (e.type === 'continue' && !e.label) {
             continue;
           }
           throw e;
@@ -1013,9 +1031,9 @@ export class WangInterpreter {
         try {
           await this.evaluateNode(node.body);
         } catch (e: any) {
-          if (e.type === 'break') {
+          if (e.type === 'break' && !e.label) {
             break;
-          } else if (e.type === 'continue') {
+          } else if (e.type === 'continue' && !e.label) {
             continue;
           }
           throw e;
@@ -1028,9 +1046,9 @@ export class WangInterpreter {
         try {
           await this.evaluateNode(node.body);
         } catch (e: any) {
-          if (e.type === 'break') {
+          if (e.type === 'break' && !e.label) {
             break;
-          } else if (e.type === 'continue') {
+          } else if (e.type === 'continue' && !e.label) {
             if (node.update) await this.evaluateNode(node.update);
             continue;
           }
@@ -1046,9 +1064,9 @@ export class WangInterpreter {
       try {
         await this.evaluateNode(node.body);
       } catch (e: any) {
-        if (e.type === 'break') {
+        if (e.type === 'break' && !e.label) {
           break;
-        } else if (e.type === 'continue') {
+        } else if (e.type === 'continue' && !e.label) {
           continue;
         }
         throw e;
@@ -1061,14 +1079,32 @@ export class WangInterpreter {
       try {
         await this.evaluateNode(node.body);
       } catch (e: any) {
-        if (e.type === 'break') {
+        if (e.type === 'break' && !e.label) {
           break;
-        } else if (e.type === 'continue') {
+        } else if (e.type === 'continue' && !e.label) {
           continue;
         }
         throw e;
       }
     } while (await this.evaluateNode(node.test));
+  }
+
+  private async evaluateLabeledStatement(node: any): Promise<any> {
+    try {
+      return await this.evaluateNode(node.body);
+    } catch (e: any) {
+      // Check if break/continue is for this label
+      if ((e.type === 'break' || e.type === 'continue') && e.label === node.label) {
+        if (e.type === 'break') {
+          // Break out of the labeled statement
+          return;
+        } else {
+          // For continue with label, re-throw to let the loop handle it
+          throw e;
+        }
+      }
+      throw e;
+    }
   }
 
   private async evaluateSwitchStatement(node: any): Promise<any> {
@@ -1570,9 +1606,114 @@ export class WangInterpreter {
   }
 
   private async evaluateTemplateLiteral(node: any): Promise<string> {
-    // For now, return the raw value
-    // TODO: Implement template literal interpolation
+    // Handle template literal interpolation
+    const raw = node.raw || node.value;
+    
+    // If it's a raw template literal, we need to parse and evaluate expressions
+    if (typeof raw === 'string' && raw.startsWith('`') && raw.endsWith('`')) {
+      // Get the content without backticks
+      const content = raw.slice(1, -1);
+      
+      // Replace ${...} expressions with evaluated values
+      const result = await this.interpolateTemplate(content);
+      return result;
+    }
+    
+    // If value is already processed (shouldn't happen but for safety)
+    if (typeof node.value === 'string') {
+      return await this.interpolateTemplate(node.value);
+    }
+    
     return node.value;
+  }
+  
+  private async interpolateTemplate(template: string): Promise<string> {
+    // Match ${...} expressions
+    const expressionRegex = /\$\{([^}]+)\}/g;
+    let result = template;
+    let match;
+    
+    const replacements: Array<{start: number, end: number, value: string}> = [];
+    
+    while ((match = expressionRegex.exec(template)) !== null) {
+      const expression = match[1];
+      try {
+        // Parse and evaluate the expression
+        // Create a mini parser for the expression
+        const exprCode = expression.trim();
+        
+        // Try to evaluate as a simple expression
+        const value = await this.evaluateTemplateExpression(exprCode);
+        replacements.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          value: String(value)
+        });
+      } catch (error) {
+        // If evaluation fails, leave as is
+        console.warn(`Failed to evaluate template expression: ${expression}`);
+      }
+    }
+    
+    // Apply replacements in reverse order to maintain indices
+    for (let i = replacements.length - 1; i >= 0; i--) {
+      const r = replacements[i];
+      result = result.slice(0, r.start) + r.value + result.slice(r.end);
+    }
+    
+    return result;
+  }
+  
+  private async evaluateTemplateExpression(expression: string): Promise<any> {
+    // This is a simplified expression evaluator
+    // For full support, we'd need to parse the expression properly
+    
+    // Handle simple variable references
+    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(expression)) {
+      return this.evaluateIdentifier({ name: expression });
+    }
+    
+    // Handle binary operations (a + b, a * b, etc.)
+    const binaryOpMatch = expression.match(/^(.+?)\s*([\+\-\*\/])\s*(.+)$/);
+    if (binaryOpMatch) {
+      const left = await this.evaluateTemplateExpression(binaryOpMatch[1].trim());
+      const right = await this.evaluateTemplateExpression(binaryOpMatch[3].trim());
+      const op = binaryOpMatch[2];
+      
+      switch (op) {
+        case '+': return left + right;
+        case '-': return left - right;
+        case '*': return left * right;
+        case '/': return left / right;
+        default: return expression;
+      }
+    }
+    
+    // Handle member expressions (a.b)
+    if (expression.includes('.')) {
+      const parts = expression.split('.');
+      let obj = await this.evaluateTemplateExpression(parts[0]);
+      for (let i = 1; i < parts.length; i++) {
+        obj = obj[parts[i]];
+      }
+      return obj;
+    }
+    
+    // Handle numbers
+    const num = Number(expression);
+    if (!isNaN(num)) {
+      return num;
+    }
+    
+    // Handle strings
+    if (expression.startsWith('"') && expression.endsWith('"')) {
+      return expression.slice(1, -1);
+    }
+    if (expression.startsWith("'") && expression.endsWith("'")) {
+      return expression.slice(1, -1);
+    }
+    
+    return expression;
   }
 
   private async evaluateImport(node: any): Promise<any> {

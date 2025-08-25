@@ -18,6 +18,8 @@ describe('Wang Language E2E Tests', () => {
         // Test helpers
         testLog: vi.fn(),
         getValue: vi.fn(x => x),
+        push: (arr, item) => { arr.push(item); return arr; },
+        fetch: () => Promise.resolve({ json: () => Promise.resolve({ data: 'test' }) }),
       }
     });
   });

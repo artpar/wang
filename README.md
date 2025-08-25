@@ -20,7 +20,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (70/90 tests passing)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (75/90 tests passing - 83% coverage)
 
 ## Installation
 
@@ -511,20 +511,22 @@ Wang comes with many built-in functions:
 - Switch statements with fall-through
 - Do-while loops
 - Break and continue statements
+- Labeled statements with labeled break/continue
 - Try/catch/finally
 - Module imports/exports
-- Template literals (basic)
+- Template literals with expression interpolation
 - Spread operator
 - Rest parameters
 - Method chaining
+- Type conversion functions (Number, String, Boolean)
+- Type checking functions (isNaN, isFinite, isInteger)
+- Special numeric values (Infinity, NaN, undefined)
 
 ### 🚧 Partially Implemented
-- Destructuring (works in most contexts)
-- Template literals with expressions
+- Destructuring (works in most contexts except function parameters)
 
 ### ❌ Not Yet Implemented
 - Private fields (#field syntax)
-- Labeled break/continue
 - Async generators
 - Default exports/imports
 - Namespace imports (import * as)

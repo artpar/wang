@@ -177,6 +177,7 @@ var grammar = {
     {"name": "Statement", "symbols": ["ReturnStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["BreakStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ContinueStatement"], "postprocess": id},
+    {"name": "Statement", "symbols": ["LabeledStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ExpressionStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["Block"], "postprocess": id},
     {"name": "ImportStatement", "symbols": [{"literal":"import"}, "ImportSpecifiers", {"literal":"from"}, (lexer.has("string") ? {type: "string"} : string)], "postprocess": d => ({ type: 'ImportDeclaration', specifiers: d[1], source: d[3].value })},
@@ -382,6 +383,11 @@ var grammar = {
     {"name": "BreakStatement", "symbols": [{"literal":"break"}, (lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":";"}], "postprocess": d => ({ type: 'BreakStatement', label: d[1].value })},
     {"name": "ContinueStatement", "symbols": [{"literal":"continue"}, {"literal":";"}], "postprocess": d => ({ type: 'ContinueStatement', label: null })},
     {"name": "ContinueStatement", "symbols": [{"literal":"continue"}, (lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":";"}], "postprocess": d => ({ type: 'ContinueStatement', label: d[1].value })},
+    {"name": "LabeledStatement", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":":"}, "Statement"], "postprocess":  d => ({ 
+          type: 'LabeledStatement', 
+          label: d[0].value,
+          body: d[2]
+        }) },
     {"name": "TryStatement$ebnf$1", "symbols": ["CatchClause"], "postprocess": id},
     {"name": "TryStatement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "TryStatement$ebnf$2", "symbols": ["FinallyClause"], "postprocess": id},

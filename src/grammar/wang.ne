@@ -183,6 +183,7 @@ Statement ->
   | ReturnStatement {% id %}
   | BreakStatement {% id %}
   | ContinueStatement {% id %}
+  | LabeledStatement {% id %}
   | ExpressionStatement {% id %}
   | Block {% id %}
 
@@ -472,6 +473,14 @@ ContinueStatement ->
     {% d => ({ type: 'ContinueStatement', label: null }) %}
   | "continue" %identifier ";"
     {% d => ({ type: 'ContinueStatement', label: d[1].value }) %}
+
+LabeledStatement ->
+    %identifier ":" Statement
+    {% d => ({ 
+      type: 'LabeledStatement', 
+      label: d[0].value,
+      body: d[2]
+    }) %}
 
 TryStatement ->
     "try" Block CatchClause:? FinallyClause:?
