@@ -1088,7 +1088,22 @@ export class WangInterpreter {
             constructorContext.variables.set('__super__', async (...superArgs: any[]) => {
               // Call parent constructor and copy properties to instance
               const parentInstance = await superClass(...superArgs);
+              
+              // Standard Object.assign for enumerable properties
               Object.assign(instance, parentInstance);
+              
+              // Special handling for Error class - copy non-enumerable properties
+              if (parentInstance instanceof Error) {
+                if (parentInstance.message !== undefined) {
+                  instance.message = parentInstance.message;
+                }
+                if (parentInstance.name !== undefined) {
+                  instance.name = parentInstance.name;
+                }
+                if (parentInstance.stack !== undefined) {
+                  instance.stack = parentInstance.stack;
+                }
+              }
             });
           }
 
@@ -1438,21 +1453,35 @@ export class WangInterpreter {
   }
 
   private async evaluateTryStatement(node: any): Promise<any> {
+    let result: any;
+    let finallyThrew = false;
+    
     try {
-      return await this.evaluateNode(node.block);
+      result = await this.evaluateNode(node.block);
     } catch (error) {
       if (node.handler) {
         if (node.handler.param) {
           this.assignPattern(node.handler.param, error);
         }
-        return await this.evaluateNode(node.handler.body);
+        result = await this.evaluateNode(node.handler.body);
+      } else {
+        throw error;
       }
-      throw error;
     } finally {
       if (node.finalizer) {
-        await this.evaluateNode(node.finalizer);
+        try {
+          const finallyResult = await this.evaluateNode(node.finalizer);
+          // In JavaScript, finally block return value overrides try/catch return value
+          // only if it's not undefined (unless finally explicitly returns undefined)
+          result = finallyResult;
+        } catch (finallyError) {
+          finallyThrew = true;
+          throw finallyError;
+        }
       }
     }
+    
+    return result;
   }
 
   private evaluateIdentifier(node: any): any {
