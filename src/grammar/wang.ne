@@ -375,15 +375,24 @@ ForStatement ->
     }) %}
 
 TryStatement ->
-    "try" Block ("catch" ("(" BindingPattern ")"):? Block):? ("finally" Block):?
+    "try" Block CatchFinally
     {% d => createNode('TryStatement', {
       block: d[1],
-      handler: d[2] ? createNode('CatchClause', {
-        param: d[2][1] ? d[2][1][1] : null,
-        body: d[2][2]
-      }) : null,
+      handler: d[2].handler,
+      finalizer: d[2].finalizer
+    }) %}
+
+CatchFinally ->
+    "catch" ("(" BindingPattern ")"):? Block ("finally" Block):?
+    {% d => ({ 
+      handler: createNode('CatchClause', {
+        param: d[1] ? d[1][1] : null,
+        body: d[2]
+      }),
       finalizer: d[3] ? d[3][1] : null
     }) %}
+  | "finally" Block
+    {% d => ({ handler: null, finalizer: d[1] }) %}
 
 ThrowStatement ->
     "throw" Expression
@@ -411,8 +420,8 @@ Expression -> PipelineExpression {% id %}
 # Pipeline operators (Wang-specific feature)
 PipelineExpression ->
     AssignmentExpression {% id %}
-  | PipelineExpression %NL:* ("|>" | "->") AssignmentExpression
-    {% d => createPipeline(d[0], d[2][0].value, d[3]) %}
+  | PipelineExpression %NL:* ("|>" | "->") %NL:* AssignmentExpression
+    {% d => createPipeline(d[0], d[2][0].value, d[4]) %}
 
 # Assignment - ONLY SIMPLE = (no compound assignments)
 AssignmentExpression ->
@@ -573,7 +582,7 @@ Literal ->
 TemplateLiteral ->
     %templateLiteral 
     {% d => createNode('TemplateLiteral', { 
-      quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].text } })], 
+      quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].value } })], 
       expressions: [] 
     }) %}
 

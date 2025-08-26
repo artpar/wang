@@ -334,9 +334,13 @@ export class WangInterpreter {
       } finally {
         this.currentContext = previousContext;
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof WangError) {
         throw error;
+      }
+      // Handle return at top level
+      if (error && typeof error === 'object' && error.type === 'return') {
+        return error.value;
       }
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
       throw new WangError(
@@ -876,11 +880,19 @@ export class WangInterpreter {
         }
       }
     } else if (pattern.type === 'ObjectPattern') {
+      // Throw error if trying to destructure null or undefined
+      if (value == null) {
+        throw new TypeError(`Cannot destructure 'null' or 'undefined'`);
+      }
+      
       for (const prop of pattern.properties) {
         if (prop.type === 'Property') {
+          // Get the property key name
+          const keyName = prop.key.type === 'Identifier' ? prop.key.name : prop.key.value;
+          
           // Handle shorthand properties
           if (prop.shorthand && typeof prop.value === 'string') {
-            this.currentContext.variables.set(prop.value, value?.[prop.key]);
+            this.currentContext.variables.set(prop.value, value[keyName]);
             if (kind) {
               this.currentContext.variableKinds.set(prop.value, kind);
             }
@@ -890,12 +902,15 @@ export class WangInterpreter {
               typeof prop.value === 'string'
                 ? { type: 'Identifier', name: prop.value }
                 : prop.value;
-            this.assignPattern(bindingPattern, value?.[prop.key], kind);
+            this.assignPattern(bindingPattern, value[keyName], kind);
           }
         } else if (prop.type === 'RestElement') {
           const rest = { ...value };
           for (const p of pattern.properties) {
-            if (p.type === 'Property') delete rest[p.key];
+            if (p.type === 'Property') {
+              const keyName = p.key.type === 'Identifier' ? p.key.name : p.key.value;
+              delete rest[keyName];
+            }
           }
           this.currentContext.variables.set(prop.argument, rest);
           if (kind) {
@@ -904,6 +919,11 @@ export class WangInterpreter {
         }
       }
     } else if (pattern.type === 'ArrayPattern') {
+      // Throw error if trying to destructure null or undefined
+      if (value == null) {
+        throw new TypeError(`Cannot destructure 'null' or 'undefined'`);
+      }
+      
       const arr = Array.isArray(value) ? value : [];
       let index = 0;
       for (const element of pattern.elements) {
@@ -1458,7 +1478,13 @@ export class WangInterpreter {
 
     try {
       result = await this.evaluateNode(node.block);
-    } catch (error) {
+    } catch (error: any) {
+      // Re-throw control flow statements
+      if (error && typeof error === 'object' && 
+          (error.type === 'break' || error.type === 'continue' || error.type === 'return')) {
+        throw error;
+      }
+      
       if (node.handler) {
         if (node.handler.param) {
           this.assignPattern(node.handler.param, error);
@@ -1946,25 +1972,27 @@ export class WangInterpreter {
   }
 
   private async evaluateTemplateLiteral(node: any): Promise<string> {
-    // Handle template literal interpolation
+    // Handle new AST structure with quasis and expressions
+    if (node.quasis && node.quasis.length > 0) {
+      const raw = node.quasis[0].value.raw;
+      
+      // If the raw text contains template expressions, interpolate them
+      if (raw.includes('${')) {
+        return await this.interpolateTemplate(raw);
+      }
+      
+      // Otherwise return the raw text as-is
+      return raw;
+    }
+
+    // Fallback to old structure
     const raw = node.raw || node.value;
-
-    // If it's a raw template literal, we need to parse and evaluate expressions
     if (typeof raw === 'string' && raw.startsWith('`') && raw.endsWith('`')) {
-      // Get the content without backticks
       const content = raw.slice(1, -1);
-
-      // Replace ${...} expressions with evaluated values
-      const result = await this.interpolateTemplate(content);
-      return result;
+      return await this.interpolateTemplate(content);
     }
 
-    // If value is already processed (shouldn't happen but for safety)
-    if (typeof node.value === 'string') {
-      return await this.interpolateTemplate(node.value);
-    }
-
-    return node.value;
+    return node.value || '';
   }
 
   private async interpolateTemplate(template: string): Promise<string> {
@@ -2062,7 +2090,8 @@ export class WangInterpreter {
   }
 
   private async evaluateImport(node: any): Promise<any> {
-    const modulePath = node.source;
+    // node.source is a Literal node, we need its value
+    const modulePath = node.source.value || node.source;
     const module = await this.importModule(modulePath);
 
     for (const specifier of node.specifiers) {

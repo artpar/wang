@@ -859,23 +859,25 @@ var grammar = {
           right: d[5],
           body: d[7]
         }) },
-    {"name": "TryStatement$ebnf$1$subexpression$1$ebnf$1$subexpression$1", "symbols": [{"literal":"("}, "BindingPattern", {"literal":")"}]},
-    {"name": "TryStatement$ebnf$1$subexpression$1$ebnf$1", "symbols": ["TryStatement$ebnf$1$subexpression$1$ebnf$1$subexpression$1"], "postprocess": id},
-    {"name": "TryStatement$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "TryStatement$ebnf$1$subexpression$1", "symbols": [{"literal":"catch"}, "TryStatement$ebnf$1$subexpression$1$ebnf$1", "Block"]},
-    {"name": "TryStatement$ebnf$1", "symbols": ["TryStatement$ebnf$1$subexpression$1"], "postprocess": id},
-    {"name": "TryStatement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "TryStatement$ebnf$2$subexpression$1", "symbols": [{"literal":"finally"}, "Block"]},
-    {"name": "TryStatement$ebnf$2", "symbols": ["TryStatement$ebnf$2$subexpression$1"], "postprocess": id},
-    {"name": "TryStatement$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "TryStatement", "symbols": [{"literal":"try"}, "Block", "TryStatement$ebnf$1", "TryStatement$ebnf$2"], "postprocess":  d => createNode('TryStatement', {
+    {"name": "TryStatement", "symbols": [{"literal":"try"}, "Block", "CatchFinally"], "postprocess":  d => createNode('TryStatement', {
           block: d[1],
-          handler: d[2] ? createNode('CatchClause', {
-            param: d[2][1] ? d[2][1][1] : null,
-            body: d[2][2]
-          }) : null,
+          handler: d[2].handler,
+          finalizer: d[2].finalizer
+        }) },
+    {"name": "CatchFinally$ebnf$1$subexpression$1", "symbols": [{"literal":"("}, "BindingPattern", {"literal":")"}]},
+    {"name": "CatchFinally$ebnf$1", "symbols": ["CatchFinally$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "CatchFinally$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "CatchFinally$ebnf$2$subexpression$1", "symbols": [{"literal":"finally"}, "Block"]},
+    {"name": "CatchFinally$ebnf$2", "symbols": ["CatchFinally$ebnf$2$subexpression$1"], "postprocess": id},
+    {"name": "CatchFinally$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "CatchFinally", "symbols": [{"literal":"catch"}, "CatchFinally$ebnf$1", "Block", "CatchFinally$ebnf$2"], "postprocess":  d => ({ 
+          handler: createNode('CatchClause', {
+            param: d[1] ? d[1][1] : null,
+            body: d[2]
+          }),
           finalizer: d[3] ? d[3][1] : null
         }) },
+    {"name": "CatchFinally", "symbols": [{"literal":"finally"}, "Block"], "postprocess": d => ({ handler: null, finalizer: d[1] })},
     {"name": "ThrowStatement", "symbols": [{"literal":"throw"}, "Expression"], "postprocess": d => createNode('ThrowStatement', { argument: d[1] })},
     {"name": "ReturnStatement$ebnf$1", "symbols": ["Expression"], "postprocess": id},
     {"name": "ReturnStatement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
@@ -893,7 +895,9 @@ var grammar = {
     {"name": "PipelineExpression$ebnf$1", "symbols": ["PipelineExpression$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "PipelineExpression$subexpression$1", "symbols": [{"literal":"|>"}]},
     {"name": "PipelineExpression$subexpression$1", "symbols": [{"literal":"->"}]},
-    {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$ebnf$1", "PipelineExpression$subexpression$1", "AssignmentExpression"], "postprocess": d => createPipeline(d[0], d[2][0].value, d[3])},
+    {"name": "PipelineExpression$ebnf$2", "symbols": []},
+    {"name": "PipelineExpression$ebnf$2", "symbols": ["PipelineExpression$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$ebnf$1", "PipelineExpression$subexpression$1", "PipelineExpression$ebnf$2", "AssignmentExpression"], "postprocess": d => createPipeline(d[0], d[2][0].value, d[4])},
     {"name": "AssignmentExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ArrowFunction"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["LeftHandSideExpression", {"literal":"="}, "AssignmentExpression"], "postprocess":  d => createNode('AssignmentExpression', {
@@ -1006,7 +1010,7 @@ var grammar = {
     {"name": "Literal", "symbols": [{"literal":"null"}], "postprocess": () => createLiteral(null, 'null')},
     {"name": "Literal", "symbols": [{"literal":"undefined"}], "postprocess": () => createLiteral(undefined, 'undefined')},
     {"name": "TemplateLiteral", "symbols": [(lexer.has("templateLiteral") ? {type: "templateLiteral"} : templateLiteral)], "postprocess":  d => createNode('TemplateLiteral', { 
-          quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].text } })], 
+          quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].value } })], 
           expressions: [] 
         }) },
     {"name": "ArrayLiteral$ebnf$1", "symbols": []},
