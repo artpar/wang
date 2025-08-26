@@ -326,7 +326,7 @@ x++;  // Post-increment: returns 5, x becomes 6
 #### Pipe Operator (`|>`)
 Passes result as first argument with `_` placeholder:
 
-```javascript
+```wang
 [1, 2, 3, 4, 5]
   |> filter(_, n => n > 2)     // [3, 4, 5]
   |> map(_, n => n * 2)        // [6, 8, 10]
@@ -342,7 +342,7 @@ data
 #### Arrow Operator (`->`)
 Passes result to function or operation:
 
-```javascript
+```wang
 [1, 2, 3]
   |> map(_, n => n * 2)
   -> store.save("results")     // Save to store
