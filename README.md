@@ -21,6 +21,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
+- 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🧪 **Fully Tested** - Comprehensive test suite using Vitest (90/90 tests passing - 100% coverage)
 
 ## Installation
@@ -279,6 +280,47 @@ await interpreter.execute(`
   log(\`Found \${profiles.length} profiles\`);
 `);
 ```
+
+## Metadata API
+
+Wang provides a comprehensive metadata API that captures and exposes compilation, interpretation, and execution data:
+
+```javascript
+import { WangInterpreter } from 'wang-lang';
+import { MetadataCollector } from 'wang-lang/metadata';
+
+// Create interpreter with metadata collection
+const collector = new MetadataCollector();
+const interpreter = new WangInterpreter({
+  onNodeVisit: (node, depth) => collector.onNodeVisit(node, depth),
+  onFunctionCall: (name, args, node) => collector.onFunctionCall(name, args, node),
+  onVariableAccess: (name, type, value) => collector.onVariableAccess(name, type, value)
+});
+
+// Execute code with metadata collection
+collector.onExecutionStart();
+await interpreter.execute(code);
+collector.onExecutionEnd();
+
+// Get comprehensive metadata
+const metadata = collector.getMetadata();
+
+// Query execution insights
+console.log('Hot functions:', metadata.getHotFunctions(5));
+console.log('Variable access patterns:', metadata.getHotVariables(5));
+console.log('Execution path:', metadata.getExecutionPath());
+console.log('Performance summary:', metadata.getExecutionSummary());
+
+// Export for external tools
+const json = collector.export();
+```
+
+### Metadata Categories
+
+- **Compilation Phase**: Tokens, AST nodes, parse timing, source mapping
+- **Interpretation Phase**: Module resolution, symbol tables, dependency graphs
+- **Execution Phase**: Call tracking, variable access, control flow, pipeline operations
+- **Runtime Data**: Live variables, execution path, current position, event stream
 
 ## Language Support
 
