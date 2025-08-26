@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2024-12-26
+
+### Added
+- Comprehensive Metadata API for compilation and execution analysis
+  - Token and AST node tracking with statistics
+  - Module resolution and dependency graph generation
+  - Function call and variable access profiling
+  - Control flow and pipeline operation tracking
+  - Live execution state and path recording
+  - Export capability for external tools
+- MetadataCollector class for easy integration with interpreter
+- Query methods for hot functions, hot variables, and execution insights
+- Full test suite for metadata API (43 tests)
+
+### Changed
+- Updated documentation to include Metadata API usage examples
+- Enhanced README with metadata feature highlights
+
 ## [0.1.0] - 2024-01-25
 
 ### Added
