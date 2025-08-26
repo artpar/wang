@@ -82,11 +82,6 @@ export function resolveRelativePath(modulePath: string, fromPath?: string): stri
  * Helper to add file extension if missing
  */
 export function addExtension(path: string, extension: string = '.wang'): string {
-  // Ensure path is a string
-  if (typeof path !== 'string') {
-    path = String(path);
-  }
-  
   if (path.endsWith(extension) || path.includes('.')) {
     return path;
   }

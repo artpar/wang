@@ -73,7 +73,7 @@ const lexer = moo.compile({
   '&': /&/u, '|': /\|/u, '^': /\^/u, '~': /~/u, '!': /!/u,
   '?': /\?/u, ':': /:/u,
   '(': /\(/u, ')': /\)/u, '[': /\[/u, ']': /\]/u, '{': /\{/u, '}': /\}/u,
-  ',': /,/u, '.': /\./u, ';': /;/u
+  ',': /,/u, '.': /\./u
 });
 
 // Skip whitespace and comments, preserve newlines
@@ -132,37 +132,6 @@ Statement ->
   | ControlStatement {% id %}
   | ExpressionStatement {% id %}
   | Block {% id %}
-  | PipelineContinuation {% id %}
-  | MemberContinuation {% id %}
-
-# Handle pipeline operators at the start of a line as continuations
-PipelineContinuation ->
-    ("|>" | "->") %NL:* AssignmentExpression
-    {% d => {
-      // This will be handled specially by the statement list processor
-      return createNode('PipelineContinuation', {
-        operator: d[0][0].value,
-        right: d[2]
-      });
-    } %}
-
-# Handle member access at the start of a line as continuations  
-MemberContinuation ->
-    "." %identifier Arguments:?
-    {% d => {
-      return createNode('MemberContinuation', {
-        property: createIdentifier(d[1].value),
-        arguments: d[2] || null
-      });
-    } %}
-  | "?." %identifier Arguments:?
-    {% d => {
-      return createNode('MemberContinuation', {
-        property: createIdentifier(d[1].value),
-        arguments: d[2] || null,
-        optional: true
-      });
-    } %}
 
 LabeledStatement ->
     %identifier ":" LoopStatement
@@ -274,23 +243,20 @@ ClassDeclaration ->
     }) %}
 
 ClassBody ->
-    "{" ClassMemberListWithNewlines "}"
+    "{" ClassMemberList "}"
     {% d => createNode('ClassBody', { body: d[1] }) %}
 
-# Class members - handle all newlines upfront
-ClassMemberListWithNewlines ->
-    %NL:* ClassMemberNonEmpty:? %NL:*
-    {% d => d[1] ? d[1] : [] %}
-
-ClassMemberNonEmpty ->
-    ClassMember
-    {% d => [d[0]] %}
-  | ClassMember %NL:+ ClassMemberNonEmpty
-    {% d => [d[0], ...d[2]] %}
+# Class members - NEWLINE SEPARATED (like statements)
+ClassMemberList ->
+    null {% () => [] %}
+  | ClassMember {% d => d[0] ? [d[0]] : [] %}
+  | ClassMemberList %NL ClassMember {% d => d[2] ? [...d[0], d[2]] : d[0] %}
+  | ClassMemberList %NL {% d => d[0] %}
 
 ClassMember ->
     MethodDefinition {% id %}
   | PropertyDefinition {% id %}
+  | null {% () => null %}
 
 MethodDefinition ->
     "async":? PropertyKey "(" ParameterList ")" Block
@@ -406,24 +372,15 @@ ForStatement ->
     }) %}
 
 TryStatement ->
-    "try" Block CatchFinally
+    "try" Block ("catch" ("(" BindingPattern ")"):? Block):? ("finally" Block):?
     {% d => createNode('TryStatement', {
       block: d[1],
-      handler: d[2].handler,
-      finalizer: d[2].finalizer
-    }) %}
-
-CatchFinally ->
-    "catch" ("(" BindingPattern ")"):? Block ("finally" Block):?
-    {% d => ({ 
-      handler: createNode('CatchClause', {
-        param: d[1] ? d[1][1] : null,
-        body: d[2]
-      }),
+      handler: d[2] ? createNode('CatchClause', {
+        param: d[2][1] ? d[2][1][1] : null,
+        body: d[2][2]
+      }) : null,
       finalizer: d[3] ? d[3][1] : null
     }) %}
-  | "finally" Block
-    {% d => ({ handler: null, finalizer: d[1] }) %}
 
 ThrowStatement ->
     "throw" Expression
@@ -431,7 +388,7 @@ ThrowStatement ->
 
 ReturnStatement ->
     "return" Expression:?
-    {% d => createNode('ReturnStatement', { argument: d[1] }) %}
+    {% d => createNode('ReturnStatement', { argument: d[1] ? d[1][0] : null }) %}
 
 BreakStatement ->
     "break" %identifier:?
@@ -451,8 +408,8 @@ Expression -> PipelineExpression {% id %}
 # Pipeline operators (Wang-specific feature)
 PipelineExpression ->
     AssignmentExpression {% id %}
-  | PipelineExpression %NL:* ("|>" | "->") %NL:* AssignmentExpression
-    {% d => createPipeline(d[0], d[2][0].value, d[4]) %}
+  | PipelineExpression ("|>" | "->") AssignmentExpression
+    {% d => createPipeline(d[0], d[1][0].value, d[2]) %}
 
 # Assignment - ONLY SIMPLE = (no compound assignments)
 AssignmentExpression ->
@@ -545,10 +502,10 @@ CallExpression ->
   | CallExpression Arguments {% d => createNode('CallExpression', { callee: d[0], arguments: d[1] }) %}
   | CallExpression "[" Expression "]"
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
-  | CallExpression %NL:* "." %identifier
-    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
-  | CallExpression %NL:* "?." %identifier
-    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false, optional: true }) %}
+  | CallExpression "." %identifier
+    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[2].value), computed: false }) %}
+  | CallExpression "?." %identifier
+    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[2].value), computed: false, optional: true }) %}
 
 NewExpression ->
     "new" MemberExpression Arguments:?
@@ -559,10 +516,10 @@ MemberExpression ->
     PrimaryExpression {% id %}
   | MemberExpression "[" Expression "]"
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
-  | MemberExpression %NL:* "." %identifier
-    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
-  | MemberExpression %NL:* "?." %identifier
-    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false, optional: true }) %}
+  | MemberExpression "." %identifier
+    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[2].value), computed: false }) %}
+  | MemberExpression "?." %identifier
+    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[2].value), computed: false, optional: true }) %}
 
 Arguments ->
     "(" ArgumentList ")" {% d => d[1] %}
@@ -613,37 +570,36 @@ Literal ->
 TemplateLiteral ->
     %templateLiteral 
     {% d => createNode('TemplateLiteral', { 
-      quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].value } })], 
+      quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].text } })], 
       expressions: [] 
     }) %}
 
 ArrayLiteral ->
-    "[" %NL:* ElementList %NL:* "]" {% d => createNode('ArrayExpression', { elements: d[2] }) %}
+    "[" ElementList "]" {% d => createNode('ArrayExpression', { elements: d[1] }) %}
 
 ElementList ->
     null {% () => [] %}
   | Element {% d => [d[0]] %}
-  | ElementList %NL:* "," %NL:* Element {% d => [...d[0], d[4]] %}
-  | ElementList %NL:* "," {% d => [...d[0], null] %}
+  | ElementList "," Element {% d => [...d[0], d[2]] %}
+  | ElementList "," {% d => [...d[0], null] %}
 
 Element ->
     AssignmentExpression {% id %}
   | "..." AssignmentExpression {% d => createNode('SpreadElement', { argument: d[1] }) %}
 
 # Object literals - ALWAYS objects (never blocks with labels)
-# Allow newlines before/after braces and around commas
 ObjectLiteral ->
-    "{" %NL:* "}" {% () => createNode('ObjectExpression', { properties: [] }) %}
-  | "{" %NL:* PropertyDefinitionList %NL:* "}" {% d => createNode('ObjectExpression', { properties: d[2] }) %}
+    "{" "}" {% () => createNode('ObjectExpression', { properties: [] }) %}
+  | "{" PropertyDefinitionList "}" {% d => createNode('ObjectExpression', { properties: d[1] }) %}
 
 PropertyDefinitionList ->
     PropertyDef {% d => [d[0]] %}
-  | PropertyDefinitionList %NL:* "," %NL:* PropertyDef {% d => [...d[0], d[4]] %}
-  | PropertyDefinitionList %NL:* "," {% d => d[0] %}
+  | PropertyDefinitionList "," PropertyDef {% d => [...d[0], d[2]] %}
+  | PropertyDefinitionList "," {% d => d[0] %}
 
 PropertyDef ->
-    PropertyKey %NL:* ":" %NL:* AssignmentExpression
-    {% d => createNode('Property', { key: d[0], value: d[4], shorthand: false }) %}
+    PropertyKey ":" AssignmentExpression
+    {% d => createNode('Property', { key: d[0], value: d[2], shorthand: false }) %}
   | %identifier
     {% d => createNode('Property', { 
       key: createIdentifier(d[0].value), 

@@ -779,14 +779,119 @@ export class WangInterpreter {
   }
 
   private async evaluateProgram(node: any): Promise<any> {
+    // Process continuations to merge multiline expressions
+    const processedBody = this.processContinuations(node.body);
+    
     // Hoist var declarations
-    this.hoistVarDeclarations(node.body);
+    this.hoistVarDeclarations(processedBody);
 
     let lastValue;
-    for (const statement of node.body) {
+    for (const statement of processedBody) {
       lastValue = await this.evaluateNode(statement);
     }
     return lastValue;
+  }
+  
+  private processContinuations(statements: any[]): any[] {
+    const result = [];
+    
+    for (let i = 0; i < statements.length; i++) {
+      const stmt = statements[i];
+      
+      if (stmt.type === 'PipelineContinuation' || stmt.type === 'MemberContinuation') {
+        // Find the last statement to merge with
+        if (result.length > 0) {
+          const lastStmt = result[result.length - 1];
+          
+          // Handle ExpressionStatement
+          if (lastStmt.type === 'ExpressionStatement') {
+            if (stmt.type === 'PipelineContinuation') {
+              lastStmt.expression = {
+                type: 'PipelineExpression',
+                operator: stmt.operator,
+                left: lastStmt.expression,
+                right: stmt.right
+              };
+            } else if (stmt.type === 'MemberContinuation') {
+              const memberExpr = {
+                type: 'MemberExpression',
+                object: lastStmt.expression,
+                property: stmt.property,
+                computed: false,
+                optional: stmt.optional
+              };
+              
+              lastStmt.expression = stmt.arguments
+                ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
+                : memberExpr;
+            }
+            continue;
+          }
+          
+          // Handle VariableDeclaration with initializer
+          if (lastStmt.type === 'VariableDeclaration' && 
+              lastStmt.declarations && 
+              lastStmt.declarations.length > 0) {
+            const lastDeclarator = lastStmt.declarations[lastStmt.declarations.length - 1];
+            if (lastDeclarator.init) {
+              if (stmt.type === 'PipelineContinuation') {
+                lastDeclarator.init = {
+                  type: 'PipelineExpression',
+                  operator: stmt.operator,
+                  left: lastDeclarator.init,
+                  right: stmt.right
+                };
+              } else if (stmt.type === 'MemberContinuation') {
+                const memberExpr = {
+                  type: 'MemberExpression',
+                  object: lastDeclarator.init,
+                  property: stmt.property,
+                  computed: false,
+                  optional: stmt.optional
+                };
+                
+                lastDeclarator.init = stmt.arguments
+                  ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
+                  : memberExpr;
+              }
+              continue;
+            }
+          }
+          
+          // Handle assignment expressions in return statements
+          if (lastStmt.type === 'ReturnStatement' && lastStmt.argument) {
+            if (stmt.type === 'PipelineContinuation') {
+              lastStmt.argument = {
+                type: 'PipelineExpression',
+                operator: stmt.operator,
+                left: lastStmt.argument,
+                right: stmt.right
+              };
+            } else if (stmt.type === 'MemberContinuation') {
+              const memberExpr = {
+                type: 'MemberExpression',
+                object: lastStmt.argument,
+                property: stmt.property,
+                computed: false,
+                optional: stmt.optional
+              };
+              
+              lastStmt.argument = stmt.arguments
+                ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
+                : memberExpr;
+            }
+            continue;
+          }
+        }
+        
+        // If we can't merge, it's an error
+        throw new Error(`Unexpected continuation operator at statement ${i + 1}`);
+      }
+      
+      result.push(stmt);
+    }
+    
+    return result;
   }
 
   private hoistVarDeclarations(statements: any[]): void {
@@ -2096,10 +2201,13 @@ export class WangInterpreter {
 
     for (const specifier of node.specifiers) {
       if (specifier.type === 'ImportNamespaceSpecifier') {
-        this.currentContext.variables.set(specifier.local, module);
+        const localName = specifier.local.name || specifier.local;
+        this.currentContext.variables.set(localName, module);
       } else if (specifier.type === 'ImportSpecifier') {
-        const value = module[specifier.imported];
-        this.currentContext.variables.set(specifier.local, value);
+        const importedName = specifier.imported.name || specifier.imported;
+        const localName = specifier.local.name || specifier.local;
+        const value = module[importedName];
+        this.currentContext.variables.set(localName, value);
       }
     }
   }

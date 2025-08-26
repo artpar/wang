@@ -17,13 +17,13 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🔌 **Pluggable Module System** - Implement your own module resolution (memory, IndexedDB, HTTP, etc.)
 - 📍 **Comprehensive Error Reporting** - Detailed error messages with line numbers and recovery suggestions
 - 🌐 **Browser Automation Focus** - Built for DOM manipulation and web workflows
-- 🚀 **Pipeline Operators** - Elegant data flow with `|>` and `->` operators
+- 🚀 **Pipeline Operators** - Elegant data flow with `|>` and `->` operators, including multiline support
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (100+ tests passing - 100% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (167 tests passing - 100% coverage)
 
 ## Installation
 
@@ -204,7 +204,7 @@ const result = await interpreter.execute(`
 
 ### Pipeline Operators
 
-Elegant data transformation with pipeline operators:
+Elegant data transformation with pipeline operators, including multiline support:
 
 ```javascript
 // Pipe operator (|>) - passes result as first argument with _ placeholder
@@ -213,10 +213,24 @@ const result = data
   |> map(_, x => x * 2)
   |> reduce(_, (sum, x) => sum + x, 0);
 
+// Multiline pipelines with proper indentation
+const processed = rawData
+  |> filter(_, item => item.active)
+  |> map(_, item => ({ ...item, processed: true }))
+  |> sort(_, (a, b) => a.priority - b.priority)
+  |> slice(_, 0, 10)
+
 // Arrow operator (->) - passes result to function or stores
 profiles 
   |> extractData(_)
   -> saveToDatabase("profiles");
+
+// Method chaining across lines
+const builder = new StringBuilder()
+  .append("Hello")
+  .append(" ")
+  .append("World")
+  .toString()
 ```
 
 ### Modules
@@ -370,7 +384,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `switch`, `try/catch/finally`
 - **Operators**: All arithmetic, comparison, logical, and pipeline operators (`|>`, `->`)
-- **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters
+- **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await, error handling
 - **Built-ins**: Error constructor, type conversion functions, array methods
@@ -455,7 +469,7 @@ wang/
 │   │   ├── parser.test.js    # Parser tests (13 tests)
 │   │   └── interpreter.test.js # Interpreter tests (25 tests)
 │   ├── e2e/             # End-to-end tests
-│   │   └── language-features.test.js # Comprehensive language tests (52 tests)
+│   │   └── language-features.test.js # Comprehensive language tests (48 tests)
 │   └── test-utils.js    # Test utilities
 ├── dist/                # Built files
 │   ├── esm/            # ES modules

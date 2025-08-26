@@ -5,13 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Wang is a modern workflow programming language that runs inside JavaScript, designed for browser automation and data transformation. The language features:
-- Modern JavaScript-like syntax with pipelines (`|>` and `->`)
+- Modern JavaScript-like syntax with pipelines (`|>` and `->`) supporting multiline expressions
 - Full module system with named imports/exports
 - Classes with inheritance, methods, and proper scoping
 - CSP-safe execution (no eval/new Function)
 - Pluggable module resolution (memory, IndexedDB, HTTP)
 - Comprehensive error reporting with recovery suggestions
-- **100% test coverage** (90/90 tests passing) with intentional exclusion of complex edge cases
+- **100% test coverage** (167/167 tests passing) with intentional exclusion of complex edge cases
 
 ## Critical Security Requirements
 
@@ -163,9 +163,11 @@ node example-usage.js
 
 3. **Modern Syntax**:
    - JavaScript-like syntax familiar to developers
-   - Pipeline operators (`|>` and `->`) for data flow
+   - Pipeline operators (`|>` and `->`) for data flow with multiline support
+   - Method chaining across lines
    - Classes, interfaces, async/await support
    - Destructuring, template literals, optional chaining
+   - JSON-like object literals with newlines
 
 4. **Comprehensive Error Handling**:
    - Detailed error messages with line/column info
@@ -181,7 +183,7 @@ node example-usage.js
 
 ## Language Features Implemented (100% Test Coverage)
 
-Wang achieves **90/90 tests passing** with comprehensive coverage of:
+Wang achieves **167/167 tests passing** with comprehensive coverage of:
 
 ### Core Language Features
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
@@ -191,14 +193,15 @@ Wang achieves **90/90 tests passing** with comprehensive coverage of:
 - **Operators**: All arithmetic, comparison, logical, and pipeline operators (`|>`, `->`)
 
 ### Modern JavaScript Syntax
-- **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters
+- **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await with comprehensive error handling
 - **Built-ins**: Error constructor, type conversion functions, array methods
 - **Modern Operators**: Optional chaining (`?.`), nullish coalescing (`??`)
 
 ### Advanced Features
-- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) for elegant data flow
+- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) for elegant data flow with multiline support
+- **Method Chaining**: Cross-line method chaining with proper continuation
 - **Class Inheritance**: Full OOP support with `extends` and `super()`
 - **Module Resolution**: Pluggable resolvers (Memory, IndexedDB, HTTP, Composite)
 - **Error Recovery**: Comprehensive error messages with suggestions

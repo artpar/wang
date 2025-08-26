@@ -681,11 +681,11 @@ it('should handle switch statements', async () => {
       resolver.addModule(
         'moduleA',
         `
-        import { functionB } from "moduleB";
+        import { functionB } from "moduleB"
         
         export function functionA() {
           return "A calls " + functionB()
-        };
+        }
         
         export function helperA() {
           return "Helper A"
@@ -696,7 +696,7 @@ it('should handle switch statements', async () => {
       resolver.addModule(
         'moduleB',
         `
-        import { helperA } from "moduleA";
+        import { helperA } from "moduleA"
         
         export function functionB() {
           return "B uses " + helperA()
