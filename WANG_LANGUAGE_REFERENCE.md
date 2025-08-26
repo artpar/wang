@@ -41,7 +41,7 @@ let outer = 1;
 {
   let outer = 2; // Shadows outer
   const inner = 3;
-} // inner not accessible here
+}; // inner not accessible here
 ```
 
 **Scoping Rules:**

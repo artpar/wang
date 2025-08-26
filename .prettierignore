@@ -1,0 +1,15 @@
+# Generated files - do not format
+src/generated/
+dist/
+node_modules/
+
+# Build outputs
+*.min.js
+*.bundle.js
+
+# Documentation
+docs/
+coverage/
+
+# Package files
+package-lock.json
