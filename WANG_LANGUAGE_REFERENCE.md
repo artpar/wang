@@ -1018,6 +1018,99 @@ const promises = items.map(item => processAsync(item));
 const results = await Promise.all(promises);
 ```
 
+## Metadata API
+
+Wang provides comprehensive metadata collection for debugging and analysis:
+
+### Basic Usage
+```javascript
+import { WangInterpreter } from 'wang-lang';
+import { MetadataCollector, WangMetadata } from 'wang-lang/metadata';
+
+// Create metadata collector
+const collector = new MetadataCollector();
+
+// Hook into interpreter
+const interpreter = new WangInterpreter({
+  onNodeVisit: (node, depth) => collector.onNodeVisit(node, depth),
+  onFunctionCall: (name, args, node) => collector.onFunctionCall(name, args, node),
+  onVariableAccess: (name, type, value) => collector.onVariableAccess(name, type, value),
+  onModuleResolve: (from, requested, resolved) => collector.onModuleResolve(from, requested, resolved),
+  onBranch: (type, condition, result, node) => collector.onBranch(type, condition, result, node),
+  onPipeline: (operator, input, output, node) => collector.onPipeline(operator, input, output, node),
+  onError: (error, node) => collector.onError(error, node)
+});
+
+// Execute with metadata collection
+collector.onExecutionStart();
+await interpreter.execute(code);
+collector.onExecutionEnd();
+
+// Query metadata
+const metadata = collector.getMetadata();
+```
+
+### Available Metadata
+
+#### Compilation Phase
+- Token stream with types and counts
+- AST/CST node statistics and depth
+- Parse timing and errors
+- Source location mapping
+
+#### Interpretation Phase
+- Module resolution tracking (success/failure)
+- Symbol tables (variables, functions, classes)
+- Import/export dependencies
+- Scope chain information
+
+#### Execution Phase
+- Function call tracking with stack depth
+- Variable read/write access patterns
+- Control flow branches taken
+- Pipeline operation transformations
+- Loop iteration counts
+- Error tracking with context
+
+#### Runtime Data
+- Current execution position (line/column)
+- Live variable values
+- Execution path history
+- Event stream with timestamps
+
+### Query Methods
+
+```javascript
+// Performance analysis
+const hotFunctions = metadata.getHotFunctions(10);      // Top 10 most called functions
+const hotVariables = metadata.getHotVariables(10);      // Top 10 most accessed variables
+
+// Execution insights
+const executionPath = metadata.getExecutionPath(100);   // Last 100 lines executed
+const callStack = metadata.getCallStack();              // Current call stack
+const currentState = metadata.getCurrentState();        // Current position and variables
+
+// Summaries
+const compilationSummary = metadata.getCompilationSummary();
+const interpretationSummary = metadata.getInterpretationSummary();
+const executionSummary = metadata.getExecutionSummary();
+
+// Dependency analysis
+const depGraph = metadata.getDependencyGraph();         // Module dependency graph
+
+// Export for external tools
+const json = collector.export();                        // Full metadata as JSON
+```
+
+### Use Cases
+
+1. **Performance Profiling**: Identify hot functions and bottlenecks
+2. **Debugging**: Track execution flow and variable changes
+3. **Code Coverage**: Analyze which code paths are executed
+4. **Dependency Analysis**: Understand module relationships
+5. **Error Diagnosis**: Get full context when errors occur
+6. **Development Tools**: Build custom debuggers and profilers
+
 ---
 
 *This document covers Wang Language v1.0.0 with 100% test coverage (90/90 tests passing). For implementation details, see source code and test suite.*
