@@ -29,11 +29,20 @@ function addCjsExtension(dir) {
           // Resolve the full path from the current file's directory
           const resolvedPath = path.resolve(dir, p1);
           
-          // Check if it's a directory with index.cjs
+          // First check if a .cjs file exists
+          const cjsPath = resolvedPath + '.cjs';
+          if (fs.existsSync(cjsPath)) {
+            return `require("${p1}.cjs")`;
+          }
+          
+          // Then check if it's a directory with index.cjs
           try {
             if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) {
-              const indexPath = path.join(resolvedPath, 'index.cjs');
-              if (fs.existsSync(indexPath)) {
+              const indexCjsPath = path.join(resolvedPath, 'index.cjs');
+              const indexJsPath = path.join(resolvedPath, 'index.js');
+              
+              // Check for index.cjs or index.js (which will become index.cjs)
+              if (fs.existsSync(indexCjsPath) || fs.existsSync(indexJsPath)) {
                 return `require("${p1}/index.cjs")`;
               }
             }
@@ -41,7 +50,7 @@ function addCjsExtension(dir) {
             // Path doesn't exist yet or error accessing it
           }
           
-          // Otherwise add .cjs extension
+          // Default: add .cjs extension
           return `require("${p1}.cjs")`;
         }
         return match;
