@@ -6,7 +6,8 @@ A CSP-safe workflow programming language for browser automation, designed to run
 [![npm version](https://img.shields.io/npm/v/wang-lang.svg)](https://www.npmjs.com/package/wang-lang)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://github.com/artpar/wang)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://artpar.github.io/wang)
+
 
 ## Features
 
