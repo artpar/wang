@@ -57,13 +57,11 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install
       
-      - name: Run tests
-        run: |
-          npm run build:grammar
-          npm test
-      
       - name: Build project
         run: npm run build
+      
+      - name: Run tests
+        run: npm test
       
       - name: Determine version
         id: version
