@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js';
 
 describe('Wang Interpreter Return Values', () => {
@@ -11,7 +11,7 @@ describe('Wang Interpreter Return Values', () => {
       functions: {
         add: (a, b) => a + b,
         multiply: (a, b) => a * b,
-      }
+      },
     });
   });
 
@@ -79,7 +79,7 @@ describe('Wang Interpreter Return Values', () => {
       let version = "1.0";
       { name, version, active: true }
     `);
-    expect(objResult).toEqual({ name: "Wang", version: "1.0", active: true });
+    expect(objResult).toEqual({ name: 'Wang', version: '1.0', active: true });
   });
 
   it('should return the value from conditional expressions', async () => {
@@ -87,7 +87,7 @@ describe('Wang Interpreter Return Values', () => {
       let x = 10;
       x > 5 ? "big" : "small"
     `);
-    expect(result1).toBe("big");
+    expect(result1).toBe('big');
 
     const result2 = await interpreter.execute(`
       let x = 3;
@@ -97,7 +97,7 @@ describe('Wang Interpreter Return Values', () => {
         "small"
       }
     `);
-    expect(result2).toBe("small");
+    expect(result2).toBe('small');
   });
 
   it('should return the last value from a loop', async () => {
@@ -127,9 +127,9 @@ describe('Wang Interpreter Return Values', () => {
   });
 
   it('should work with pipeline operators returning last value', async () => {
-    interpreter.bindFunction('double', x => x * 2);
-    interpreter.bindFunction('addTen', x => x + 10);
-    
+    interpreter.bindFunction('double', (x) => x * 2);
+    interpreter.bindFunction('addTen', (x) => x + 10);
+
     const result = await interpreter.execute(`
       let start = 5;
       start |> double(_) |> addTen(_)
@@ -152,7 +152,7 @@ describe('Wang Interpreter Return Values', () => {
     expect(result).toEqual({
       result: 30,
       sum: 15,
-      product: 50
+      product: 50,
     });
   });
 

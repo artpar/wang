@@ -427,17 +427,19 @@ export class WangInterpreter {
 
       case 'MemberExpression':
         const obj = this.evaluateNodeSync(node.object);
-        
+
         // Handle optional chaining
         if (node.optional && obj == null) {
           return undefined;
         }
-        
+
         // Throw error when accessing property on null/undefined (non-optional)
         if (!node.optional && obj == null) {
-          throw new Error(`Cannot read properties of ${obj} (reading '${node.computed ? 'computed property' : node.property.name}')`);
+          throw new Error(
+            `Cannot read properties of ${obj} (reading '${node.computed ? 'computed property' : node.property.name}')`,
+          );
         }
-        
+
         const prop = node.computed ? this.evaluateNodeSync(node.property) : node.property.name;
         return obj[prop];
 
@@ -604,9 +606,9 @@ export class WangInterpreter {
             const key = prop.computed
               ? this.evaluateNodeSync(prop.key)
               : prop.key.type === 'Identifier'
-              ? prop.key.name
-              : this.evaluateNodeSync(prop.key);
-            
+                ? prop.key.name
+                : this.evaluateNodeSync(prop.key);
+
             if (prop.shorthand) {
               objResult[key] = this.evaluateIdentifier(prop.key);
             } else {
@@ -1844,7 +1846,7 @@ export class WangInterpreter {
     if (node.optional && object == null) {
       return undefined;
     }
-    
+
     // Throw error when accessing property on null/undefined (non-optional)
     if (!node.optional && object == null) {
       const propName = node.computed ? 'computed property' : node.property.name;
