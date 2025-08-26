@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2024-12-26
+
+### Added
+- **Return Value Feature**: The interpreter now returns the last evaluated expression as the result of execution
+  - Makes Wang perfect for REPL usage and workflow results
+  - Supports all expression types: primitives, objects, arrays, pipeline results
+  - Declarations return `undefined` when they are the last statement
+- Comprehensive documentation for return values in `docs/RETURN_VALUES.md`
+- Complete test suite for return value behavior (14 tests)
+- Updated README with return value examples and feature highlight
+- Added return value section to WANG_LANGUAGE_REFERENCE.md
+
+### Fixed
+- CommonJS build now properly resolves directory imports to `index.cjs`
+- Fixed build script to detect and convert directory imports correctly
+- Published npm package v0.4.3+ with working CommonJS imports
+
+### Documentation
+- Added "Implicit Return Values" to feature list in README
+- Created comprehensive RETURN_VALUES.md documentation with examples
+- Updated language reference with return value rules and examples
+- Added workflow examples showing return value usage
+
 ## [0.4.0] - 2024-12-26
 
 ### Added

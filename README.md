@@ -22,7 +22,8 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (90/90 tests passing - 100% coverage)
+- 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (100+ tests passing - 100% coverage)
 
 ## Installation
 
@@ -59,8 +60,8 @@ const interpreter = new WangInterpreter({
   }
 });
 
-// Execute Wang code
-await interpreter.execute(`
+// Execute Wang code - returns the last expression value
+const result = await interpreter.execute(`
   import { processData } from "utils";
   
   let data = [
@@ -69,9 +70,14 @@ await interpreter.execute(`
     { name: "Charlie", active: true }
   ];
   
-  let result = processData(data);
-  log(result);  // ["Alice", "Charlie"]
+  let processed = processData(data);
+  log(processed);  // ["Alice", "Charlie"]
+  
+  // Last expression becomes the return value
+  { processed, count: processed.length }
 `);
+
+console.log(result); // { processed: ["Alice", "Charlie"], count: 2 }
 ```
 
 ## Language Features
@@ -163,6 +169,37 @@ class Dog extends Animal {
 const dog = new Dog("Max", "Golden Retriever");
 log(dog.speak());       // "Max barks"
 log(dog.getBreed());    // "Golden Retriever"
+```
+
+### Return Values
+
+Wang returns the last evaluated expression, making it perfect for REPL usage and functional workflows:
+
+```javascript
+// Simple expression return
+const sum = await interpreter.execute(`
+  let x = 5;
+  let y = 10;
+  x + y  // Returns 15
+`);
+
+// Object construction return
+const config = await interpreter.execute(`
+  const env = "production";
+  const port = 3000;
+  
+  // This object is returned
+  { env, port, debug: false }
+`);
+
+// Pipeline result return
+const result = await interpreter.execute(`
+  [1, 2, 3, 4, 5]
+    |> filter(_, n => n > 2)
+    |> map(_, n => n * 2)
+    |> reduce(_, (sum, n) => sum + n, 0)
+`);
+// result = 24
 ```
 
 ### Pipeline Operators

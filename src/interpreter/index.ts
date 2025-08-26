@@ -427,6 +427,17 @@ export class WangInterpreter {
 
       case 'MemberExpression':
         const obj = this.evaluateNodeSync(node.object);
+        
+        // Handle optional chaining
+        if (node.optional && obj == null) {
+          return undefined;
+        }
+        
+        // Throw error when accessing property on null/undefined (non-optional)
+        if (!node.optional && obj == null) {
+          throw new Error(`Cannot read properties of ${obj} (reading '${node.computed ? 'computed property' : node.property.name}')`);
+        }
+        
         const prop = node.computed ? this.evaluateNodeSync(node.property) : node.property.name;
         return obj[prop];
 
@@ -582,6 +593,42 @@ export class WangInterpreter {
       case 'FunctionExpression':
         // Create a synchronous function for arrow/function expressions
         return this.createSyncFunction(node);
+
+      case 'ObjectExpression':
+        const objResult: any = {};
+        for (const prop of node.properties) {
+          if (prop.type === 'SpreadElement') {
+            const spread = this.evaluateNodeSync(prop.argument);
+            Object.assign(objResult, spread);
+          } else {
+            const key = prop.computed
+              ? this.evaluateNodeSync(prop.key)
+              : prop.key.type === 'Identifier'
+              ? prop.key.name
+              : this.evaluateNodeSync(prop.key);
+            
+            if (prop.shorthand) {
+              objResult[key] = this.evaluateIdentifier(prop.key);
+            } else {
+              objResult[key] = this.evaluateNodeSync(prop.value);
+            }
+          }
+        }
+        return objResult;
+
+      case 'ArrayExpression':
+        const arrResult: any[] = [];
+        for (const elem of node.elements) {
+          if (elem === null) {
+            arrResult.push(undefined);
+          } else if (elem.type === 'SpreadElement') {
+            const spread = this.evaluateNodeSync(elem.argument);
+            arrResult.push(...spread);
+          } else {
+            arrResult.push(this.evaluateNodeSync(elem));
+          }
+        }
+        return arrResult;
 
       default:
         throw new Error(`Cannot evaluate node type synchronously: ${node.type}`);
@@ -1797,10 +1844,16 @@ export class WangInterpreter {
     if (node.optional && object == null) {
       return undefined;
     }
+    
+    // Throw error when accessing property on null/undefined (non-optional)
+    if (!node.optional && object == null) {
+      const propName = node.computed ? 'computed property' : node.property.name;
+      throw new Error(`Cannot read properties of ${object} (reading '${propName}')`);
+    }
 
     const property = node.computed ? await this.evaluateNode(node.property) : node.property.name;
 
-    return object?.[property];
+    return object[property];
   }
 
   private async evaluateNewExpression(node: any): Promise<any> {

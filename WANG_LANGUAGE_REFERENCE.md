@@ -1111,6 +1111,90 @@ const json = collector.export();                        // Full metadata as JSON
 5. **Error Diagnosis**: Get full context when errors occur
 6. **Development Tools**: Build custom debuggers and profilers
 
+## Return Values
+
+Wang's interpreter returns the value of the last evaluated expression in a program, making it ideal for REPL usage, workflows, and data transformation scripts.
+
+### How It Works
+
+When executing Wang code with `interpreter.execute(code)`, the interpreter:
+1. Parses and executes all statements in order
+2. Keeps track of the last evaluated value  
+3. Returns that value as the result of execution
+
+### Return Value Rules
+
+| Statement Type | Return Value |
+|---------------|--------------|
+| Expression | The evaluated value |
+| Variable declaration | `undefined` |
+| Function declaration | `undefined` |
+| Class declaration | `undefined` |
+| Empty program | `undefined` |
+| Block statement | Value of last expression in block |
+| Control flow | Value of executed branch |
+
+### Examples
+
+#### Simple Expression Return
+```javascript
+const result = await interpreter.execute(`
+  let x = 5;
+  let y = 10;
+  x + y  // Last expression becomes return value
+`);
+// result = 15
+```
+
+#### Object/Array Construction
+```javascript
+const config = await interpreter.execute(`
+  const env = "production";
+  const port = 3000;
+  
+  // This object is returned
+  { env, port, debug: false }
+`);
+// config = { env: "production", port: 3000, debug: false }
+```
+
+#### Pipeline Result
+```javascript
+const processed = await interpreter.execute(`
+  [1, 2, 3, 4, 5]
+    |> filter(_, n => n > 2)
+    |> map(_, n => n * 2)
+    |> reduce(_, (sum, n) => sum + n, 0)
+`);
+// processed = 24
+```
+
+#### Workflow Results
+```javascript
+const workflowResult = await interpreter.execute(`
+  const data = fetchData();
+  const cleaned = cleanData(data);
+  const processed = processData(cleaned);
+  
+  // Return a summary object
+  {
+    original: data.length,
+    processed: processed.length,
+    success: true,
+    timestamp: Date.now()
+  }
+`);
+```
+
+### Use Cases
+
+1. **REPL Evaluation**: Quick calculations and testing
+2. **Configuration Scripts**: Return configuration objects
+3. **Data Transformation**: Process and return transformed data
+4. **Template Evaluation**: Generate and return content
+5. **Workflow Results**: Return the final result of a workflow
+6. **API Responses**: Build and return response objects
+
 ---
 
 *This document covers Wang Language v1.0.0 with 100% test coverage (90/90 tests passing). For implementation details, see source code and test suite.*
