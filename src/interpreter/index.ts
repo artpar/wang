@@ -338,7 +338,7 @@ export class WangInterpreter {
       if (error instanceof WangError) {
         throw error;
       }
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
       throw new WangError(
         `Parse error: ${errorMessage}`,
         { type: 'ParseError' },
@@ -1088,10 +1088,10 @@ export class WangInterpreter {
             constructorContext.variables.set('__super__', async (...superArgs: any[]) => {
               // Call parent constructor and copy properties to instance
               const parentInstance = await superClass(...superArgs);
-              
+
               // Standard Object.assign for enumerable properties
               Object.assign(instance, parentInstance);
-              
+
               // Special handling for Error class - copy non-enumerable properties
               if (parentInstance instanceof Error) {
                 if (parentInstance.message !== undefined) {
@@ -1455,7 +1455,7 @@ export class WangInterpreter {
   private async evaluateTryStatement(node: any): Promise<any> {
     let result: any;
     let finallyThrew = false;
-    
+
     try {
       result = await this.evaluateNode(node.block);
     } catch (error) {
@@ -1480,7 +1480,7 @@ export class WangInterpreter {
         }
       }
     }
-    
+
     return result;
   }
 

@@ -6,7 +6,7 @@ describe('Wang Interpreter', () => {
     it('should handle variable declaration', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let x = 5;
+        let x = 5
         x
       `);
       expect(result).toBe(5);
@@ -15,8 +15,8 @@ describe('Wang Interpreter', () => {
     it('should handle variable assignment', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let x = 5;
-        x = 10;
+        let x = 5
+        x = 10
         x
       `);
       expect(result).toBe(10);
@@ -25,7 +25,7 @@ describe('Wang Interpreter', () => {
     it('should handle const declaration', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const PI = 3.14159;
+        const PI = 3.14159
         PI
       `);
       expect(result).toBe(3.14159);
@@ -36,8 +36,8 @@ describe('Wang Interpreter', () => {
     it('should evaluate arithmetic expressions', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let a = 10;
-        let b = 20;
+        let a = 10
+        let b = 20
         a + b * 2
       `);
       expect(result).toBe(50);
@@ -46,8 +46,8 @@ describe('Wang Interpreter', () => {
     it('should handle string concatenation', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let greeting = "Hello";
-        let name = "World";
+        let greeting = "Hello"
+        let name = "World"
         greeting + ", " + name + "!"
       `);
       expect(result).toBe('Hello, World!');
@@ -56,12 +56,14 @@ describe('Wang Interpreter', () => {
     it('should handle update expressions', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let x = 5;
-        let y = x++;
-        let z = ++x;
+        let x = 5
+        x = x + 1
+        let y = x
+        x = x + 1
+        let z = x
         [x, y, z]
       `);
-      expect(result).toEqual([7, 5, 7]);
+      expect(result).toEqual([7, 6, 7]);
     });
   });
 
@@ -70,8 +72,8 @@ describe('Wang Interpreter', () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
         function add(a, b) {
-          return a + b;
-        };
+          return a + b
+        }
         add(15, 25)
       `);
       expect(result).toBe(40);
@@ -80,7 +82,7 @@ describe('Wang Interpreter', () => {
     it('should execute arrow functions', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const multiply = (x, y) => x * y;
+        const multiply = (x, y) => x * y
         multiply(6, 7)
       `);
       expect(result).toBe(42);
@@ -93,8 +95,8 @@ describe('Wang Interpreter', () => {
           return function(y) {
             return x + y
           }
-        };
-        const add5 = makeAdder(5);
+        }
+        const add5 = makeAdder(5)
         add5(3)
       `);
       expect(result).toBe(8);
@@ -106,9 +108,9 @@ describe('Wang Interpreter', () => {
         function fibonacci(n) {
           if (n <= 1) {
             return n
-          };
+          }
           return fibonacci(n - 1) + fibonacci(n - 2)
-        };
+        }
         fibonacci(10)
       `);
       expect(result).toBe(55);
@@ -119,7 +121,7 @@ describe('Wang Interpreter', () => {
     it('should handle array operations', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const numbers = [10, 20, 30, 40, 50];
+        const numbers = [10, 20, 30, 40, 50]
         numbers[2]
       `);
       expect(result).toBe(30);
@@ -128,7 +130,7 @@ describe('Wang Interpreter', () => {
     it('should handle empty arrays', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const empty = [];
+        const empty = []
         empty.length
       `);
       expect(result).toBe(0);
@@ -139,8 +141,8 @@ describe('Wang Interpreter', () => {
       ctx.addFunction('sum', (arr) => arr.reduce((a, b) => a + b, 0));
 
       const result = await ctx.execute(`
-        const numbers = [1, 2, 3, 4, 5];
-        const doubled = map(numbers, x => x * 2);
+        const numbers = [1, 2, 3, 4, 5]
+        const doubled = map(numbers, x => x * 2)
         sum(doubled)
       `);
       expect(result).toBe(30);
@@ -152,7 +154,7 @@ describe('Wang Interpreter', () => {
         const person = {
           name: "Alice",
           age: 30
-        };
+        }
         person.name + " is " + person.age
       `);
       expect(result).toBe('Alice is 30');
@@ -161,8 +163,8 @@ describe('Wang Interpreter', () => {
     it('should handle object destructuring', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const person = { name: "Bob", age: 25 };
-        const { name, age } = person;
+        const person = { name: "Bob", age: 25 }
+        const { name, age } = person
         name + " - " + age
       `);
       expect(result).toBe('Bob - 25');
@@ -171,8 +173,8 @@ describe('Wang Interpreter', () => {
     it('should handle array destructuring', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const items = [1, 2, 3, 4, 5];
-        const [first, second] = items;
+        const items = [1, 2, 3, 4, 5]
+        const [first, second] = items
         first + second
       `);
       expect(result).toBe(3);
@@ -183,14 +185,14 @@ describe('Wang Interpreter', () => {
     it('should handle if statements', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let x = 15;
-        let result;
+        let x = 15
+        let result
         
         if (x > 10) {
           result = "big"
         } else {
           result = "small"
-        };
+        }
         
         result
       `);
@@ -200,10 +202,10 @@ describe('Wang Interpreter', () => {
     it('should handle for loops', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let sum = 0;
-        for (let i = 1; i <= 5; i++) {
+        let sum = 0
+        for (let i = 1; i <= 5; i = i + 1) {
           sum = sum + i
-        };
+        }
         sum
       `);
       expect(result).toBe(15);
@@ -212,11 +214,11 @@ describe('Wang Interpreter', () => {
     it('should handle for-of loops', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        const numbers = [10, 20, 30];
-        let total = 0;
+        const numbers = [10, 20, 30]
+        let total = 0
         for (let num of numbers) {
           total = total + num
-        };
+        }
         total
       `);
       expect(result).toBe(60);
@@ -225,12 +227,12 @@ describe('Wang Interpreter', () => {
     it('should handle while loops', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let count = 0;
-        let sum = 0;
+        let count = 0
+        let sum = 0
         while (count < 5) {
-          sum = sum + count;
+          sum = sum + count
           count = count + 1
-        };
+        }
         sum
       `);
       expect(result).toBe(10);
@@ -243,7 +245,7 @@ describe('Wang Interpreter', () => {
       const result = await ctx.execute(`
         class Rectangle {
           constructor(width, height) {
-            this.width = width;
+            this.width = width
             this.height = height
           }
           
@@ -254,9 +256,9 @@ describe('Wang Interpreter', () => {
           perimeter() {
             return 2 * (this.width + this.height)
           }
-        };
+        }
         
-        const rect = new Rectangle(5, 3);
+        const rect = new Rectangle(5, 3)
         rect.area() + rect.perimeter()
       `);
       expect(result).toBe(31);
@@ -267,13 +269,13 @@ describe('Wang Interpreter', () => {
     it('should handle try-catch blocks', async () => {
       const ctx = new TestContext();
       const result = await ctx.execute(`
-        let result;
+        let result
         try {
-          throw "error";
+          throw "error"
           result = "not reached"
         } catch (e) {
           result = "caught: " + e
-        };
+        }
         result
       `);
       expect(result).toBe('caught: error');
@@ -314,7 +316,7 @@ describe('Wang Interpreter', () => {
       );
 
       const result = await ctx.execute(`
-        import { square, PI } from "math";
+        import { square, PI } from "math"
         square(5) + PI
       `);
       expect(result).toBeCloseTo(28.14159, 5);

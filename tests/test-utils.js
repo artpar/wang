@@ -118,11 +118,11 @@ export async function runTests(tests) {
     const result = await test.run();
     if (result.passed) {
       console.log(`  ✅ ${result.name}`);
-      passed++;
+      passed = passed + 1;
     } else {
       console.log(`  ❌ ${result.name}`);
       console.log(`     ${result.error}`);
-      failed++;
+      failed = failed + 1;
     }
   }
 

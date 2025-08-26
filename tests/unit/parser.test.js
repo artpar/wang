@@ -16,8 +16,8 @@ describe('Wang Parser', () => {
   it('should parse multiple statements', () => {
     const ctx = new TestContext();
     const results = ctx.parse(`
-      let x = 5;
-      let y = 10;
+      let x = 5
+      let y = 10
       x + y
     `);
 
@@ -43,7 +43,7 @@ describe('Wang Parser', () => {
     const results = ctx.parse(`
       function add(a, b) {
         return a + b
-      };
+      }
     `);
 
     expect(results).toHaveLength(1);
@@ -119,14 +119,14 @@ describe('Wang Parser', () => {
     const results = ctx.parse(`
       class Person {
         constructor(name) {
-          this.name = name;
+          this.name = name
           this.age = 0
         }
         
         greet() {
           return "Hello, " + this.name
         }
-      };
+      }
     `);
 
     expect(results).toHaveLength(1);
@@ -160,7 +160,7 @@ describe('Wang Parser', () => {
         handleError(e)
       } finally {
         cleanup()
-      };
+      }
     `);
 
     expect(results).toHaveLength(1);

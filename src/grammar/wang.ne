@@ -1,51 +1,46 @@
-# Wang Language Grammar for Nearley
-# Modern JavaScript-like syntax with optional semicolons and Unicode support
+# Wang Language Grammar - Simplified Version
+# Based on FEATURE_DECISIONS.md - No ambiguity, cleaner syntax
 
 @{%
 const moo = require('moo');
 
-// Unicode-aware lexer with automatic semicolon insertion support
+// Simplified lexer - only what we need
 const lexer = moo.compile({
-  // Whitespace and comments
+  // Whitespace and comments (skip, but preserve newlines)
   WS: /[ \t\r]+/u,
   NL: { match: /\n/u, lineBreaks: true },
   lineComment: /\/\/.*$/u,
   blockComment: { match: /\/\*[^]*?\*\//u, lineBreaks: true },
   
-  // String literals with better escape handling
+  // String literals
   string: [
     { match: /"(?:[^"\\]|\\[^])*"/u, value: s => s.slice(1, -1).replace(/\\(.)/g, '$1') },
     { match: /'(?:[^'\\]|\\[^])*'/u, value: s => s.slice(1, -1).replace(/\\(.)/g, '$1') }
   ],
   
-  // Template literals (simplified)
+  // Template literals (basic - no embedded expressions for now)
   templateLiteral: { match: /`(?:[^`\\]|\\[^])*`/u, value: s => s.slice(1, -1) },
   
-  // Numbers with hex, octal, binary support
+  // Numbers (simplified - decimal only for now)
   number: {
-    match: /(?:0[xX][0-9a-fA-F]+|0[oO][0-7]+|0[bB][01]+|(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u,
-    value: s => {
-      if (s.startsWith('0x') || s.startsWith('0X')) return parseInt(s, 16);
-      if (s.startsWith('0o') || s.startsWith('0O')) return parseInt(s, 8);
-      if (s.startsWith('0b') || s.startsWith('0B')) return parseInt(s, 2);
-      return parseFloat(s);
-    }
+    match: /(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/u,
+    value: s => parseFloat(s)
   },
   
-  // Identifiers with full Unicode support (ES2015+ compliant)
+  // Identifiers with Unicode support
   identifier: {
     match: /[\p{L}\p{Nl}$_][\p{L}\p{Mn}\p{Mc}\p{Nd}\p{Pc}$_]*/u,
     type: moo.keywords({
       // Variable declarations
       let: 'let', const: 'const', var: 'var',
-      // Control flow
-      if: 'if', else: 'else', switch: 'switch', case: 'case', default: 'default',
+      // Control flow (no switch)
+      if: 'if', else: 'else',
       for: 'for', while: 'while', do: 'do',
       break: 'break', continue: 'continue', return: 'return',
       // Functions and classes
       function: 'function', class: 'class', extends: 'extends',
-      constructor: 'constructor', static: 'static',
-      get: 'get', set: 'set', async: 'async', await: 'await',
+      constructor: 'constructor',
+      async: 'async', await: 'await',
       // Modules
       import: 'import', export: 'export', from: 'from', as: 'as',
       // Error handling
@@ -58,37 +53,34 @@ const lexer = moo.compile({
     })
   },
   
-  // Operators (order matters for longest match) - all with /u flag for consistency
-  '===': /===/u, '!==': /!==/u, '**=': /\*\*=/u,
-  '<<=' : /<<=/u, '>>=' : />>=/u, '>>>=' : />>>=/u,
-  '++': /\+\+/u, '--': /--/u, '**': /\*\*/u,
-  '<=': /<=/u, '>=': />=/u, '==': /==/u, '!=': /!=/u,
+  // Operators - Only what we're keeping
+  '===': /===/u, '!==': /!==/u,
+  '==': /==/u, '!=': /!=/u,
+  '<=': /<=/u, '>=': />=/u,
   '<<': /<</u, '>>': />>/u, '>>>': />>>/u,
   '&&': /&&/u, '||': /\|\|/u, '??': /\?\?/u,
   '?.': /\?\./u, '...': /\.\.\./u,
-  '+=': /\+=/u, '-=': /-=/u, '*=': /\*=/u, '/=': /\/=/u, '%=': /%=/u,
-  '&=': /&=/u, '|=': /\|=/u, '^=': /\^=/u,
+  '**': /\*\*/u,
   
   // Pipeline operators (Wang-specific)
   '|>': /\|>/u,
   '->': /->/u,
   '=>': /=>/u,
   
-  // Single character tokens - all with /u flag
+  // Single character tokens
   '=': /=/u, '<': /</u, '>': />/u,
   '+': /\+/u, '-': /-/u, '*': /\*/u, '/': /\//u, '%': /%/u,
   '&': /&/u, '|': /\|/u, '^': /\^/u, '~': /~/u, '!': /!/u,
-  '?': /\?/u, ':': /:/u, ';': /;/u,
+  '?': /\?/u, ':': /:/u,
   '(': /\(/u, ')': /\)/u, '[': /\[/u, ']': /\]/u, '{': /\{/u, '}': /\}/u,
-  ',': /,/u, '.': /\./u,
-  '@': /@/u, '#': /#/u, '_': /_/u
+  ',': /,/u, '.': /\./u, ';': /;/u
 });
 
-// Skip whitespace and comments, preserve newlines for ASI
+// Skip whitespace and comments, preserve newlines
 lexer.next = (next => () => {
   let tok;
   while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'lineComment' || tok.type === 'blockComment')) {
-    // Skip whitespace and comments but preserve newlines
+    // Skip whitespace and comments
   }
   return tok;
 })(lexer.next);
@@ -122,26 +114,39 @@ function createLiteral(value, raw) {
 
 @lexer lexer
 
+# ============= PROGRAM STRUCTURE =============
+
 # Start rule
 Program -> StatementList {% d => createNode('Program', { body: d[0] }) %}
 
-# Statement list - handle separators with simple rules
+# Statements - NEWLINE SEPARATED ONLY (no semicolons)
 StatementList ->
     null {% () => [] %}
   | Statement {% d => [d[0]] %}
-  | StatementList ";" Statement {% d => [...d[0], d[2]] %}
   | StatementList %NL Statement {% d => [...d[0], d[2]] %}
-  | StatementList ";" {% d => d[0] %}
-  | StatementList %NL {% d => d[0] %}
+  | StatementList %NL {% d => d[0] %}  # Allow trailing newlines
 
 Statement ->
     Declaration {% id %}
+  | LabeledStatement {% id %}
   | ControlStatement {% id %}
   | ExpressionStatement {% id %}
   | Block {% id %}
-  | ";" {% () => createNode('EmptyStatement') %}
 
-# Declarations
+LabeledStatement ->
+    %identifier ":" LoopStatement
+    {% d => createNode('LabeledStatement', {
+      label: createIdentifier(d[0].value),
+      body: d[2]
+    }) %}
+
+LoopStatement ->
+    WhileStatement {% id %}
+  | DoWhileStatement {% id %}
+  | ForStatement {% id %}
+
+# ============= DECLARATIONS =============
+
 Declaration ->
     VariableDeclaration {% id %}
   | FunctionDeclaration {% id %}
@@ -165,6 +170,7 @@ VariableDeclarator ->
       init: d[1] ? d[1][1] : null 
     }) %}
 
+# Binding patterns (simplified destructuring)
 BindingPattern ->
     %identifier {% d => createIdentifier(d[0].value) %}
   | ArrayPattern {% id %}
@@ -204,9 +210,8 @@ ObjectPatternProperty ->
       value: d[2], 
       shorthand: false 
     }) %}
-  | "..." BindingPattern {% d => createNode('RestElement', { argument: d[1] }) %}
 
-# Function Declaration
+# Function Declaration - ONLY NAMED FUNCTIONS
 FunctionDeclaration ->
     "async":? "function" %identifier "(" ParameterList ")" Block
     {% d => createNode('FunctionDeclaration', {
@@ -228,7 +233,7 @@ Parameter ->
   | "..." BindingPattern 
     {% d => createNode('RestElement', { argument: d[1] }) %}
 
-# Class Declaration  
+# Class Declaration (simplified - no static, getters, setters, private)
 ClassDeclaration ->
     "class" %identifier ("extends" %identifier):? ClassBody
     {% d => createNode('ClassDeclaration', {
@@ -238,33 +243,32 @@ ClassDeclaration ->
     }) %}
 
 ClassBody ->
-    "{" ClassMemberList "}"
+    "{" ClassMemberListWithNewlines "}"
     {% d => createNode('ClassBody', { body: d[1] }) %}
 
-# Simplified class member list to avoid ambiguity
-ClassMemberList ->
-    null {% () => [] %}
-  | ClassMember {% d => d[0] ? [d[0]] : [] %}
-  | ClassMemberList OptionalNewlines ClassMember 
-    {% d => d[2] ? [...d[0], d[2]] : d[0] %}
+# Class members - handle all newlines upfront
+ClassMemberListWithNewlines ->
+    %NL:* ClassMemberNonEmpty:? %NL:*
+    {% d => d[1] ? d[1] : [] %}
 
-# Optional newlines/semicolons in class body
-OptionalNewlines -> (";" | %NL):+ {% () => null %}
+ClassMemberNonEmpty ->
+    ClassMember
+    {% d => [d[0]] %}
+  | ClassMember %NL:+ ClassMemberNonEmpty
+    {% d => [d[0], ...d[2]] %}
 
 ClassMember ->
     MethodDefinition {% id %}
   | PropertyDefinition {% id %}
-  | ";" {% () => null %}
 
 MethodDefinition ->
-    ("static"):? ("async"):? ("get"|"set"):? PropertyKey "(" ParameterList ")" Block
+    "async":? PropertyKey "(" ParameterList ")" Block
     {% d => createNode('MethodDefinition', {
-      static: !!d[0],
-      async: !!d[1],
-      kind: d[2] ? d[2][0].value : 'method',
-      key: d[3],
-      params: d[5],
-      body: d[7]
+      async: !!d[0],
+      kind: 'method',
+      key: d[1],
+      params: d[3],
+      body: d[5]
     }) %}
   | "constructor" "(" ParameterList ")" Block
     {% d => createNode('MethodDefinition', {
@@ -275,29 +279,19 @@ MethodDefinition ->
     }) %}
 
 PropertyDefinition ->
-    ("static"):? PropertyKey ("=" AssignmentExpression):?
+    PropertyKey "=" AssignmentExpression
     {% d => createNode('PropertyDefinition', {
-      static: !!d[0],
-      key: d[1],
-      value: d[2] ? d[2][1] : null
+      key: d[0],
+      value: d[2]
     }) %}
 
-# Import/Export
+# Import/Export (simplified - named only, no default)
 ImportDeclaration ->
-    "import" ImportClause "from" %string
+    "import" "{" ImportsList "}" "from" %string
     {% d => createNode('ImportDeclaration', { 
-      specifiers: d[1], 
-      source: createLiteral(d[3].value, d[3].text) 
+      specifiers: d[2], 
+      source: createLiteral(d[5].value, d[5].text) 
     }) %}
-  | "import" %string
-    {% d => createNode('ImportDeclaration', { 
-      specifiers: [], 
-      source: createLiteral(d[1].value, d[1].text) 
-    }) %}
-
-ImportClause ->
-    "{" ImportsList "}" {% d => d[1] %}
-  | "*" "as" %identifier {% d => [createNode('ImportNamespaceSpecifier', { local: createIdentifier(d[2].value) })] %}
 
 ImportsList ->
     null {% () => [] %}
@@ -313,13 +307,11 @@ ImportSpecifier ->
 
 ExportDeclaration ->
     "export" Declaration {% d => createNode('ExportNamedDeclaration', { declaration: d[1] }) %}
-  | "export" "{" ExportsList "}" ("from" %string):?
+  | "export" "{" ExportsList "}"
     {% d => createNode('ExportNamedDeclaration', { 
       specifiers: d[2],
-      source: d[4] ? createLiteral(d[4][1].value, d[4][1].text) : null
+      source: null
     }) %}
-  | "export" "default" (AssignmentExpression | Declaration)
-    {% d => createNode('ExportDefaultDeclaration', { declaration: d[2][0] }) %}
 
 ExportsList ->
     null {% () => [] %}
@@ -333,13 +325,13 @@ ExportSpecifier ->
       exported: createIdentifier(d[1] ? d[1][1].value : d[0].value)
     }) %}
 
-# Control Statements
+# ============= CONTROL STATEMENTS =============
+
 ControlStatement ->
     IfStatement {% id %}
   | WhileStatement {% id %}
   | DoWhileStatement {% id %}
   | ForStatement {% id %}
-  | SwitchStatement {% id %}
   | TryStatement {% id %}
   | ThrowStatement {% id %}
   | ReturnStatement {% id %}
@@ -363,6 +355,7 @@ DoWhileStatement ->
     {% d => createNode('DoWhileStatement', { body: d[1], test: d[4] }) %}
 
 ForStatement ->
+    # C-style for loop (no ++ operator)
     "for" "(" (VariableDeclaration | Expression | null) ";" (Expression | null) ";" (Expression | null) ")" Statement
     {% d => createNode('ForStatement', {
       init: d[2] ? d[2][0] : null,
@@ -370,8 +363,9 @@ ForStatement ->
       update: d[6] ? d[6][0] : null,
       body: d[8]
     }) %}
-  | "for" "(" ("let" | "const" | "var") BindingPattern ("in" | "of") Expression ")" Statement
-    {% d => createNode(d[4][0].value === 'in' ? 'ForInStatement' : 'ForOfStatement', {
+  | # for-of loop (no for-in)
+    "for" "(" ("let" | "const" | "var") BindingPattern "of" Expression ")" Statement
+    {% d => createNode('ForOfStatement', {
       left: createNode('VariableDeclaration', { 
         kind: d[2][0].value, 
         declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 
@@ -379,21 +373,6 @@ ForStatement ->
       right: d[5],
       body: d[7]
     }) %}
-
-SwitchStatement ->
-    "switch" "(" Expression ")" "{" CaseClauses "}"
-    {% d => createNode('SwitchStatement', { discriminant: d[2], cases: d[5] }) %}
-
-CaseClauses ->
-    null {% () => [] %}
-  | CaseClause {% d => [d[0]] %}
-  | CaseClauses CaseClause {% d => [...d[0], d[1]] %}
-
-CaseClause ->
-    "case" Expression ":" StatementList
-    {% d => createNode('SwitchCase', { test: d[1], consequent: d[3] }) %}
-  | "default" ":" StatementList
-    {% d => createNode('SwitchCase', { test: null, consequent: d[2] }) %}
 
 TryStatement ->
     "try" Block ("catch" ("(" BindingPattern ")"):? Block):? ("finally" Block):?
@@ -411,43 +390,42 @@ ThrowStatement ->
     {% d => createNode('ThrowStatement', { argument: d[1] }) %}
 
 ReturnStatement ->
-    "return" (Expression):?
-    {% d => createNode('ReturnStatement', { argument: d[1] ? d[1][0] : null }) %}
+    "return" Expression:?
+    {% d => createNode('ReturnStatement', { argument: d[1] }) %}
 
 BreakStatement ->
-    "break" (%identifier):?
-    {% d => createNode('BreakStatement', { label: d[1] ? createIdentifier(d[1][0].value) : null }) %}
+    "break" %identifier:?
+    {% d => createNode('BreakStatement', { label: d[1] ? createIdentifier(d[1].value) : null }) %}
 
 ContinueStatement ->
-    "continue" (%identifier):?
-    {% d => createNode('ContinueStatement', { label: d[1] ? createIdentifier(d[1][0].value) : null }) %}
+    "continue" %identifier:?
+    {% d => createNode('ContinueStatement', { label: d[1] ? createIdentifier(d[1].value) : null }) %}
 
-# Expression Statement
+# ============= EXPRESSIONS =============
+
 ExpressionStatement ->
     Expression {% d => createNode('ExpressionStatement', { expression: d[0] }) %}
 
-# Expression hierarchy (simplified)
 Expression -> PipelineExpression {% id %}
 
+# Pipeline operators (Wang-specific feature)
 PipelineExpression ->
     AssignmentExpression {% id %}
-  | PipelineExpression ("|>" | "->") AssignmentExpression
-    {% d => createPipeline(d[0], d[1][0].value, d[2]) %}
+  | PipelineExpression %NL:* ("|>" | "->") AssignmentExpression
+    {% d => createPipeline(d[0], d[2][0].value, d[3]) %}
 
+# Assignment - ONLY SIMPLE = (no compound assignments)
 AssignmentExpression ->
     ConditionalExpression {% id %}
   | ArrowFunction {% id %}
-  | ConditionalExpression AssignmentOperator AssignmentExpression
+  | LeftHandSideExpression "=" AssignmentExpression
     {% d => createNode('AssignmentExpression', {
-      operator: d[1],
+      operator: '=',
       left: d[0],
       right: d[2]
     }) %}
 
-AssignmentOperator ->
-    ("=" | "+=" | "-=" | "*=" | "/=" | "%=" | "**=" | "<<=" | ">>=" | ">>>=" | "&=" | "|=" | "^=")
-    {% d => d[0][0].value %}
-
+# Arrow functions (always anonymous)
 ArrowFunction ->
     ArrowParameters "=>" ArrowBody
     {% d => createNode('ArrowFunctionExpression', {
@@ -470,14 +448,8 @@ ArrowBody ->
     Block {% id %}
   | AssignmentExpression {% id %}
 
-ConditionalExpression ->
-    LogicalOrExpression {% id %}
-  | LogicalOrExpression "?" Expression ":" ConditionalExpression
-    {% d => createNode('ConditionalExpression', {
-      test: d[0],
-      consequent: d[2],
-      alternate: d[4]
-    }) %}
+# NO ternary operator
+ConditionalExpression -> LogicalOrExpression {% id %}
 
 LogicalOrExpression ->
     LogicalAndExpression {% id %}
@@ -521,14 +493,8 @@ UnaryExpression ->
   | ("!" | "+" | "-" | "~" | "typeof" | "await") UnaryExpression
     {% d => createUnaryOp(d[0][0].value, d[1]) %}
 
-PostfixExpression ->
-    LeftHandSideExpression {% id %}
-  | LeftHandSideExpression ("++" | "--")
-    {% d => createNode('UpdateExpression', {
-      operator: d[1][0].value,
-      argument: d[0],
-      prefix: false
-    }) %}
+# NO postfix ++ or --
+PostfixExpression -> LeftHandSideExpression {% id %}
 
 LeftHandSideExpression ->
     CallExpression {% id %}
@@ -566,6 +532,7 @@ ArgumentList ->
   | AssignmentExpression {% d => [d[0]] %}
   | ArgumentList "," AssignmentExpression {% d => [...d[0], d[2]] %}
   | "..." AssignmentExpression {% d => [createNode('SpreadElement', { argument: d[1] })] %}
+  | ArgumentList "," "..." AssignmentExpression {% d => [...d[0], createNode('SpreadElement', { argument: d[3] })] %}
 
 PrimaryExpression ->
     "this" {% () => createNode('ThisExpression') %}
@@ -578,20 +545,21 @@ PrimaryExpression ->
   | TemplateLiteral {% id %}
   | "(" Expression ")" {% d => d[1] %}
 
+# Function expressions - ALWAYS ANONYMOUS
 FunctionExpression ->
-    "function" %identifier:? "(" ParameterList ")" Block
+    "function" "(" ParameterList ")" Block
     {% d => createNode('FunctionExpression', {
       async: false,
-      id: d[1] ? createIdentifier(d[1].value) : null,
-      params: d[3],
-      body: d[5]
+      id: null,
+      params: d[2],
+      body: d[4]
     }) %}
-  | "async" "function" %identifier:? "(" ParameterList ")" Block
+  | "async" "function" "(" ParameterList ")" Block
     {% d => createNode('FunctionExpression', {
       async: true,
-      id: d[2] ? createIdentifier(d[2].value) : null,
-      params: d[4],
-      body: d[6]
+      id: null,
+      params: d[3],
+      body: d[5]
     }) %}
 
 Literal ->
@@ -610,34 +578,30 @@ TemplateLiteral ->
     }) %}
 
 ArrayLiteral ->
-    "[" ElementList "]" {% d => createNode('ArrayExpression', { elements: d[1] }) %}
+    "[" %NL:* ElementList %NL:* "]" {% d => createNode('ArrayExpression', { elements: d[2] }) %}
 
 ElementList ->
     null {% () => [] %}
   | Element {% d => [d[0]] %}
-  | ElementList "," Element {% d => [...d[0], d[2]] %}
-  | ElementList "," {% d => [...d[0], null] %}
+  | ElementList %NL:* "," %NL:* Element {% d => [...d[0], d[4]] %}
+  | ElementList %NL:* "," {% d => [...d[0], null] %}
 
 Element ->
     AssignmentExpression {% id %}
   | "..." AssignmentExpression {% d => createNode('SpreadElement', { argument: d[1] }) %}
 
+# Object literals - ALWAYS objects (never blocks with labels)
+# Allow newlines before/after braces and around commas
 ObjectLiteral ->
     "{" %NL:* "}" {% () => createNode('ObjectExpression', { properties: [] }) %}
   | "{" %NL:* PropertyDefinitionList %NL:* "}" {% d => createNode('ObjectExpression', { properties: d[2] }) %}
 
-# Simplified property list - allow newlines anywhere, single path through grammar
 PropertyDefinitionList ->
-    PropertyDefinition {% d => [d[0]] %}
-  | PropertyDefinitionList PropertySeparator PropertyDefinition 
-    {% d => [...d[0], d[2]] %}
-  | PropertyDefinitionList PropertySeparator 
-    {% d => d[0] %}
+    PropertyDef {% d => [d[0]] %}
+  | PropertyDefinitionList %NL:* "," %NL:* PropertyDef {% d => [...d[0], d[4]] %}
+  | PropertyDefinitionList %NL:* "," {% d => d[0] %}
 
-# Property separator - comma with optional newlines
-PropertySeparator -> "," %NL:* {% () => null %}
-
-PropertyDefinition ->
+PropertyDef ->
     PropertyKey ":" AssignmentExpression
     {% d => createNode('Property', { key: d[0], value: d[2], shorthand: false }) %}
   | %identifier
@@ -648,7 +612,6 @@ PropertyDefinition ->
     }) %}
   | "..." AssignmentExpression
     {% d => createNode('SpreadElement', { argument: d[1] }) %}
-  | MethodDefinition {% id %}
 
 PropertyKey ->
     %identifier {% d => createIdentifier(d[0].value) %}

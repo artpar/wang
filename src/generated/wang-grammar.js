@@ -1,5 +1,4 @@
 // Bundled Nearley Runtime (19.6KB)
-import mooLib from 'moo';
 const nearley = (function() {
 function Rule(name, symbols, postprocess) {
         this.id = ++Rule.highestId;
@@ -563,50 +562,45 @@ return {
 
 function id(x) { return x[0]; }
 
-const moo = mooLib;
+const moo = require('moo');
 
-// Unicode-aware lexer with automatic semicolon insertion support
+// Simplified lexer - only what we need
 const lexer = moo.compile({
-  // Whitespace and comments
+  // Whitespace and comments (skip, but preserve newlines)
   WS: /[ \t\r]+/u,
   NL: { match: /\n/u, lineBreaks: true },
   lineComment: /\/\/.*$/u,
   blockComment: { match: /\/\*[^]*?\*\//u, lineBreaks: true },
   
-  // String literals with better escape handling
+  // String literals
   string: [
     { match: /"(?:[^"\\]|\\[^])*"/u, value: s => s.slice(1, -1).replace(/\\(.)/g, '$1') },
     { match: /'(?:[^'\\]|\\[^])*'/u, value: s => s.slice(1, -1).replace(/\\(.)/g, '$1') }
   ],
   
-  // Template literals (simplified)
+  // Template literals (basic - no embedded expressions for now)
   templateLiteral: { match: /`(?:[^`\\]|\\[^])*`/u, value: s => s.slice(1, -1) },
   
-  // Numbers with hex, octal, binary support
+  // Numbers (simplified - decimal only for now)
   number: {
-    match: /(?:0[xX][0-9a-fA-F]+|0[oO][0-7]+|0[bB][01]+|(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u,
-    value: s => {
-      if (s.startsWith('0x') || s.startsWith('0X')) return parseInt(s, 16);
-      if (s.startsWith('0o') || s.startsWith('0O')) return parseInt(s, 8);
-      if (s.startsWith('0b') || s.startsWith('0B')) return parseInt(s, 2);
-      return parseFloat(s);
-    }
+    match: /(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/u,
+    value: s => parseFloat(s)
   },
   
-  // Identifiers with full Unicode support (ES2015+ compliant)
+  // Identifiers with Unicode support
   identifier: {
     match: /[\p{L}\p{Nl}$_][\p{L}\p{Mn}\p{Mc}\p{Nd}\p{Pc}$_]*/u,
     type: moo.keywords({
       // Variable declarations
       let: 'let', const: 'const', var: 'var',
-      // Control flow
-      if: 'if', else: 'else', switch: 'switch', case: 'case', default: 'default',
+      // Control flow (no switch)
+      if: 'if', else: 'else',
       for: 'for', while: 'while', do: 'do',
       break: 'break', continue: 'continue', return: 'return',
       // Functions and classes
       function: 'function', class: 'class', extends: 'extends',
-      constructor: 'constructor', static: 'static',
-      get: 'get', set: 'set', async: 'async', await: 'await',
+      constructor: 'constructor',
+      async: 'async', await: 'await',
       // Modules
       import: 'import', export: 'export', from: 'from', as: 'as',
       // Error handling
@@ -619,37 +613,34 @@ const lexer = moo.compile({
     })
   },
   
-  // Operators (order matters for longest match) - all with /u flag for consistency
-  '===': /===/u, '!==': /!==/u, '**=': /\*\*=/u,
-  '<<=' : /<<=/u, '>>=' : />>=/u, '>>>=' : />>>=/u,
-  '++': /\+\+/u, '--': /--/u, '**': /\*\*/u,
-  '<=': /<=/u, '>=': />=/u, '==': /==/u, '!=': /!=/u,
+  // Operators - Only what we're keeping
+  '===': /===/u, '!==': /!==/u,
+  '==': /==/u, '!=': /!=/u,
+  '<=': /<=/u, '>=': />=/u,
   '<<': /<</u, '>>': />>/u, '>>>': />>>/u,
   '&&': /&&/u, '||': /\|\|/u, '??': /\?\?/u,
   '?.': /\?\./u, '...': /\.\.\./u,
-  '+=': /\+=/u, '-=': /-=/u, '*=': /\*=/u, '/=': /\/=/u, '%=': /%=/u,
-  '&=': /&=/u, '|=': /\|=/u, '^=': /\^=/u,
+  '**': /\*\*/u,
   
   // Pipeline operators (Wang-specific)
   '|>': /\|>/u,
   '->': /->/u,
   '=>': /=>/u,
   
-  // Single character tokens - all with /u flag
+  // Single character tokens
   '=': /=/u, '<': /</u, '>': />/u,
   '+': /\+/u, '-': /-/u, '*': /\*/u, '/': /\//u, '%': /%/u,
   '&': /&/u, '|': /\|/u, '^': /\^/u, '~': /~/u, '!': /!/u,
-  '?': /\?/u, ':': /:/u, ';': /;/u,
+  '?': /\?/u, ':': /:/u,
   '(': /\(/u, ')': /\)/u, '[': /\[/u, ']': /\]/u, '{': /\{/u, '}': /\}/u,
-  ',': /,/u, '.': /\./u,
-  '@': /@/u, '#': /#/u, '_': /_/u
+  ',': /,/u, '.': /\./u, ';': /;/u
 });
 
-// Skip whitespace and comments, preserve newlines for ASI
+// Skip whitespace and comments, preserve newlines
 lexer.next = (next => () => {
   let tok;
   while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'lineComment' || tok.type === 'blockComment')) {
-    // Skip whitespace and comments but preserve newlines
+    // Skip whitespace and comments
   }
   return tok;
 })(lexer.next);
@@ -685,15 +676,20 @@ var grammar = {
     {"name": "Program", "symbols": ["StatementList"], "postprocess": d => createNode('Program', { body: d[0] })},
     {"name": "StatementList", "symbols": [], "postprocess": () => []},
     {"name": "StatementList", "symbols": ["Statement"], "postprocess": d => [d[0]]},
-    {"name": "StatementList", "symbols": ["StatementList", {"literal":";"}, "Statement"], "postprocess": d => [...d[0], d[2]]},
     {"name": "StatementList", "symbols": ["StatementList", (lexer.has("NL") ? {type: "NL"} : NL), "Statement"], "postprocess": d => [...d[0], d[2]]},
-    {"name": "StatementList", "symbols": ["StatementList", {"literal":";"}], "postprocess": d => d[0]},
     {"name": "StatementList", "symbols": ["StatementList", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": d => d[0]},
     {"name": "Statement", "symbols": ["Declaration"], "postprocess": id},
+    {"name": "Statement", "symbols": ["LabeledStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ControlStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ExpressionStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["Block"], "postprocess": id},
-    {"name": "Statement", "symbols": [{"literal":";"}], "postprocess": () => createNode('EmptyStatement')},
+    {"name": "LabeledStatement", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":":"}, "LoopStatement"], "postprocess":  d => createNode('LabeledStatement', {
+          label: createIdentifier(d[0].value),
+          body: d[2]
+        }) },
+    {"name": "LoopStatement", "symbols": ["WhileStatement"], "postprocess": id},
+    {"name": "LoopStatement", "symbols": ["DoWhileStatement"], "postprocess": id},
+    {"name": "LoopStatement", "symbols": ["ForStatement"], "postprocess": id},
     {"name": "Declaration", "symbols": ["VariableDeclaration"], "postprocess": id},
     {"name": "Declaration", "symbols": ["FunctionDeclaration"], "postprocess": id},
     {"name": "Declaration", "symbols": ["ClassDeclaration"], "postprocess": id},
@@ -736,7 +732,6 @@ var grammar = {
           value: d[2], 
           shorthand: false 
         }) },
-    {"name": "ObjectPatternProperty", "symbols": [{"literal":"..."}, "BindingPattern"], "postprocess": d => createNode('RestElement', { argument: d[1] })},
     {"name": "FunctionDeclaration$ebnf$1", "symbols": [{"literal":"async"}], "postprocess": id},
     {"name": "FunctionDeclaration$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "FunctionDeclaration", "symbols": ["FunctionDeclaration$ebnf$1", {"literal":"function"}, (lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionDeclaration', {
@@ -759,37 +754,28 @@ var grammar = {
           superClass: d[2] ? createIdentifier(d[2][1].value) : null,
           body: d[3]
         }) },
-    {"name": "ClassBody", "symbols": [{"literal":"{"}, "ClassMemberList", {"literal":"}"}], "postprocess": d => createNode('ClassBody', { body: d[1] })},
-    {"name": "ClassMemberList", "symbols": [], "postprocess": () => []},
-    {"name": "ClassMemberList", "symbols": ["ClassMember"], "postprocess": d => d[0] ? [d[0]] : []},
-    {"name": "ClassMemberList", "symbols": ["ClassMemberList", "OptionalNewlines", "ClassMember"], "postprocess": d => d[2] ? [...d[0], d[2]] : d[0]},
-    {"name": "OptionalNewlines$ebnf$1$subexpression$1", "symbols": [{"literal":";"}]},
-    {"name": "OptionalNewlines$ebnf$1$subexpression$1", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)]},
-    {"name": "OptionalNewlines$ebnf$1", "symbols": ["OptionalNewlines$ebnf$1$subexpression$1"]},
-    {"name": "OptionalNewlines$ebnf$1$subexpression$2", "symbols": [{"literal":";"}]},
-    {"name": "OptionalNewlines$ebnf$1$subexpression$2", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)]},
-    {"name": "OptionalNewlines$ebnf$1", "symbols": ["OptionalNewlines$ebnf$1", "OptionalNewlines$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "OptionalNewlines", "symbols": ["OptionalNewlines$ebnf$1"], "postprocess": () => null},
+    {"name": "ClassBody", "symbols": [{"literal":"{"}, "ClassMemberListWithNewlines", {"literal":"}"}], "postprocess": d => createNode('ClassBody', { body: d[1] })},
+    {"name": "ClassMemberListWithNewlines$ebnf$1", "symbols": []},
+    {"name": "ClassMemberListWithNewlines$ebnf$1", "symbols": ["ClassMemberListWithNewlines$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ClassMemberListWithNewlines$ebnf$2", "symbols": ["ClassMemberNonEmpty"], "postprocess": id},
+    {"name": "ClassMemberListWithNewlines$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "ClassMemberListWithNewlines$ebnf$3", "symbols": []},
+    {"name": "ClassMemberListWithNewlines$ebnf$3", "symbols": ["ClassMemberListWithNewlines$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ClassMemberListWithNewlines", "symbols": ["ClassMemberListWithNewlines$ebnf$1", "ClassMemberListWithNewlines$ebnf$2", "ClassMemberListWithNewlines$ebnf$3"], "postprocess": d => d[1] ? d[1] : []},
+    {"name": "ClassMemberNonEmpty", "symbols": ["ClassMember"], "postprocess": d => [d[0]]},
+    {"name": "ClassMemberNonEmpty$ebnf$1", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)]},
+    {"name": "ClassMemberNonEmpty$ebnf$1", "symbols": ["ClassMemberNonEmpty$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ClassMemberNonEmpty", "symbols": ["ClassMember", "ClassMemberNonEmpty$ebnf$1", "ClassMemberNonEmpty"], "postprocess": d => [d[0], ...d[2]]},
     {"name": "ClassMember", "symbols": ["MethodDefinition"], "postprocess": id},
     {"name": "ClassMember", "symbols": ["PropertyDefinition"], "postprocess": id},
-    {"name": "ClassMember", "symbols": [{"literal":";"}], "postprocess": () => null},
-    {"name": "MethodDefinition$ebnf$1$subexpression$1", "symbols": [{"literal":"static"}]},
-    {"name": "MethodDefinition$ebnf$1", "symbols": ["MethodDefinition$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "MethodDefinition$ebnf$1", "symbols": [{"literal":"async"}], "postprocess": id},
     {"name": "MethodDefinition$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MethodDefinition$ebnf$2$subexpression$1", "symbols": [{"literal":"async"}]},
-    {"name": "MethodDefinition$ebnf$2", "symbols": ["MethodDefinition$ebnf$2$subexpression$1"], "postprocess": id},
-    {"name": "MethodDefinition$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MethodDefinition$ebnf$3$subexpression$1", "symbols": [{"literal":"get"}]},
-    {"name": "MethodDefinition$ebnf$3$subexpression$1", "symbols": [{"literal":"set"}]},
-    {"name": "MethodDefinition$ebnf$3", "symbols": ["MethodDefinition$ebnf$3$subexpression$1"], "postprocess": id},
-    {"name": "MethodDefinition$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MethodDefinition", "symbols": ["MethodDefinition$ebnf$1", "MethodDefinition$ebnf$2", "MethodDefinition$ebnf$3", "PropertyKey", {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
-          static: !!d[0],
-          async: !!d[1],
-          kind: d[2] ? d[2][0].value : 'method',
-          key: d[3],
-          params: d[5],
-          body: d[7]
+    {"name": "MethodDefinition", "symbols": ["MethodDefinition$ebnf$1", "PropertyKey", {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
+          async: !!d[0],
+          kind: 'method',
+          key: d[1],
+          params: d[3],
+          body: d[5]
         }) },
     {"name": "MethodDefinition", "symbols": [{"literal":"constructor"}, {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
           kind: 'constructor',
@@ -797,27 +783,14 @@ var grammar = {
           params: d[2],
           body: d[4]
         }) },
-    {"name": "PropertyDefinition$ebnf$1$subexpression$1", "symbols": [{"literal":"static"}]},
-    {"name": "PropertyDefinition$ebnf$1", "symbols": ["PropertyDefinition$ebnf$1$subexpression$1"], "postprocess": id},
-    {"name": "PropertyDefinition$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "PropertyDefinition$ebnf$2$subexpression$1", "symbols": [{"literal":"="}, "AssignmentExpression"]},
-    {"name": "PropertyDefinition$ebnf$2", "symbols": ["PropertyDefinition$ebnf$2$subexpression$1"], "postprocess": id},
-    {"name": "PropertyDefinition$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "PropertyDefinition", "symbols": ["PropertyDefinition$ebnf$1", "PropertyKey", "PropertyDefinition$ebnf$2"], "postprocess":  d => createNode('PropertyDefinition', {
-          static: !!d[0],
-          key: d[1],
-          value: d[2] ? d[2][1] : null
+    {"name": "PropertyDefinition", "symbols": ["PropertyKey", {"literal":"="}, "AssignmentExpression"], "postprocess":  d => createNode('PropertyDefinition', {
+          key: d[0],
+          value: d[2]
         }) },
-    {"name": "ImportDeclaration", "symbols": [{"literal":"import"}, "ImportClause", {"literal":"from"}, (lexer.has("string") ? {type: "string"} : string)], "postprocess":  d => createNode('ImportDeclaration', { 
-          specifiers: d[1], 
-          source: createLiteral(d[3].value, d[3].text) 
+    {"name": "ImportDeclaration", "symbols": [{"literal":"import"}, {"literal":"{"}, "ImportsList", {"literal":"}"}, {"literal":"from"}, (lexer.has("string") ? {type: "string"} : string)], "postprocess":  d => createNode('ImportDeclaration', { 
+          specifiers: d[2], 
+          source: createLiteral(d[5].value, d[5].text) 
         }) },
-    {"name": "ImportDeclaration", "symbols": [{"literal":"import"}, (lexer.has("string") ? {type: "string"} : string)], "postprocess":  d => createNode('ImportDeclaration', { 
-          specifiers: [], 
-          source: createLiteral(d[1].value, d[1].text) 
-        }) },
-    {"name": "ImportClause", "symbols": [{"literal":"{"}, "ImportsList", {"literal":"}"}], "postprocess": d => d[1]},
-    {"name": "ImportClause", "symbols": [{"literal":"*"}, {"literal":"as"}, (lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => [createNode('ImportNamespaceSpecifier', { local: createIdentifier(d[2].value) })]},
     {"name": "ImportsList", "symbols": [], "postprocess": () => []},
     {"name": "ImportsList", "symbols": ["ImportSpecifier"], "postprocess": d => [d[0]]},
     {"name": "ImportsList", "symbols": ["ImportsList", {"literal":","}, "ImportSpecifier"], "postprocess": d => [...d[0], d[2]]},
@@ -829,16 +802,10 @@ var grammar = {
           local: createIdentifier(d[1] ? d[1][1].value : d[0].value)
         }) },
     {"name": "ExportDeclaration", "symbols": [{"literal":"export"}, "Declaration"], "postprocess": d => createNode('ExportNamedDeclaration', { declaration: d[1] })},
-    {"name": "ExportDeclaration$ebnf$1$subexpression$1", "symbols": [{"literal":"from"}, (lexer.has("string") ? {type: "string"} : string)]},
-    {"name": "ExportDeclaration$ebnf$1", "symbols": ["ExportDeclaration$ebnf$1$subexpression$1"], "postprocess": id},
-    {"name": "ExportDeclaration$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "ExportDeclaration", "symbols": [{"literal":"export"}, {"literal":"{"}, "ExportsList", {"literal":"}"}, "ExportDeclaration$ebnf$1"], "postprocess":  d => createNode('ExportNamedDeclaration', { 
+    {"name": "ExportDeclaration", "symbols": [{"literal":"export"}, {"literal":"{"}, "ExportsList", {"literal":"}"}], "postprocess":  d => createNode('ExportNamedDeclaration', { 
           specifiers: d[2],
-          source: d[4] ? createLiteral(d[4][1].value, d[4][1].text) : null
+          source: null
         }) },
-    {"name": "ExportDeclaration$subexpression$1", "symbols": ["AssignmentExpression"]},
-    {"name": "ExportDeclaration$subexpression$1", "symbols": ["Declaration"]},
-    {"name": "ExportDeclaration", "symbols": [{"literal":"export"}, {"literal":"default"}, "ExportDeclaration$subexpression$1"], "postprocess": d => createNode('ExportDefaultDeclaration', { declaration: d[2][0] })},
     {"name": "ExportsList", "symbols": [], "postprocess": () => []},
     {"name": "ExportsList", "symbols": ["ExportSpecifier"], "postprocess": d => [d[0]]},
     {"name": "ExportsList", "symbols": ["ExportsList", {"literal":","}, "ExportSpecifier"], "postprocess": d => [...d[0], d[2]]},
@@ -853,7 +820,6 @@ var grammar = {
     {"name": "ControlStatement", "symbols": ["WhileStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["DoWhileStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["ForStatement"], "postprocess": id},
-    {"name": "ControlStatement", "symbols": ["SwitchStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["TryStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["ThrowStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["ReturnStatement"], "postprocess": id},
@@ -885,9 +851,7 @@ var grammar = {
     {"name": "ForStatement$subexpression$4", "symbols": [{"literal":"let"}]},
     {"name": "ForStatement$subexpression$4", "symbols": [{"literal":"const"}]},
     {"name": "ForStatement$subexpression$4", "symbols": [{"literal":"var"}]},
-    {"name": "ForStatement$subexpression$5", "symbols": [{"literal":"in"}]},
-    {"name": "ForStatement$subexpression$5", "symbols": [{"literal":"of"}]},
-    {"name": "ForStatement", "symbols": [{"literal":"for"}, {"literal":"("}, "ForStatement$subexpression$4", "BindingPattern", "ForStatement$subexpression$5", "Expression", {"literal":")"}, "Statement"], "postprocess":  d => createNode(d[4][0].value === 'in' ? 'ForInStatement' : 'ForOfStatement', {
+    {"name": "ForStatement", "symbols": [{"literal":"for"}, {"literal":"("}, "ForStatement$subexpression$4", "BindingPattern", {"literal":"of"}, "Expression", {"literal":")"}, "Statement"], "postprocess":  d => createNode('ForOfStatement', {
           left: createNode('VariableDeclaration', { 
             kind: d[2][0].value, 
             declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 
@@ -895,12 +859,6 @@ var grammar = {
           right: d[5],
           body: d[7]
         }) },
-    {"name": "SwitchStatement", "symbols": [{"literal":"switch"}, {"literal":"("}, "Expression", {"literal":")"}, {"literal":"{"}, "CaseClauses", {"literal":"}"}], "postprocess": d => createNode('SwitchStatement', { discriminant: d[2], cases: d[5] })},
-    {"name": "CaseClauses", "symbols": [], "postprocess": () => []},
-    {"name": "CaseClauses", "symbols": ["CaseClause"], "postprocess": d => [d[0]]},
-    {"name": "CaseClauses", "symbols": ["CaseClauses", "CaseClause"], "postprocess": d => [...d[0], d[1]]},
-    {"name": "CaseClause", "symbols": [{"literal":"case"}, "Expression", {"literal":":"}, "StatementList"], "postprocess": d => createNode('SwitchCase', { test: d[1], consequent: d[3] })},
-    {"name": "CaseClause", "symbols": [{"literal":"default"}, {"literal":":"}, "StatementList"], "postprocess": d => createNode('SwitchCase', { test: null, consequent: d[2] })},
     {"name": "TryStatement$ebnf$1$subexpression$1$ebnf$1$subexpression$1", "symbols": [{"literal":"("}, "BindingPattern", {"literal":")"}]},
     {"name": "TryStatement$ebnf$1$subexpression$1$ebnf$1", "symbols": ["TryStatement$ebnf$1$subexpression$1$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "TryStatement$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
@@ -919,45 +877,30 @@ var grammar = {
           finalizer: d[3] ? d[3][1] : null
         }) },
     {"name": "ThrowStatement", "symbols": [{"literal":"throw"}, "Expression"], "postprocess": d => createNode('ThrowStatement', { argument: d[1] })},
-    {"name": "ReturnStatement$ebnf$1$subexpression$1", "symbols": ["Expression"]},
-    {"name": "ReturnStatement$ebnf$1", "symbols": ["ReturnStatement$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "ReturnStatement$ebnf$1", "symbols": ["Expression"], "postprocess": id},
     {"name": "ReturnStatement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "ReturnStatement", "symbols": [{"literal":"return"}, "ReturnStatement$ebnf$1"], "postprocess": d => createNode('ReturnStatement', { argument: d[1] ? d[1][0] : null })},
-    {"name": "BreakStatement$ebnf$1$subexpression$1", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)]},
-    {"name": "BreakStatement$ebnf$1", "symbols": ["BreakStatement$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "ReturnStatement", "symbols": [{"literal":"return"}, "ReturnStatement$ebnf$1"], "postprocess": d => createNode('ReturnStatement', { argument: d[1] })},
+    {"name": "BreakStatement$ebnf$1", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": id},
     {"name": "BreakStatement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "BreakStatement", "symbols": [{"literal":"break"}, "BreakStatement$ebnf$1"], "postprocess": d => createNode('BreakStatement', { label: d[1] ? createIdentifier(d[1][0].value) : null })},
-    {"name": "ContinueStatement$ebnf$1$subexpression$1", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)]},
-    {"name": "ContinueStatement$ebnf$1", "symbols": ["ContinueStatement$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "BreakStatement", "symbols": [{"literal":"break"}, "BreakStatement$ebnf$1"], "postprocess": d => createNode('BreakStatement', { label: d[1] ? createIdentifier(d[1].value) : null })},
+    {"name": "ContinueStatement$ebnf$1", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": id},
     {"name": "ContinueStatement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "ContinueStatement", "symbols": [{"literal":"continue"}, "ContinueStatement$ebnf$1"], "postprocess": d => createNode('ContinueStatement', { label: d[1] ? createIdentifier(d[1][0].value) : null })},
+    {"name": "ContinueStatement", "symbols": [{"literal":"continue"}, "ContinueStatement$ebnf$1"], "postprocess": d => createNode('ContinueStatement', { label: d[1] ? createIdentifier(d[1].value) : null })},
     {"name": "ExpressionStatement", "symbols": ["Expression"], "postprocess": d => createNode('ExpressionStatement', { expression: d[0] })},
     {"name": "Expression", "symbols": ["PipelineExpression"], "postprocess": id},
     {"name": "PipelineExpression", "symbols": ["AssignmentExpression"], "postprocess": id},
+    {"name": "PipelineExpression$ebnf$1", "symbols": []},
+    {"name": "PipelineExpression$ebnf$1", "symbols": ["PipelineExpression$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "PipelineExpression$subexpression$1", "symbols": [{"literal":"|>"}]},
     {"name": "PipelineExpression$subexpression$1", "symbols": [{"literal":"->"}]},
-    {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$subexpression$1", "AssignmentExpression"], "postprocess": d => createPipeline(d[0], d[1][0].value, d[2])},
+    {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$ebnf$1", "PipelineExpression$subexpression$1", "AssignmentExpression"], "postprocess": d => createPipeline(d[0], d[2][0].value, d[3])},
     {"name": "AssignmentExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ArrowFunction"], "postprocess": id},
-    {"name": "AssignmentExpression", "symbols": ["ConditionalExpression", "AssignmentOperator", "AssignmentExpression"], "postprocess":  d => createNode('AssignmentExpression', {
-          operator: d[1],
+    {"name": "AssignmentExpression", "symbols": ["LeftHandSideExpression", {"literal":"="}, "AssignmentExpression"], "postprocess":  d => createNode('AssignmentExpression', {
+          operator: '=',
           left: d[0],
           right: d[2]
         }) },
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"+="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"-="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"*="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"/="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"%="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"**="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"<<="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":">>="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":">>>="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"&="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"|="}]},
-    {"name": "AssignmentOperator$subexpression$1", "symbols": [{"literal":"^="}]},
-    {"name": "AssignmentOperator", "symbols": ["AssignmentOperator$subexpression$1"], "postprocess": d => d[0][0].value},
     {"name": "ArrowFunction", "symbols": ["ArrowParameters", {"literal":"=>"}, "ArrowBody"], "postprocess":  d => createNode('ArrowFunctionExpression', {
           async: false,
           params: d[0],
@@ -973,11 +916,6 @@ var grammar = {
     {"name": "ArrowBody", "symbols": ["Block"], "postprocess": id},
     {"name": "ArrowBody", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression"], "postprocess": id},
-    {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression", {"literal":"?"}, "Expression", {"literal":":"}, "ConditionalExpression"], "postprocess":  d => createNode('ConditionalExpression', {
-          test: d[0],
-          consequent: d[2],
-          alternate: d[4]
-        }) },
     {"name": "LogicalOrExpression", "symbols": ["LogicalAndExpression"], "postprocess": id},
     {"name": "LogicalOrExpression$subexpression$1", "symbols": [{"literal":"||"}]},
     {"name": "LogicalOrExpression$subexpression$1", "symbols": [{"literal":"??"}]},
@@ -1019,13 +957,6 @@ var grammar = {
     {"name": "UnaryExpression$subexpression$1", "symbols": [{"literal":"await"}]},
     {"name": "UnaryExpression", "symbols": ["UnaryExpression$subexpression$1", "UnaryExpression"], "postprocess": d => createUnaryOp(d[0][0].value, d[1])},
     {"name": "PostfixExpression", "symbols": ["LeftHandSideExpression"], "postprocess": id},
-    {"name": "PostfixExpression$subexpression$1", "symbols": [{"literal":"++"}]},
-    {"name": "PostfixExpression$subexpression$1", "symbols": [{"literal":"--"}]},
-    {"name": "PostfixExpression", "symbols": ["LeftHandSideExpression", "PostfixExpression$subexpression$1"], "postprocess":  d => createNode('UpdateExpression', {
-          operator: d[1][0].value,
-          argument: d[0],
-          prefix: false
-        }) },
     {"name": "LeftHandSideExpression", "symbols": ["CallExpression"], "postprocess": id},
     {"name": "LeftHandSideExpression", "symbols": ["NewExpression"], "postprocess": id},
     {"name": "CallExpression", "symbols": ["MemberExpression", "Arguments"], "postprocess": d => createNode('CallExpression', { callee: d[0], arguments: d[1] })},
@@ -1046,6 +977,7 @@ var grammar = {
     {"name": "ArgumentList", "symbols": ["AssignmentExpression"], "postprocess": d => [d[0]]},
     {"name": "ArgumentList", "symbols": ["ArgumentList", {"literal":","}, "AssignmentExpression"], "postprocess": d => [...d[0], d[2]]},
     {"name": "ArgumentList", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => [createNode('SpreadElement', { argument: d[1] })]},
+    {"name": "ArgumentList", "symbols": ["ArgumentList", {"literal":","}, {"literal":"..."}, "AssignmentExpression"], "postprocess": d => [...d[0], createNode('SpreadElement', { argument: d[3] })]},
     {"name": "PrimaryExpression", "symbols": [{"literal":"this"}], "postprocess": () => createNode('ThisExpression')},
     {"name": "PrimaryExpression", "symbols": [{"literal":"super"}], "postprocess": () => createNode('Super')},
     {"name": "PrimaryExpression", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value)},
@@ -1055,21 +987,17 @@ var grammar = {
     {"name": "PrimaryExpression", "symbols": ["FunctionExpression"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["TemplateLiteral"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": [{"literal":"("}, "Expression", {"literal":")"}], "postprocess": d => d[1]},
-    {"name": "FunctionExpression$ebnf$1", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": id},
-    {"name": "FunctionExpression$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "FunctionExpression", "symbols": [{"literal":"function"}, "FunctionExpression$ebnf$1", {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
+    {"name": "FunctionExpression", "symbols": [{"literal":"function"}, {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
           async: false,
-          id: d[1] ? createIdentifier(d[1].value) : null,
+          id: null,
+          params: d[2],
+          body: d[4]
+        }) },
+    {"name": "FunctionExpression", "symbols": [{"literal":"async"}, {"literal":"function"}, {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
+          async: true,
+          id: null,
           params: d[3],
           body: d[5]
-        }) },
-    {"name": "FunctionExpression$ebnf$2", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": id},
-    {"name": "FunctionExpression$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "FunctionExpression", "symbols": [{"literal":"async"}, {"literal":"function"}, "FunctionExpression$ebnf$2", {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
-          async: true,
-          id: d[2] ? createIdentifier(d[2].value) : null,
-          params: d[4],
-          body: d[6]
         }) },
     {"name": "Literal", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
     {"name": "Literal", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
@@ -1081,11 +1009,21 @@ var grammar = {
           quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].text } })], 
           expressions: [] 
         }) },
-    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, "ElementList", {"literal":"]"}], "postprocess": d => createNode('ArrayExpression', { elements: d[1] })},
+    {"name": "ArrayLiteral$ebnf$1", "symbols": []},
+    {"name": "ArrayLiteral$ebnf$1", "symbols": ["ArrayLiteral$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArrayLiteral$ebnf$2", "symbols": []},
+    {"name": "ArrayLiteral$ebnf$2", "symbols": ["ArrayLiteral$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArrayLiteral", "symbols": [{"literal":"["}, "ArrayLiteral$ebnf$1", "ElementList", "ArrayLiteral$ebnf$2", {"literal":"]"}], "postprocess": d => createNode('ArrayExpression', { elements: d[2] })},
     {"name": "ElementList", "symbols": [], "postprocess": () => []},
     {"name": "ElementList", "symbols": ["Element"], "postprocess": d => [d[0]]},
-    {"name": "ElementList", "symbols": ["ElementList", {"literal":","}, "Element"], "postprocess": d => [...d[0], d[2]]},
-    {"name": "ElementList", "symbols": ["ElementList", {"literal":","}], "postprocess": d => [...d[0], null]},
+    {"name": "ElementList$ebnf$1", "symbols": []},
+    {"name": "ElementList$ebnf$1", "symbols": ["ElementList$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ElementList$ebnf$2", "symbols": []},
+    {"name": "ElementList$ebnf$2", "symbols": ["ElementList$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ElementList", "symbols": ["ElementList", "ElementList$ebnf$1", {"literal":","}, "ElementList$ebnf$2", "Element"], "postprocess": d => [...d[0], d[4]]},
+    {"name": "ElementList$ebnf$3", "symbols": []},
+    {"name": "ElementList$ebnf$3", "symbols": ["ElementList$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ElementList", "symbols": ["ElementList", "ElementList$ebnf$3", {"literal":","}], "postprocess": d => [...d[0], null]},
     {"name": "Element", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "Element", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => createNode('SpreadElement', { argument: d[1] })},
     {"name": "ObjectLiteral$ebnf$1", "symbols": []},
@@ -1096,20 +1034,22 @@ var grammar = {
     {"name": "ObjectLiteral$ebnf$3", "symbols": []},
     {"name": "ObjectLiteral$ebnf$3", "symbols": ["ObjectLiteral$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "ObjectLiteral", "symbols": [{"literal":"{"}, "ObjectLiteral$ebnf$2", "PropertyDefinitionList", "ObjectLiteral$ebnf$3", {"literal":"}"}], "postprocess": d => createNode('ObjectExpression', { properties: d[2] })},
-    {"name": "PropertyDefinitionList", "symbols": ["PropertyDefinition"], "postprocess": d => [d[0]]},
-    {"name": "PropertyDefinitionList", "symbols": ["PropertyDefinitionList", "PropertySeparator", "PropertyDefinition"], "postprocess": d => [...d[0], d[2]]},
-    {"name": "PropertyDefinitionList", "symbols": ["PropertyDefinitionList", "PropertySeparator"], "postprocess": d => d[0]},
-    {"name": "PropertySeparator$ebnf$1", "symbols": []},
-    {"name": "PropertySeparator$ebnf$1", "symbols": ["PropertySeparator$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "PropertySeparator", "symbols": [{"literal":","}, "PropertySeparator$ebnf$1"], "postprocess": () => null},
-    {"name": "PropertyDefinition", "symbols": ["PropertyKey", {"literal":":"}, "AssignmentExpression"], "postprocess": d => createNode('Property', { key: d[0], value: d[2], shorthand: false })},
-    {"name": "PropertyDefinition", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => createNode('Property', { 
+    {"name": "PropertyDefinitionList", "symbols": ["PropertyDef"], "postprocess": d => [d[0]]},
+    {"name": "PropertyDefinitionList$ebnf$1", "symbols": []},
+    {"name": "PropertyDefinitionList$ebnf$1", "symbols": ["PropertyDefinitionList$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "PropertyDefinitionList$ebnf$2", "symbols": []},
+    {"name": "PropertyDefinitionList$ebnf$2", "symbols": ["PropertyDefinitionList$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "PropertyDefinitionList", "symbols": ["PropertyDefinitionList", "PropertyDefinitionList$ebnf$1", {"literal":","}, "PropertyDefinitionList$ebnf$2", "PropertyDef"], "postprocess": d => [...d[0], d[4]]},
+    {"name": "PropertyDefinitionList$ebnf$3", "symbols": []},
+    {"name": "PropertyDefinitionList$ebnf$3", "symbols": ["PropertyDefinitionList$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "PropertyDefinitionList", "symbols": ["PropertyDefinitionList", "PropertyDefinitionList$ebnf$3", {"literal":","}], "postprocess": d => d[0]},
+    {"name": "PropertyDef", "symbols": ["PropertyKey", {"literal":":"}, "AssignmentExpression"], "postprocess": d => createNode('Property', { key: d[0], value: d[2], shorthand: false })},
+    {"name": "PropertyDef", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess":  d => createNode('Property', { 
           key: createIdentifier(d[0].value), 
           value: createIdentifier(d[0].value), 
           shorthand: true 
         }) },
-    {"name": "PropertyDefinition", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => createNode('SpreadElement', { argument: d[1] })},
-    {"name": "PropertyDefinition", "symbols": ["MethodDefinition"], "postprocess": id},
+    {"name": "PropertyDef", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => createNode('SpreadElement', { argument: d[1] })},
     {"name": "PropertyKey", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value)},
     {"name": "PropertyKey", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
     {"name": "PropertyKey", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": d => createLiteral(d[0].value, d[0].text)},

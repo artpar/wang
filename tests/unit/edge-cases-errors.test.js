@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js'
 
 describe('Edge Cases: Error Handling and Propagation', () => {
-    let interpreter;
-    let moduleResolver;
+    let interpreter
+    let moduleResolver
 
     beforeEach(() => {
-        moduleResolver = new InMemoryModuleResolver();
+        moduleResolver = new InMemoryModuleResolver()
         interpreter = new WangInterpreter({
             moduleResolver,
             functions: {
@@ -14,172 +14,172 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 throwError: (msg) => { throw new Error(msg); },
                 asyncThrow: async (msg) => { throw new Error(msg); },
                 safeDivide: (a, b) => {
-                    if (b === 0) throw new Error('Division by zero');
-                    return a / b;
+                    if (b === 0) throw new Error('Division by zero')
+                    return a / b
                 },
             }
-        });
-    });
+        })
+    })
 
     describe('Try-Catch-Finally Edge Cases', () => {
         it('should handle try without catch', async () => {
             const code = `
-                let result = 'initial';
+                let result = 'initial'
                 try {
-                    result = 'in try';
+                    result = 'in try'
                 } finally {
-                    result = result + ' and finally';
-                };
+                    result = result + ' and finally'
+                }
                 result
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('in try and finally');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('in try and finally')
+        })
 
         it('should execute finally even when error is thrown', async () => {
             const code = `
-                let log = [];
+                let log = []
                 try {
-                    log.push('try');
-                    throwError('test error');
-                    log.push('after error');
+                    log.push('try')
+                    throwError('test error')
+                    log.push('after error')
                 } catch (e) {
-                    log.push('catch');
+                    log.push('catch')
                 } finally {
-                    log.push('finally');
-                };
+                    log.push('finally')
+                }
                 log
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['try', 'catch', 'finally']);
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['try', 'catch', 'finally'])
+        })
 
         it('should handle nested try-catch blocks', async () => {
             const code = `
-                let log = [];
+                let log = []
                 try {
-                    log.push('outer try');
+                    log.push('outer try')
                     try {
-                        log.push('inner try');
-                        throwError('inner error');
+                        log.push('inner try')
+                        throwError('inner error')
                     } catch (e) {
-                        log.push('inner catch');
-                        throwError('rethrow');
+                        log.push('inner catch')
+                        throwError('rethrow')
                     } finally {
-                        log.push('inner finally');
-                    };
+                        log.push('inner finally')
+                    }
                 } catch (e) {
-                    log.push('outer catch');
+                    log.push('outer catch')
                 } finally {
-                    log.push('outer finally');
-                };
+                    log.push('outer finally')
+                }
                 log
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['outer try', 'inner try', 'inner catch', 'inner finally', 'outer catch', 'outer finally']);
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['outer try', 'inner try', 'inner catch', 'inner finally', 'outer catch', 'outer finally'])
+        })
 
         it('should handle return in try with finally', async () => {
             const code = `
                 function test() {
                     try {
-                        return 'from try';
+                        return 'from try'
                     } finally {
                         // finally executes but doesn't override return
                     }
-                };
+                }
                 test()
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('from try');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('from try')
+        })
 
         it('should handle throw in finally', async () => {
             const code = `
                 function test() {
                     try {
-                        return 'from try';
+                        return 'from try'
                     } finally {
-                        throw new Error('from finally');
+                        throw new Error('from finally')
                     }
-                };
-                let result;
+                }
+                let result
                 try {
-                    result = test();
+                    result = test()
                 } catch (e) {
-                    result = e.message;
-                };
+                    result = e.message
+                }
                 result
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('from finally');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('from finally')
+        })
 
         it('should handle error in catch block', async () => {
             const code = `
-                let log = [];
+                let log = []
                 try {
                     try {
-                        throwError('first error');
+                        throwError('first error')
                     } catch (e) {
-                        log.push('caught first');
-                        throwError('error in catch');
+                        log.push('caught first')
+                        throwError('error in catch')
                     }
                 } catch (e) {
-                    log.push('caught error from catch');
+                    log.push('caught error from catch')
                 }
                 log
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['caught first', 'caught error from catch']);
-        });
-    });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['caught first', 'caught error from catch'])
+        })
+    })
 
     describe('Error Types and Messages', () => {
         it('should preserve error types', async () => {
             const code = `
-                let errors = [];
+                let errors = []
                 
                 try {
-                    let x = null;
-                    x.property;
+                    let x = null
+                    x.property
                 } catch (e) {
-                    errors.push({ type: 'null access', message: e.message });
-                };
+                    errors.push({ type: 'null access', message: e.message })
+                }
                 
                 try {
-                    nonExistentFunction();
+                    nonExistentFunction()
                 } catch (e) {
-                    errors.push({ type: 'undefined function', message: e.message });
-                };
+                    errors.push({ type: 'undefined function', message: e.message })
+                }
                 
                 try {
-                    let obj = {};
-                    obj.method();
+                    let obj = {}
+                    obj.method()
                 } catch (e) {
-                    errors.push({ type: 'not a function', message: e.message });
-                };
+                    errors.push({ type: 'not a function', message: e.message })
+                }
                 
                 errors
-            `;
-            const result = await interpreter.execute(code);
-            expect(result[0].type).toBe('null access');
-            expect(result[0].message).toContain('Cannot read properties of null');
+            `
+            const result = await interpreter.execute(code)
+            expect(result[0].type).toBe('null access')
+            expect(result[0].message).toContain('Cannot read properties of null')
             // Other error types depend on implementation
-        });
+        })
 
         it('should handle custom error objects', async () => {
             const code = `
                 class CustomError extends Error {
                     constructor(message, code) {
-                        super(message);
-                        this.name = 'CustomError';
-                        this.code = code;
+                        super(message)
+                        this.name = 'CustomError'
+                        this.code = code
                     }
-                };
+                }
                 
                 try {
-                    throw new CustomError('Custom message', 'ERR_001');
+                    throw new CustomError('Custom message', 'ERR_001')
                 } catch (e) {
                     {
                         name: e.name,
@@ -187,90 +187,90 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                         code: e.code
                     }
                 }
-            `;
-            const result = await interpreter.execute(code);
-            expect(result.name).toBe('CustomError');
-            expect(result.message).toBe('Custom message');
-            expect(result.code).toBe('ERR_001');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result.name).toBe('CustomError')
+            expect(result.message).toBe('Custom message')
+            expect(result.code).toBe('ERR_001')
+        })
 
         it('should handle throwing non-Error values', async () => {
             const code = `
-                let caught = [];
+                let caught = []
                 
-                try { throw 42; } catch (e) { caught.push(e); };
-                try { throw 'string error'; } catch (e) { caught.push(e); };
-                try { throw null; } catch (e) { caught.push(e); };
-                try { throw { custom: 'object' }; } catch (e) { caught.push(e); };
+                try { throw 42 } catch (e) { caught.push(e) }
+                try { throw 'string error' } catch (e) { caught.push(e) }
+                try { throw null } catch (e) { caught.push(e) }
+                try { throw { custom: 'object' } } catch (e) { caught.push(e) }
                 
                 caught
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual([42, 'string error', null, { custom: 'object' }]);
-        });
-    });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual([42, 'string error', null, { custom: 'object' }])
+        })
+    })
 
     describe('Async Error Handling', () => {
         it('should handle errors in async functions', async () => {
             const code = `
                 async function failingAsync() {
-                    await Promise.resolve();
-                    throw new Error('async error');
-                };
+                    await Promise.resolve()
+                    throw new Error('async error')
+                }
                 
-                let result;
+                let result
                 try {
-                    await failingAsync();
-                    result = 'should not reach';
+                    await failingAsync()
+                    result = 'should not reach'
                 } catch (e) {
-                    result = 'caught: ' + e.message;
-                };
+                    result = 'caught: ' + e.message
+                }
                 result
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('caught: async error');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('caught: async error')
+        })
 
         it('should handle promise rejections', async () => {
             const code = `
-                let results = [];
+                let results = []
                 
                 try {
-                    await Promise.reject('rejected promise');
+                    await Promise.reject('rejected promise')
                 } catch (e) {
-                    results.push('caught: ' + e);
-                };
+                    results.push('caught: ' + e)
+                }
                 
                 try {
-                    await asyncThrow('async throw');
+                    await asyncThrow('async throw')
                 } catch (e) {
-                    results.push('caught async: ' + e.message);
-                };
+                    results.push('caught async: ' + e.message)
+                }
                 
                 results
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['caught: rejected promise', 'caught async: async throw']);
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['caught: rejected promise', 'caught async: async throw'])
+        })
 
         it('should handle errors in async arrow functions', async () => {
             const code = `
                 let asyncArrow = async () => {
-                    throw new Error('arrow async error');
-                };
+                    throw new Error('arrow async error')
+                }
                 
-                let result;
+                let result
                 try {
-                    await asyncArrow();
+                    await asyncArrow()
                 } catch (e) {
-                    result = e.message;
-                };
+                    result = e.message
+                }
                 result
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('arrow async error');
-        });
-    });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('arrow async error')
+        })
+    })
 
     describe('Error in Different Contexts', () => {
         it('should handle errors in object property access chains', async () => {
@@ -279,256 +279,256 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     a: { 
                         b: null 
                     } 
-                };
+                }
                 
                 try {
-                    let result = obj.a.b.c.d.e;
+                    let result = obj.a.b.c.d.e
                 } catch (e) {
                     e.message
-                };
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toContain('Cannot read properties of null');
-        });
+                }
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toContain('Cannot read properties of null')
+        })
 
         it('should handle errors in array operations', async () => {
             const code = `
-                let errors = [];
+                let errors = []
                 
                 try {
-                    let arr = null;
-                    arr.map(x => x * 2);
+                    let arr = null
+                    arr.map(x => x * 2)
                 } catch (e) {
-                    errors.push('null array');
-                };
+                    errors.push('null array')
+                }
                 
                 try {
-                    let arr = [1, 2, 3];
-                    arr.nonExistentMethod();
+                    let arr = [1, 2, 3]
+                    arr.nonExistentMethod()
                 } catch (e) {
-                    errors.push('undefined method');
-                };
+                    errors.push('undefined method')
+                }
                 
                 errors
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toContain('null array');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toContain('null array')
+        })
 
         it('should handle errors in constructors', async () => {
             const code = `
                 class FailingConstructor {
                     constructor(shouldFail) {
                         if (shouldFail) {
-                            throw new Error('Constructor failed');
-                        };
-                        this.value = 'success';
+                            throw new Error('Constructor failed')
+                        }
+                        this.value = 'success'
                     }
-                };
+                }
                 
-                let results = [];
-                
-                try {
-                    let obj = new FailingConstructor(false);
-                    results.push(obj.value);
-                } catch (e) {
-                    results.push('error');
-                };
+                let results = []
                 
                 try {
-                    let obj = new FailingConstructor(true);
-                    results.push('should not reach');
+                    let obj = new FailingConstructor(false)
+                    results.push(obj.value)
                 } catch (e) {
-                    results.push(e.message);
-                };
+                    results.push('error')
+                }
+                
+                try {
+                    let obj = new FailingConstructor(true)
+                    results.push('should not reach')
+                } catch (e) {
+                    results.push(e.message)
+                }
                 
                 results
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['success', 'Constructor failed']);
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['success', 'Constructor failed'])
+        })
 
         it('should handle errors in getters and setters', async () => {
             const code = `
                 class TestClass {
                     get failingGetter() {
-                        throw new Error('Getter error');
+                        throw new Error('Getter error')
                     }
                     
                     set failingSetter(value) {
-                        throw new Error('Setter error');
+                        throw new Error('Setter error')
                     }
-                };
+                }
                 
-                let obj = new TestClass();
-                let errors = [];
-                
-                try {
-                    let value = obj.failingGetter;
-                } catch (e) {
-                    errors.push(e.message);
-                };
+                let obj = new TestClass()
+                let errors = []
                 
                 try {
-                    obj.failingSetter = 'value';
+                    let value = obj.failingGetter
                 } catch (e) {
-                    errors.push(e.message);
-                };
+                    errors.push(e.message)
+                }
                 
-                errors
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['Getter error', 'Setter error']);
-        });
-    });
+                try {
+                    obj.failingSetter = 'value'
+                } catch (e) {
+                    errors.push(e.message)
+                }
+                
+                return errors
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['Getter error', 'Setter error'])
+        })
+    })
 
     describe('Error Recovery and State', () => {
         it('should maintain variable state after error', async () => {
             const code = `
-                let counter = 0;
-                let log = [];
+                let counter = 0
+                let log = []
                 
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 5; i=i+1) {
                     try {
-                        counter++;
+                        counter = counter + 1
                         if (i === 2) {
-                            throwError('error at 2');
+                            throwError('error at 2')
                         }
-                        log.push('success: ' + i);
+                        log.push('success: ' + i)
                     } catch (e) {
-                        log.push('error: ' + i);
+                        log.push('error: ' + i)
                     }
                 }
                 
-                { counter, log }
-            `;
-            const result = await interpreter.execute(code);
-            expect(result.counter).toBe(5);
+                return { counter, log }
+            `
+            const result = await interpreter.execute(code)
+            expect(result.counter).toBe(5)
             expect(result.log).toEqual([
                 'success: 0',
                 'success: 1',
                 'error: 2',
                 'success: 3',
                 'success: 4'
-            ]);
-        });
+            ])
+        })
 
         it('should handle errors in pipeline operations', async () => {
             const code = `
-                let result;
+                let result
                 try {
-                    result = 10 |> divide(_, 0) |> divide(_, 2);
+                    result = 10 |> divide(_, 0) |> divide(_, 2)
                 } catch (e) {
-                    result = 'caught: ' + e.message;
+                    result = 'caught: ' + e.message
                 }
                 result
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('caught: Division by zero');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('caught: Division by zero')
+        })
 
         it('should handle errors in destructuring', async () => {
             const code = `
-                let results = [];
+                let results = []
                 
                 try {
-                    let { a, b } = null;
+                    let { a, b } = null
                 } catch (e) {
-                    results.push('destructure null');
+                    results.push('destructure null')
                 }
                 
                 try {
-                    let [x, y] = undefined;
+                    let [x, y] = undefined
                 } catch (e) {
-                    results.push('destructure undefined');
+                    results.push('destructure undefined')
                 }
                 
                 results
-            `;
-            const result = await interpreter.execute(code);
-            expect(result.length).toBeGreaterThan(0);
-        });
-    });
+            `
+            const result = await interpreter.execute(code)
+            expect(result.length).toBeGreaterThan(0)
+        })
+    })
 
     describe('Stack Trace and Error Context', () => {
         it('should handle deep call stack errors', async () => {
             const code = `
-                function level1() { level2(); }
-                function level2() { level3(); }
-                function level3() { level4(); }
-                function level4() { throwError('deep error'); }
+                function level1() { level2() }
+                function level2() { level3() }
+                function level3() { level4() }
+                function level4() { throwError('deep error') }
                 
                 try {
-                    level1();
+                    level1()
                 } catch (e) {
                     e.message
                 }
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toBe('deep error');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toBe('deep error')
+        })
 
         it('should handle recursive function errors', async () => {
             const code = `
                 function recursive(n) {
-                    if (n < 0) throw new Error('negative value');
-                    if (n === 0) return 'done';
-                    return recursive(n - 1);
+                    if (n < 0) throw new Error('negative value')
+                    if (n === 0) return 'done'
+                    return recursive(n - 1)
                 }
                 
-                let results = [];
+                let results = []
                 
                 try {
-                    results.push(recursive(3));
+                    results.push(recursive(3))
                 } catch (e) {
-                    results.push('error');
+                    results.push('error')
                 }
                 
                 try {
-                    results.push(recursive(-1));
+                    results.push(recursive(-1))
                 } catch (e) {
-                    results.push(e.message);
+                    results.push(e.message)
                 }
                 
                 results
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual(['done', 'negative value']);
-        });
-    });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual(['done', 'negative value'])
+        })
+    })
 
     describe('Edge Cases with Control Flow', () => {
         it('should handle break/continue with try-catch in loops', async () => {
             const code = `
-                let log = [];
+                let log = []
                 
                 for (let i = 0; i < 5; i++) {
                     try {
-                        if (i === 1) continue;
-                        if (i === 3) break;
-                        if (i === 2) throw new Error('error at 2');
-                        log.push(i);
+                        if (i === 1) continue
+                        if (i === 3) break
+                        if (i === 2) throw new Error('error at 2')
+                        log.push(i)
                     } catch (e) {
-                        log.push('caught at ' + i);
-                        continue;
+                        log.push('caught at ' + i)
+                        continue
                     }
                 }
                 
                 log
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toEqual([0, 'caught at 2', 3]);
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toEqual([0, 'caught at 2', 3])
+        })
 
         it('should handle return in try-catch within function', async () => {
             const code = `
                 function test(n) {
                     try {
-                        if (n < 0) throw new Error('negative');
-                        if (n === 0) return 'zero';
-                        return 'positive';
+                        if (n < 0) throw new Error('negative')
+                        if (n === 0) return 'zero'
+                        return 'positive'
                     } catch (e) {
-                        return 'error: ' + e.message;
+                        return 'error: ' + e.message
                     } finally {
                         // This runs but doesn't affect return
                     }
@@ -539,57 +539,57 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     zero: test(0),
                     positive: test(1)
                 }
-            `;
-            const result = await interpreter.execute(code);
+            `
+            const result = await interpreter.execute(code)
             expect(result).toEqual({
                 negative: 'error: negative',
                 zero: 'zero',
                 positive: 'positive'
-            });
-        });
-    });
+            })
+        })
+    })
 
     describe('Special Error Scenarios', () => {
         it('should handle custom function errors', async () => {
             const code = `
-                let results = [];
+                let results = []
                 
                 try {
-                    throwError('custom error');
-                    results.push('should not reach');
+                    throwError('custom error')
+                    results.push('should not reach')
                 } catch (e) {
-                    results.push('caught: ' + e.message);
+                    results.push('caught: ' + e.message)
                 }
                 
                 results
-            `;
-            const result = await interpreter.execute(code);
-            expect(result).toContain('caught: custom error');
-        });
+            `
+            const result = await interpreter.execute(code)
+            expect(result).toContain('caught: custom error')
+        })
 
         it('should handle division by zero', async () => {
             const code = `
-                let results = [];
+                let results = []
                 
                 // Regular division by zero returns Infinity
-                results.push(5 / 0);
-                results.push(-5 / 0);
-                results.push(0 / 0); // NaN
+                results.push(5 / 0)
+                results.push(-5 / 0)
+                results.push(0 / 0) // NaN
                 
                 // Custom function throws error
                 try {
-                    safeDivide(10, 0);
+                    safeDivide(10, 0)
                 } catch (e) {
-                    results.push(e.message);
+                    results.push(e.message)
                 }
                 
                 results
-            `;
-            const result = await interpreter.execute(code);
-            expect(result[0]).toBe(Infinity);
-            expect(result[1]).toBe(-Infinity);
-            expect(result[2]).toBeNaN();
-            expect(result[3]).toBe('Division by zero');
-        });
-    });
-});
+            `
+            const result = await interpreter.execute(code)
+            expect(result[0]).toBe(Infinity)
+            expect(result[1]).toBe(-Infinity)
+            expect(result[2]).toBeNaN()
+            expect(result[3]).toBe('Division by zero')
+        })
+    })
+})
