@@ -834,7 +834,7 @@ it('should handle switch statements', async () => {
         'const name = "World"',
         'const greeting = `Hello, ${name}!`',
         'const message = `Message: "${greeting}" has ${greeting.length} characters`',
-        'message'
+        'message',
       ].join('\n');
       const result = await interpreter.execute(code);
       expect(result).toBe('Message: "Hello, World!" has 13 characters');
@@ -844,7 +844,7 @@ it('should handle switch statements', async () => {
       const code = [
         'const a = 5',
         'const b = 10',
-        '`The sum of ${a} and ${b} is ${a + b}, and the product is ${a * b}`'
+        '`The sum of ${a} and ${b} is ${a + b}, and the product is ${a * b}`',
       ].join('\n');
       const result = await interpreter.execute(code);
       expect(result).toBe('The sum of 5 and 10 is 15, and the product is 50');

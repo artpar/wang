@@ -1,29 +1,33 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js'
+import { describe, it, expect, beforeEach } from 'vitest';
+import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js';
 
 describe('Edge Cases: Error Handling and Propagation', () => {
-    let interpreter
-    let moduleResolver
+  let interpreter;
+  let moduleResolver;
 
-    beforeEach(() => {
-        moduleResolver = new InMemoryModuleResolver()
-        interpreter = new WangInterpreter({
-            moduleResolver,
-            functions: {
-                // Only provide test helper functions, not JavaScript built-ins
-                throwError: (msg) => { throw new Error(msg); },
-                asyncThrow: async (msg) => { throw new Error(msg); },
-                safeDivide: (a, b) => {
-                    if (b === 0) throw new Error('Division by zero')
-                    return a / b
-                },
-            }
-        })
-    })
+  beforeEach(() => {
+    moduleResolver = new InMemoryModuleResolver();
+    interpreter = new WangInterpreter({
+      moduleResolver,
+      functions: {
+        // Only provide test helper functions, not JavaScript built-ins
+        throwError: (msg) => {
+          throw new Error(msg);
+        },
+        asyncThrow: async (msg) => {
+          throw new Error(msg);
+        },
+        safeDivide: (a, b) => {
+          if (b === 0) throw new Error('Division by zero');
+          return a / b;
+        },
+      },
+    });
+  });
 
-    describe('Try-Catch-Finally Edge Cases', () => {
-        it('should handle try without catch', async () => {
-            const code = `
+  describe('Try-Catch-Finally Edge Cases', () => {
+    it('should handle try without catch', async () => {
+      const code = `
                 let result = 'initial'
                 try {
                     result = 'in try'
@@ -31,13 +35,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     result = result + ' and finally'
                 }
                 result
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('in try and finally')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('in try and finally');
+    });
 
-        it('should execute finally even when error is thrown', async () => {
-            const code = `
+    it('should execute finally even when error is thrown', async () => {
+      const code = `
                 let log = []
                 try {
                     log.push('try')
@@ -49,13 +53,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     log.push('finally')
                 }
                 log
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual(['try', 'catch', 'finally'])
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual(['try', 'catch', 'finally']);
+    });
 
-        it('should handle nested try-catch blocks', async () => {
-            const code = `
+    it('should handle nested try-catch blocks', async () => {
+      const code = `
                 let log = []
                 try {
                     log.push('outer try')
@@ -74,13 +78,20 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     log.push('outer finally')
                 }
                 log
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual(['outer try', 'inner try', 'inner catch', 'inner finally', 'outer catch', 'outer finally'])
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual([
+        'outer try',
+        'inner try',
+        'inner catch',
+        'inner finally',
+        'outer catch',
+        'outer finally',
+      ]);
+    });
 
-        it('should handle return in try with finally', async () => {
-            const code = `
+    it('should handle return in try with finally', async () => {
+      const code = `
                 function test() {
                     try {
                         return 'from try'
@@ -89,13 +100,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     }
                 }
                 test()
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('from try')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('from try');
+    });
 
-        it('should handle throw in finally', async () => {
-            const code = `
+    it('should handle throw in finally', async () => {
+      const code = `
                 function test() {
                     try {
                         return 'from try'
@@ -110,13 +121,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     result = e.message
                 }
                 result
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('from finally')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('from finally');
+    });
 
-        it('should handle error in catch block', async () => {
-            const code = `
+    it('should handle error in catch block', async () => {
+      const code = `
                 let log = []
                 try {
                     try {
@@ -129,15 +140,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     log.push('caught error from catch')
                 }
                 log
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual(['caught first', 'caught error from catch'])
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual(['caught first', 'caught error from catch']);
+    });
+  });
 
-    describe('Error Types and Messages', () => {
-        it('should preserve error types', async () => {
-            const code = `
+  describe('Error Types and Messages', () => {
+    it('should preserve error types', async () => {
+      const code = `
                 let errors = []
                 
                 try {
@@ -161,15 +172,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 errors
-            `
-            const result = await interpreter.execute(code)
-            expect(result[0].type).toBe('null access')
-            expect(result[0].message).toContain('Cannot read properties of null')
-            // Other error types depend on implementation
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result[0].type).toBe('null access');
+      expect(result[0].message).toContain('Cannot read properties of null');
+      // Other error types depend on implementation
+    });
 
-        it('should handle custom error objects', async () => {
-            const code = `
+    it('should handle custom error objects', async () => {
+      const code = `
                 class CustomError extends Error {
                     constructor(message, code) {
                         super(message)
@@ -187,15 +198,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                         code: e.code
                     }
                 }
-            `
-            const result = await interpreter.execute(code)
-            expect(result.name).toBe('CustomError')
-            expect(result.message).toBe('Custom message')
-            expect(result.code).toBe('ERR_001')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result.name).toBe('CustomError');
+      expect(result.message).toBe('Custom message');
+      expect(result.code).toBe('ERR_001');
+    });
 
-        it('should handle throwing non-Error values', async () => {
-            const code = `
+    it('should handle throwing non-Error values', async () => {
+      const code = `
                 let caught = []
                 
                 try { throw 42 } catch (e) { caught.push(e) }
@@ -204,15 +215,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 try { throw { custom: 'object' } } catch (e) { caught.push(e) }
                 
                 caught
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual([42, 'string error', null, { custom: 'object' }])
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual([42, 'string error', null, { custom: 'object' }]);
+    });
+  });
 
-    describe('Async Error Handling', () => {
-        it('should handle errors in async functions', async () => {
-            const code = `
+  describe('Async Error Handling', () => {
+    it('should handle errors in async functions', async () => {
+      const code = `
                 async function failingAsync() {
                     await Promise.resolve()
                     throw new Error('async error')
@@ -226,13 +237,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     result = 'caught: ' + e.message
                 }
                 result
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('caught: async error')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('caught: async error');
+    });
 
-        it('should handle promise rejections', async () => {
-            const code = `
+    it('should handle promise rejections', async () => {
+      const code = `
                 let results = []
                 
                 try {
@@ -248,13 +259,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 results
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual(['caught: rejected promise', 'caught async: async throw'])
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual(['caught: rejected promise', 'caught async: async throw']);
+    });
 
-        it('should handle errors in async arrow functions', async () => {
-            const code = `
+    it('should handle errors in async arrow functions', async () => {
+      const code = `
                 let asyncArrow = async () => {
                     throw new Error('arrow async error')
                 }
@@ -266,15 +277,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     result = e.message
                 }
                 result
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('arrow async error')
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('arrow async error');
+    });
+  });
 
-    describe('Error in Different Contexts', () => {
-        it('should handle errors in object property access chains', async () => {
-            const code = `
+  describe('Error in Different Contexts', () => {
+    it('should handle errors in object property access chains', async () => {
+      const code = `
                 let obj = { 
                     a: { 
                         b: null 
@@ -286,13 +297,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 } catch (e) {
                     e.message
                 }
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toContain('Cannot read properties of null')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toContain('Cannot read properties of null');
+    });
 
-        it('should handle errors in array operations', async () => {
-            const code = `
+    it('should handle errors in array operations', async () => {
+      const code = `
                 let errors = []
                 
                 try {
@@ -310,13 +321,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 errors
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toContain('null array')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toContain('null array');
+    });
 
-        it('should handle errors in constructors', async () => {
-            const code = `
+    it('should handle errors in constructors', async () => {
+      const code = `
                 class FailingConstructor {
                     constructor(shouldFail) {
                         if (shouldFail) {
@@ -343,15 +354,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 results
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual(['success', 'Constructor failed'])
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual(['success', 'Constructor failed']);
+    });
+  });
 
-    describe('Error Recovery and State', () => {
-        it('should maintain variable state after error', async () => {
-            const code = `
+  describe('Error Recovery and State', () => {
+    it('should maintain variable state after error', async () => {
+      const code = `
                 let counter = 0
                 let log = []
                 
@@ -368,20 +379,20 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 return { counter, log }
-            `
-            const result = await interpreter.execute(code)
-            expect(result.counter).toBe(5)
-            expect(result.log).toEqual([
-                'success: 0',
-                'success: 1',
-                'error: 2',
-                'success: 3',
-                'success: 4'
-            ])
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result.counter).toBe(5);
+      expect(result.log).toEqual([
+        'success: 0',
+        'success: 1',
+        'error: 2',
+        'success: 3',
+        'success: 4',
+      ]);
+    });
 
-        it('should handle errors in pipeline operations', async () => {
-            const code = `
+    it('should handle errors in pipeline operations', async () => {
+      const code = `
                 let result
                 try {
                     result = 10 |> safeDivide(_, 0) |> safeDivide(_, 2)
@@ -389,13 +400,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     result = 'caught: ' + e.message
                 }
                 result
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('caught: Division by zero')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('caught: Division by zero');
+    });
 
-        it('should handle errors in destructuring', async () => {
-            const code = `
+    it('should handle errors in destructuring', async () => {
+      const code = `
                 let results = []
                 
                 try {
@@ -411,15 +422,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 results
-            `
-            const result = await interpreter.execute(code)
-            expect(result.length).toBeGreaterThan(0)
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result.length).toBeGreaterThan(0);
+    });
+  });
 
-    describe('Stack Trace and Error Context', () => {
-        it('should handle deep call stack errors', async () => {
-            const code = `
+  describe('Stack Trace and Error Context', () => {
+    it('should handle deep call stack errors', async () => {
+      const code = `
                 function level1() { level2() }
                 function level2() { level3() }
                 function level3() { level4() }
@@ -430,13 +441,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 } catch (e) {
                     e.message
                 }
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toBe('deep error')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toBe('deep error');
+    });
 
-        it('should handle recursive function errors', async () => {
-            const code = `
+    it('should handle recursive function errors', async () => {
+      const code = `
                 function recursive(n) {
                     if (n < 0) throw new Error('negative value')
                     if (n === 0) return 'done'
@@ -458,15 +469,15 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 results
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual(['done', 'negative value'])
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual(['done', 'negative value']);
+    });
+  });
 
-    describe('Edge Cases with Control Flow', () => {
-        it('should handle break/continue with try-catch in loops', async () => {
-            const code = `
+  describe('Edge Cases with Control Flow', () => {
+    it('should handle break/continue with try-catch in loops', async () => {
+      const code = `
                 let log = []
                 
                 for (let i = 0; i < 5; i = i + 1) {
@@ -482,13 +493,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 log
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual([0, 'caught at 2'])
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual([0, 'caught at 2']);
+    });
 
-        it('should handle return in try-catch within function', async () => {
-            const code = `
+    it('should handle return in try-catch within function', async () => {
+      const code = `
                 function test(n) {
                     try {
                         if (n < 0) throw new Error('negative')
@@ -506,19 +517,19 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                     zero: test(0),
                     positive: test(1)
                 }
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toEqual({
-                negative: 'error: negative',
-                zero: 'zero',
-                positive: 'positive'
-            })
-        })
-    })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toEqual({
+        negative: 'error: negative',
+        zero: 'zero',
+        positive: 'positive',
+      });
+    });
+  });
 
-    describe('Special Error Scenarios', () => {
-        it('should handle custom function errors', async () => {
-            const code = `
+  describe('Special Error Scenarios', () => {
+    it('should handle custom function errors', async () => {
+      const code = `
                 let results = []
                 
                 try {
@@ -529,13 +540,13 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 results
-            `
-            const result = await interpreter.execute(code)
-            expect(result).toContain('caught: custom error')
-        })
+            `;
+      const result = await interpreter.execute(code);
+      expect(result).toContain('caught: custom error');
+    });
 
-        it('should handle division by zero', async () => {
-            const code = `
+    it('should handle division by zero', async () => {
+      const code = `
                 let results = []
                 
                 // Regular division by zero returns Infinity
@@ -551,12 +562,12 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
                 
                 results
-            `
-            const result = await interpreter.execute(code)
-            expect(result[0]).toBe(Infinity)
-            expect(result[1]).toBe(-Infinity)
-            expect(result[2]).toBeNaN()
-            expect(result[3]).toBe('Division by zero')
-        })
-    })
-})
+            `;
+      const result = await interpreter.execute(code);
+      expect(result[0]).toBe(Infinity);
+      expect(result[1]).toBe(-Infinity);
+      expect(result[2]).toBeNaN();
+      expect(result[3]).toBe('Division by zero');
+    });
+  });
+});

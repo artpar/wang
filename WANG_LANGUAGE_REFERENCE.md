@@ -1,7 +1,7 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 1.0.0  
-**Test Coverage:** 90/90 tests (100%)  
+**Version:** 0.4.6  
+**Test Coverage:** 167/167 tests (100%)  
 **CSP Safe:** ✅ No eval(), new Function()  
 
 ## Overview
@@ -28,20 +28,20 @@ Source Code → Nearley Parser → CST → Interpreter → Result
 
 ```javascript
 // Block-scoped (let/const)
-let mutable = 10;
-const immutable = 20;
-const PI = 3.14159; // Enforced immutability
+let mutable = 10
+const immutable = 20
+const PI = 3.14159 // Enforced immutability
 
 // Function-scoped with hoisting (var)
-console.log(typeof x); // "undefined" (hoisted, not initialized)
-var x = 42;
+console.log(typeof x) // "undefined" (hoisted, not initialized)
+var x = 42
 
 // Block scoping with shadowing
-let outer = 1;
+let outer = 1
 {
-  let outer = 2; // Shadows outer
-  const inner = 3;
-}; // inner not accessible here
+  let outer = 2 // Shadows outer
+  const inner = 3
+} // inner not accessible here
 ```
 
 **Scoping Rules:**
@@ -55,35 +55,35 @@ let outer = 1;
 #### Function Declarations
 ```javascript
 function add(a, b = 0) { // Default parameters
-  return a + b;
+  return a + b
 }
 
 // Function expressions
-const multiply = function(x, y) { return x * y; };
+const multiply = function(x, y) { return x * y }
 
 // Named function expressions (for recursion)
 const factorial = function fact(n) {
-  return n <= 1 ? 1 : n * fact(n - 1);
-};
+  return n <= 1 ? 1 : n * fact(n - 1)
+}
 ```
 
 #### Arrow Functions
 ```javascript
-const square = x => x * x;
-const sum = (a, b) => a + b;
+const square = x => x * x
+const sum = (a, b) => a + b
 const complex = (x, y) => {
-  const result = x * y;
-  return result + 1;
-};
+  const result = x * y
+  return result + 1
+}
 
 // Lexical 'this' binding
 class Calculator {
-  constructor() { this.value = 0; }
+  constructor() { this.value = 0 }
   
   add(x) {
-    const operation = () => this.value += x; // Preserves 'this'
-    operation();
-    return this;
+    const operation = () => this.value = this.value + x // Preserves 'this'
+    operation()
+    return this
   }
 }
 ```
@@ -91,25 +91,26 @@ class Calculator {
 #### Rest Parameters & Spread
 ```javascript
 function sum(...numbers) {
-  return numbers.reduce((acc, n) => acc + n, 0);
+  return numbers.reduce((acc, n) => acc + n, 0)
 }
 
-const arr = [1, 2, 3];
-sum(...arr); // Spread in call
+const arr = [1, 2, 3]
+sum(...arr) // Spread in call
 ```
 
 #### Closures
 ```javascript
 function createCounter(start = 0) {
-  let count = start;
+  let count = start
   return function() {
-    return ++count;
-  };
+    count = count + 1
+    return count
+  }
 }
 
-const counter = createCounter(5);
-counter(); // 6
-counter(); // 7
+const counter = createCounter(5)
+counter() // 6
+counter() // 7
 ```
 
 ### Classes & OOP
@@ -118,29 +119,24 @@ counter(); // 7
 ```javascript
 class Animal {
   constructor(name, species) {
-    this.name = name;
-    this.species = species;
+    this.name = name
+    this.species = species
   }
   
   // Instance method
   speak() {
-    return `${this.name} makes a sound`;
+    return `${this.name} makes a sound`
   }
   
-  // Static method
-  static getKingdom() {
-    return "Animalia";
+  // Get info as regular method
+  getInfo() {
+    return `${this.name} is a ${this.species}`
   }
   
-  // Getter
-  get info() {
-    return `${this.name} is a ${this.species}`;
-  }
-  
-  // Setter
-  set name(newName) {
-    if (!newName) throw "Name cannot be empty";
-    this._name = newName;
+  // Set name as regular method
+  setName(newName) {
+    if (!newName) throw "Name cannot be empty"
+    this.name = newName
   }
 }
 ```
@@ -149,47 +145,46 @@ class Animal {
 ```javascript
 class Dog extends Animal {
   constructor(name, breed) {
-    super(name, "dog"); // Call parent constructor
-    this.breed = breed;
+    super(name, "dog") // Call parent constructor
+    this.breed = breed
   }
   
   speak() {
-    return `${this.name} barks`; // Override parent method
+    return `${this.name} barks` // Override parent method
   }
   
   getBreed() {
-    return this.breed;
+    return this.breed
   }
 }
 
-const dog = new Dog("Rex", "German Shepherd");
-dog.speak(); // "Rex barks"
-dog.info;    // "Rex is a dog"
-Animal.getKingdom(); // "Animalia"
+const dog = new Dog("Rex", "German Shepherd")
+dog.speak() // "Rex barks"
+dog.getInfo() // "Rex is a dog"
 ```
 
 #### Method Chaining
 ```javascript
 class StringBuilder {
-  constructor() { this.str = ""; }
+  constructor() { this.str = "" }
   
   append(text) {
-    this.str += text;
-    return this; // Enable chaining
+    this.str = this.str + text
+    return this // Enable chaining
   }
   
   prepend(text) {
-    this.str = text + this.str;
-    return this;
+    this.str = text + this.str
+    return this
   }
   
-  toString() { return this.str; }
+  toString() { return this.str }
 }
 
 const result = new StringBuilder()
   .append("World")
   .prepend("Hello ")
-  .toString(); // "Hello World"
+  .toString() // "Hello World"
 ```
 
 ### Control Flow
@@ -205,74 +200,75 @@ if (condition) {
   // block
 }
 
-// Ternary operator
-const result = condition ? value1 : value2;
-
-// Complex ternary chains
-const classify = n => 
-  n > 100 ? "huge" :
-  n > 50 ? "large" :
-  n > 10 ? "small" : "tiny";
+// Complex conditional chains (no ternary operator)
+const classify = n => {
+  if (n > 100) return "huge"
+  if (n > 50) return "large"
+  if (n > 10) return "small"
+  return "tiny"
+}
 ```
 
-#### Switch Statements
+#### Complex Conditionals
 ```javascript
 function getDayType(day) {
-  switch(day) {
-    case "Monday":
-    case "Tuesday":
-    case "Wednesday":
-    case "Thursday":
-    case "Friday":
-      return "Weekday";
-    case "Saturday":
-    case "Sunday":
-      return "Weekend";
-    default:
-      return "Invalid";
+  // Use if-else chains instead of switch statements
+  if (day === "Monday" || day === "Tuesday" || 
+      day === "Wednesday" || day === "Thursday" || 
+      day === "Friday") {
+    return "Weekday"
   }
+  if (day === "Saturday" || day === "Sunday") {
+    return "Weekend"
+  }
+  return "Invalid"
 }
 ```
 
 #### Loops
 ```javascript
-// For loop
-for (let i = 0; i < 10; i++) {
-  if (i === 5) break;
-  if (i === 2) continue;
-  console.log(i);
+// For loop (no increment operators)
+for (let i = 0; i < 10; i = i + 1) {
+  if (i === 5) break
+  if (i === 2) continue
+  console.log(i)
 }
 
-// For-in (object properties)
-for (let key in obj) {
-  console.log(key, obj[key]);
-}
-
-// For-of (iterables)
+// For-of (iterables) - recommended for objects
 for (let item of array) {
-  console.log(item);
+  console.log(item)
+}
+
+// Object iteration with for-of
+for (let [key, value] of Object.entries(obj)) {
+  console.log(key, value)
+}
+for (let key of Object.keys(obj)) {
+  console.log(key)
 }
 
 // While loop
-let i = 0;
+let i = 0
 while (i < 5) {
-  console.log(i++);
+  console.log(i)
+  i = i + 1
 }
 
 // Do-while loop
 do {
-  console.log(i);
-} while (--i > 0);
+  console.log(i)
+  i = i - 1
+} while (i > 0)
 ```
 
 #### Labeled Statements
 ```javascript
-outer: for (let i = 0; i < 3; i++) {
-  for (let j = 0; j < 3; j++) {
+outer: for (let i = 0; i < 3; i = i + 1) {
+  for (let j = 0; j < 3; j = j + 1) {
     if (i === 1 && j === 1) {
-      break outer; // Break out of both loops
+      break outer // Break out of both loops
     }
-    console.log(i, j);
+    console.log(i, j)
   }
 }
 ```
@@ -300,8 +296,8 @@ true || false && false  // true (precedence)
 false && true || true   // true
 
 // Short-circuiting
-obj && obj.method();    // Call only if obj exists
-result = fallback || computeExpensive();
+obj && obj.method()    // Call only if obj exists
+result = fallback || computeExpensive()
 ```
 
 #### Modern Operators
@@ -315,10 +311,10 @@ func?.()
 value ?? "default"  // Only null/undefined, not falsy
 obj.prop ?? computeDefault()
 
-// Increment/decrement
-let x = 5;
-x++;  // Post-increment: returns 5, x becomes 6
-++x;  // Pre-increment: x becomes 7, returns 7
+// Manual increment (no ++ or -- operators)
+let x = 5
+x = x + 1  // Simple increment: x becomes 6
+x = x + 1  // x becomes 7
 ```
 
 ### Pipeline Operators
@@ -330,13 +326,13 @@ Passes result as first argument with `_` placeholder:
 [1, 2, 3, 4, 5]
   |> filter(_, n => n > 2)     // [3, 4, 5]
   |> map(_, n => n * 2)        // [6, 8, 10]
-  |> reduce(_, (sum, n) => sum + n, 0); // 24
+  |> reduce(_, (sum, n) => sum + n, 0) // 24
 
 // Method chaining with pipe
 data
   |> processor.filter(_)
   |> processor.transform(_)
-  |> processor.validate(_);
+  |> processor.validate(_)
 ```
 
 #### Arrow Operator (`->`)
@@ -346,13 +342,13 @@ Passes result to function or operation:
 [1, 2, 3]
   |> map(_, n => n * 2)
   -> store.save("results")     // Save to store
-  -> log("Saved successfully"); // Log message
+  -> log("Saved successfully") // Log message
 
 // Function composition
 value
   |> transform(_)
   -> validate
-  -> save;
+  -> save
 ```
 
 ### Data Types & Structures
@@ -377,10 +373,10 @@ null, undefined
 
 #### Arrays
 ```javascript
-const arr = [1, 2, 3];
-arr[0];           // Access
-arr.push(4);      // Modify
-arr.length;       // Property
+const arr = [1, 2, 3]
+arr[0]           // Access
+arr.push(4)      // Modify
+arr.length       // Property
 
 // Array methods (built-in functions)
 filter(arr, predicate)
@@ -403,13 +399,13 @@ sort(arr, compareFn)
 const obj = {
   key: "value",
   nested: { inner: true },
-  method() { return this.key; },
+  method() { return this.key },
   [computed]: dynamicValue
-};
+}
 
-obj.key;          // Dot notation
-obj["key"];       // Bracket notation
-obj.newProp = 42; // Assignment
+obj.key          // Dot notation
+obj["key"]       // Bracket notation
+obj.newProp = 42 // Assignment
 
 // Object methods (built-in functions)
 keys(obj)         // Get keys array
@@ -429,54 +425,54 @@ const person = {
     city: "Boston",
     coordinates: { lat: 42.3601, lng: -71.0589 }
   }
-};
+}
 
 // Basic destructuring
-const { name, age } = person;
+const { name, age } = person
 
 // Nested destructuring
-const { name, address: { city, coordinates: { lat } } } = person;
+const { name, address: { city, coordinates: { lat } } } = person
 
 // Renaming
-const { name: fullName, age: years } = person;
+const { name: fullName, age: years } = person
 
 // Default values
-const { name, country = "USA" } = person;
+const { name, country = "USA" } = person
 ```
 
 #### Array Destructuring
 ```javascript
-const numbers = [1, 2, 3, 4, 5];
+const numbers = [1, 2, 3, 4, 5]
 
 // Basic destructuring
-const [first, second] = numbers;
+const [first, second] = numbers
 
 // Skipping elements
-const [a, , , d] = numbers; // a=1, d=4
+const [a, , , d] = numbers // a=1, d=4
 
 // Rest pattern
-const [head, ...tail] = numbers; // head=1, tail=[2,3,4,5]
+const [head, ...tail] = numbers // head=1, tail=[2,3,4,5]
 
 // Nested arrays
-const nested = [[1, 2], [3, 4]];
-const [[a, b], [c, d]] = nested;
+const nested = [[1, 2], [3, 4]]
+const [[a, b], [c, d]] = nested
 ```
 
 ### Template Literals
 
 ```javascript
-const name = "Wang";
-const version = "1.0.0";
+const name = "Wang"
+const version = "1.0.0"
 
 // Expression interpolation
-const message = `Welcome to ${name} v${version}!`;
+const message = `Welcome to ${name} v${version}!`
 
 // Multi-line strings
 const multiLine = `
   Line 1
   Line 2
   ${expression}
-`;
+`
 
 // Nested template literals
 const nested = `Outer: "${`Inner: ${value}`}"`;
@@ -489,40 +485,40 @@ const nested = `Outer: "${`Inner: ${value}`}"`;
 // Async function declaration
 async function fetchData() {
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    return data;
+    const response = await fetch(url)
+    const data = await response.json()
+    return data
   } catch (error) {
-    console.error("Failed:", error.message);
-    throw error;
+    console.error("Failed:", error.message)
+    throw error
   } finally {
-    console.log("Cleanup completed");
+    console.log("Cleanup completed")
   }
 }
 
 // Async arrow function
 const processAsync = async (data) => {
-  const result = await transform(data);
-  return result;
-};
+  const result = await transform(data)
+  return result
+}
 ```
 
 #### Parallel Processing
 ```javascript
 // Sequential processing
 async function processSequential(items) {
-  const results = [];
+  const results = []
   for (let item of items) {
-    const result = await processItem(item);
-    results.push(result);
+    const result = await processItem(item)
+    results.push(result)
   }
-  return results;
+  return results
 }
 
 // Parallel processing
 async function processParallel(items) {
-  const promises = items.map(item => processItem(item));
-  return await Promise.all(promises);
+  const promises = items.map(item => processItem(item))
+  return await Promise.all(promises)
 }
 ```
 
@@ -531,43 +527,43 @@ async function processParallel(items) {
 #### Try-Catch-Finally
 ```javascript
 try {
-  riskyOperation();
+  riskyOperation()
 } catch (error) {
-  console.error("Caught:", error.message);
+  console.error("Caught:", error.message)
   // Handle error
 } finally {
-  console.log("Always executed");
+  console.log("Always executed")
 }
 
-// Nested error handling
+// Try-finally without catch (supported)\ntry {\n  riskyOperation()\n} finally {\n  cleanup()\n}\n\n// Nested error handling
 try {
   try {
-    innerOperation();
+    innerOperation()
   } catch (innerError) {
-    console.log("Inner error:", innerError);
-    throw new Error("Outer error");
+    console.log("Inner error:", innerError)
+    throw new Error("Outer error")
   } finally {
-    console.log("Inner cleanup");
+    console.log("Inner cleanup")
   }
 } catch (outerError) {
-  console.log("Outer error:", outerError.message);
+  console.log("Outer error:", outerError.message)
 } finally {
-  console.log("Outer cleanup");
+  console.log("Outer cleanup")
 }
 ```
 
 #### Error Objects
 ```javascript
 // Creating errors
-throw new Error("Something went wrong");
-throw "String error"; // Also supported
+throw new Error("Something went wrong")
+throw "String error" // Also supported
 
 // Error properties
 try {
-  throw new Error("Custom message");
+  throw new Error("Custom message")
 } catch (e) {
-  console.log(e.message); // "Custom message"
-  console.log(e.name);    // "Error"
+  console.log(e.message) // "Custom message"
+  console.log(e.name)    // "Error"
 }
 ```
 
@@ -577,35 +573,35 @@ try {
 ```javascript
 // Named exports
 export function processData(data) {
-  return data.filter(item => item.active);
+  return data.filter(item => item.active)
 }
 
-export const VERSION = "1.0.0";
+export const VERSION = "1.0.0"
 
 export class DataProcessor {
-  process(data) { return data; }
+  process(data) { return data }
 }
 
 // Multiple exports
-function helper1() { return "help1"; }
-function helper2() { return "help2"; }
-export { helper1, helper2 };
+function helper1() { return "help1" }
+function helper2() { return "help2" }
+export { helper1, helper2 }
 ```
 
 #### Import Syntax
 ```javascript
 // Named imports
-import { processData, VERSION } from "data-utils";
-import { helper1, helper2 } from "helpers";
+import { processData, VERSION } from "data-utils"
+import { helper1, helper2 } from "helpers"
 
 // Namespace import
-import * as Utils from "utilities";
-Utils.processData(data);
-Utils.VERSION;
+import * as Utils from "utilities"
+Utils.processData(data)
+Utils.VERSION
 
 // Importing from different resolvers
-import { fetchAPI } from "http://cdn.example.com/api.js";
-import { localData } from "indexeddb://local-storage";
+import { fetchAPI } from "http://cdn.example.com/api.js"
+import { localData } from "indexeddb://local-storage"
 ```
 
 #### Module Resolvers
@@ -614,8 +610,8 @@ import { localData } from "indexeddb://local-storage";
 ```javascript
 const resolver = new InMemoryModuleResolver();
 resolver.addModule("math", `
-  export function add(a, b) { return a + b; }
-  export function multiply(a, b) { return a * b; }
+  export function add(a, b) { return a + b }
+  export function multiply(a, b) { return a * b }
 `);
 ```
 
@@ -737,7 +733,7 @@ const interpreter = new WangInterpreter({
 
 // Execute Wang code
 const result = await interpreter.execute(`
-  let data = [1, 2, 3];
+  let data = [1, 2, 3]
   data |> map(_, x => x * 2) |> reduce(_, (sum, x) => sum + x, 0)
 `);
 console.log(result); // 12
@@ -773,23 +769,23 @@ const interpreter = new WangInterpreter({
 
 await interpreter.execute(`
   // Extract profile data
-  let profiles = querySelectorAll(".profile-card");
-  let results = [];
+  let profiles = querySelectorAll(".profile-card")
+  let results = []
   
   for (let profile of profiles) {
     let data = {
       name: profile |> querySelector(_, ".name") |> getText(_),
       title: profile |> querySelector(_, ".title") |> getText(_)
-    };
-    
-    // Click save button if profile is active
-    let saveBtn = querySelector(profile, ".save-btn");
-    if (saveBtn) {
-      click(saveBtn);
-      await wait(1000); // Rate limiting
     }
     
-    results.push(data);
+    // Click save button if profile is active
+    let saveBtn = querySelector(profile, ".save-btn")
+    if (saveBtn) {
+      click(saveBtn)
+      await wait(1000) // Rate limiting
+    }
+    
+    results.push(data)
   }
   
   log(\`Processed \${results.length} profiles\`);
@@ -799,88 +795,105 @@ await interpreter.execute(`
 
 ## Intentionally Unsupported Features
 
-### Private Fields (`#field`)
-**Not Supported** - Use naming conventions instead:
+Wang intentionally excludes certain JavaScript features to maintain simplicity, avoid ambiguity, and ensure clean syntax:
+
+### Removed Operators
+**Not Supported** - Use explicit assignment:
 ```javascript
 // ❌ Not supported
-class BankAccount {
-  #balance = 0;
-  #validateAmount(amount) { /* ... */ }
-}
-
-// ✅ Use conventions
-class BankAccount {
-  constructor() {
-    this._balance = 0; // Convention: prefix with _
-  }
-  
-  _validateAmount(amount) { /* ... */ }
-}
+x++, ++x, x--, --x          // Use: x = x + 1
+x += 5, x -= 3, x *= 2      // Use: x = x + 5, x = x - 3, x = x * 2
+result = condition ? a : b   // Use: if-else statements
 ```
 
-### Default Imports/Exports
+### Removed Statements
+**Not Supported** - Use alternatives:
+```javascript
+// ❌ Switch statements - use if-else chains
+switch (value) {
+  case 'a': return 1
+  case 'b': return 2
+}
+
+// ✅ Use if-else instead
+if (value === 'a') return 1
+if (value === 'b') return 2
+
+// ❌ For-in loops - problematic with prototypes
+for (let key in obj) { /* ... */ }
+
+// ✅ Use for-of with Object methods
+for (let [key, value] of Object.entries(obj)) { /* ... */ }
+for (let key of Object.keys(obj)) { /* ... */ }
+```
+
+### Removed Class Features
+**Not Supported** - Use conventions/methods:
+```javascript
+// ❌ Private fields, static methods, getters/setters
+class Example {
+  #private = 0
+  static staticMethod() { }
+  get value() { return this._value }
+  set value(v) { this._value = v }
+}
+
+// ✅ Use conventions and regular methods
+class Example {
+  constructor() {
+    this._private = 0 // Convention: prefix with _
+  }
+  getValue() { return this._value }
+  setValue(v) { this._value = v }
+}
+// Use module-level functions instead of static methods
+```
+
+### Removed Module Features
 **Not Supported** - Use named imports/exports:
 ```javascript
-// ❌ Not supported
-export default function sum() { /* ... */ }
-import sum from "math";
+// ❌ Default exports, re-exports
+export default function() { }
+import fn from "module"
+export { item } from "other"
 
-// ✅ Use named exports
-export function sum() { /* ... */ }
-import { sum } from "math";
+// ✅ Use named imports/exports only
+export function fn() { }
+import { fn } from "module"
+import { item } from "other"
+export { item }
 ```
 
-### Destructuring with Defaults in Parameters
-**Not Supported** - Handle defaults in function body:
+### Removed Advanced Features
+**Not Supported** - Use simpler alternatives:
 ```javascript
-// ❌ Not supported
-function processUser({ name, age = 18 }) {
-  return `${name} is ${age}`;
+// ❌ Destructuring with defaults in parameters
+function fn({ name, age = 18 }) { }
+
+// ✅ Handle defaults manually
+function fn(user) {
+  const name = user.name
+  const age = user.age !== undefined ? user.age : 18
 }
 
-// ✅ Handle manually
-function processUser(user) {
-  const name = user.name;
-  const age = user.age !== undefined ? user.age : 18;
-  return `${name} is ${age}`;
-}
+// ❌ Async generators, tagged templates
+async function* gen() { yield 1 }
+const html = tag`template ${value}`
+
+// ✅ Use regular async functions and function calls
+async function getData() { return [1, 2] }
+const html = tag(["template ", ""], value)
 ```
 
-### Async Generators (`async function*`)
-**Not Supported** - Use regular async functions:
-```javascript
-// ❌ Not supported
-async function* asyncGen() {
-  yield 1;
-  yield 2;
-}
+### Core Philosophy
+Wang follows the principle of **"one way to do things"**:
+- **Newlines separate statements** (no semicolons)
+- **Simple assignment only** (no compound operators)
+- **Clear conditionals** (no ternary)
+- **Named imports/exports** (no defaults)
+- **Method calls** (no getters/setters)
 
-// ✅ Use arrays
-async function getAsyncData() {
-  return [1, 2];
-}
-```
-
-### Tagged Template Literals
-**Not Supported** - Use function calls:
-```javascript
-// ❌ Not supported
-const result = html`<div>${content}</div>`;
-
-// ✅ Use function calls
-const result = html(["<div>", "</div>"], content);
-```
-
-### Re-exports
-**Not Supported** - Import then export:
-```javascript
-// ❌ Not supported
-export { coreFunction } from "core";
-
-// ✅ Import then export
-import { coreFunction } from "core";
-export { coreFunction };
-```
+This reduces cognitive overhead and eliminates common sources of bugs and ambiguity.
 
 ## Error Messages & Recovery
 
@@ -1139,8 +1152,8 @@ When executing Wang code with `interpreter.execute(code)`, the interpreter:
 #### Simple Expression Return
 ```javascript
 const result = await interpreter.execute(`
-  let x = 5;
-  let y = 10;
+  let x = 5
+  let y = 10
   x + y  // Last expression becomes return value
 `);
 // result = 15
@@ -1149,8 +1162,8 @@ const result = await interpreter.execute(`
 #### Object/Array Construction
 ```javascript
 const config = await interpreter.execute(`
-  const env = "production";
-  const port = 3000;
+  const env = "production"
+  const port = 3000
   
   // This object is returned
   { env, port, debug: false }
@@ -1172,9 +1185,9 @@ const processed = await interpreter.execute(`
 #### Workflow Results
 ```javascript
 const workflowResult = await interpreter.execute(`
-  const data = fetchData();
-  const cleaned = cleanData(data);
-  const processed = processData(cleaned);
+  const data = fetchData()
+  const cleaned = cleanData(data)
+  const processed = processData(cleaned)
   
   // Return a summary object
   {
@@ -1197,4 +1210,4 @@ const workflowResult = await interpreter.execute(`
 
 ---
 
-*This document covers Wang Language v1.0.0 with 100% test coverage (90/90 tests passing). For implementation details, see source code and test suite.*
+*This document covers Wang Language v0.4.6 with 100% test coverage (167/167 tests passing). For implementation details, see source code and test suite.*

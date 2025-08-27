@@ -781,7 +781,7 @@ export class WangInterpreter {
   private async evaluateProgram(node: any): Promise<any> {
     // Process continuations to merge multiline expressions
     const processedBody = this.processContinuations(node.body);
-    
+
     // Hoist var declarations
     this.hoistVarDeclarations(processedBody);
 
@@ -791,18 +791,18 @@ export class WangInterpreter {
     }
     return lastValue;
   }
-  
+
   private processContinuations(statements: any[]): any[] {
     const result = [];
-    
+
     for (let i = 0; i < statements.length; i++) {
       const stmt = statements[i];
-      
+
       if (stmt.type === 'PipelineContinuation' || stmt.type === 'MemberContinuation') {
         // Find the last statement to merge with
         if (result.length > 0) {
           const lastStmt = result[result.length - 1];
-          
+
           // Handle ExpressionStatement
           if (lastStmt.type === 'ExpressionStatement') {
             if (stmt.type === 'PipelineContinuation') {
@@ -810,7 +810,7 @@ export class WangInterpreter {
                 type: 'PipelineExpression',
                 operator: stmt.operator,
                 left: lastStmt.expression,
-                right: stmt.right
+                right: stmt.right,
               };
             } else if (stmt.type === 'MemberContinuation') {
               const memberExpr = {
@@ -818,20 +818,22 @@ export class WangInterpreter {
                 object: lastStmt.expression,
                 property: stmt.property,
                 computed: false,
-                optional: stmt.optional
+                optional: stmt.optional,
               };
-              
+
               lastStmt.expression = stmt.arguments
                 ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
                 : memberExpr;
             }
             continue;
           }
-          
+
           // Handle VariableDeclaration with initializer
-          if (lastStmt.type === 'VariableDeclaration' && 
-              lastStmt.declarations && 
-              lastStmt.declarations.length > 0) {
+          if (
+            lastStmt.type === 'VariableDeclaration' &&
+            lastStmt.declarations &&
+            lastStmt.declarations.length > 0
+          ) {
             const lastDeclarator = lastStmt.declarations[lastStmt.declarations.length - 1];
             if (lastDeclarator.init) {
               if (stmt.type === 'PipelineContinuation') {
@@ -839,7 +841,7 @@ export class WangInterpreter {
                   type: 'PipelineExpression',
                   operator: stmt.operator,
                   left: lastDeclarator.init,
-                  right: stmt.right
+                  right: stmt.right,
                 };
               } else if (stmt.type === 'MemberContinuation') {
                 const memberExpr = {
@@ -847,9 +849,9 @@ export class WangInterpreter {
                   object: lastDeclarator.init,
                   property: stmt.property,
                   computed: false,
-                  optional: stmt.optional
+                  optional: stmt.optional,
                 };
-                
+
                 lastDeclarator.init = stmt.arguments
                   ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
                   : memberExpr;
@@ -857,7 +859,7 @@ export class WangInterpreter {
               continue;
             }
           }
-          
+
           // Handle assignment expressions in return statements
           if (lastStmt.type === 'ReturnStatement' && lastStmt.argument) {
             if (stmt.type === 'PipelineContinuation') {
@@ -865,7 +867,7 @@ export class WangInterpreter {
                 type: 'PipelineExpression',
                 operator: stmt.operator,
                 left: lastStmt.argument,
-                right: stmt.right
+                right: stmt.right,
               };
             } else if (stmt.type === 'MemberContinuation') {
               const memberExpr = {
@@ -873,9 +875,9 @@ export class WangInterpreter {
                 object: lastStmt.argument,
                 property: stmt.property,
                 computed: false,
-                optional: stmt.optional
+                optional: stmt.optional,
               };
-              
+
               lastStmt.argument = stmt.arguments
                 ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
                 : memberExpr;
@@ -883,14 +885,14 @@ export class WangInterpreter {
             continue;
           }
         }
-        
+
         // If we can't merge, it's an error
         throw new Error(`Unexpected continuation operator at statement ${i + 1}`);
       }
-      
+
       result.push(stmt);
     }
-    
+
     return result;
   }
 
@@ -989,12 +991,12 @@ export class WangInterpreter {
       if (value == null) {
         throw new TypeError(`Cannot destructure 'null' or 'undefined'`);
       }
-      
+
       for (const prop of pattern.properties) {
         if (prop.type === 'Property') {
           // Get the property key name
           const keyName = prop.key.type === 'Identifier' ? prop.key.name : prop.key.value;
-          
+
           // Handle shorthand properties
           if (prop.shorthand && typeof prop.value === 'string') {
             this.currentContext.variables.set(prop.value, value[keyName]);
@@ -1028,7 +1030,7 @@ export class WangInterpreter {
       if (value == null) {
         throw new TypeError(`Cannot destructure 'null' or 'undefined'`);
       }
-      
+
       const arr = Array.isArray(value) ? value : [];
       let index = 0;
       for (const element of pattern.elements) {
@@ -1579,17 +1581,19 @@ export class WangInterpreter {
 
   private async evaluateTryStatement(node: any): Promise<any> {
     let result: any;
-    let finallyThrew = false;
 
     try {
       result = await this.evaluateNode(node.block);
     } catch (error: any) {
       // Re-throw control flow statements
-      if (error && typeof error === 'object' && 
-          (error.type === 'break' || error.type === 'continue' || error.type === 'return')) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        (error.type === 'break' || error.type === 'continue' || error.type === 'return')
+      ) {
         throw error;
       }
-      
+
       if (node.handler) {
         if (node.handler.param) {
           this.assignPattern(node.handler.param, error);
@@ -1600,15 +1604,10 @@ export class WangInterpreter {
       }
     } finally {
       if (node.finalizer) {
-        try {
-          const finallyResult = await this.evaluateNode(node.finalizer);
-          // In JavaScript, finally block return value overrides try/catch return value
-          // only if it's not undefined (unless finally explicitly returns undefined)
-          result = finallyResult;
-        } catch (finallyError) {
-          finallyThrew = true;
-          throw finallyError;
-        }
+        const finallyResult = await this.evaluateNode(node.finalizer);
+        // In JavaScript, finally block return value overrides try/catch return value
+        // only if it's not undefined (unless finally explicitly returns undefined)
+        result = finallyResult;
       }
     }
 
@@ -2080,12 +2079,12 @@ export class WangInterpreter {
     // Handle new AST structure with quasis and expressions
     if (node.quasis && node.quasis.length > 0) {
       const raw = node.quasis[0].value.raw;
-      
+
       // If the raw text contains template expressions, interpolate them
       if (raw.includes('${')) {
         return await this.interpolateTemplate(raw);
       }
-      
+
       // Otherwise return the raw text as-is
       return raw;
     }
