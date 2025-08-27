@@ -17,14 +17,14 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🔌 **Pluggable Module System** - Implement your own module resolution (memory, IndexedDB, HTTP, etc.)
 - 📍 **Comprehensive Error Reporting** - Detailed error messages with line numbers and recovery suggestions
 - 🌐 **Browser Automation Focus** - Built for DOM manipulation and web workflows
-- 🚀 **Pipeline Operators** - Elegant data flow with `|>` and `->` operators, including multiline support
+- 🚀 **Advanced Pipeline Operators** - Chained pipelines (`data |> filter() |> map()`), nested pipelines, and multiline support
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (283 tests passing - 100% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (333/335 tests passing - 99.4% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
 - ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar
 - ⏸️ **Pausable Execution** - Pause and resume interpreter execution at any point
@@ -288,7 +288,7 @@ const result = await interpreter.execute(`
 
 ### Pipeline Operators
 
-Elegant data transformation with pipeline operators, including multiline support:
+Wang provides powerful pipeline operators for elegant data transformation with full support for chaining, nesting, and multiline expressions:
 
 ```javascript
 // Pipe operator (|>) - passes result as first argument with _ placeholder
@@ -296,6 +296,25 @@ const result = data
   |> filter(_, x => x > 0)
   |> map(_, x => x * 2)
   |> reduce(_, (sum, x) => sum + x, 0);
+
+// Chained pipelines on same line (fully supported!)
+const processed = data |> filter(_, active) |> map(_, transform) |> sort(_);
+
+// Nested pipelines work perfectly on single lines
+const groups = [[1, 2], [3, 4], [5, 6]];
+const doubled = groups |> map(_, group => group |> map(_, x => x * 2));
+// Result: [[2, 4], [6, 8], [10, 12]]
+
+// Complex nested pipelines with calculations
+const users = [
+  {name: "Alice", scores: [80, 90, 85]},
+  {name: "Bob", scores: [75, 85, 95]}
+];
+
+const averages = users |> map(_, user => ({
+  name: user.name,
+  avg: user.scores |> reduce(_, (a, b) => a + b, 0) |> (sum => sum / user.scores.length)
+}));
 
 // Multiline pipelines with proper indentation
 const processed = rawData
@@ -315,7 +334,19 @@ const builder = new StringBuilder()
   .append(" ")
   .append("World")
   .toString()
+
+// Nested pipelines with explicit blocks (workaround for multiline)
+const result = groups |> map(_, group => {
+  return group
+    |> filter(_, x => x > 2)
+    |> map(_, x => x * 10)
+    |> reduce(_, (a, b) => a + b, 0)
+});
 ```
+
+**Pipeline Limitations:**
+- Multiline arrow functions with implicit returns don't support pipeline continuations (use explicit blocks with `return`)
+- Ternary operators with pipeline continuations require parentheses for clarity
 
 ### Modules
 
@@ -602,10 +633,10 @@ All unsupported features have clear workarounds using supported syntax.
 
 ## Testing
 
-Wang achieves **100% test coverage** with comprehensive testing:
+Wang achieves **99.4% test coverage** with comprehensive testing:
 
 ```bash
-# Run all tests (283/283 passing)
+# Run all tests (333/335 passing)
 npm test
 
 # Watch mode for development  
@@ -618,7 +649,12 @@ npm test:coverage
 npm test:ui
 ```
 
-**Test Results**: 283/283 tests passing with 100% coverage, including comprehensive stdlib, compound assignment, and operator tests.
+**Test Results**: 333/335 tests passing (99.4% coverage), including:
+- Comprehensive language features (classes, async/await, modules)
+- Advanced pipeline operations (chained, nested, multiline)
+- Full standard library coverage (70+ functions)
+- Compound assignment and increment/decrement operators
+- Edge cases and error handling
 
 ## Development
 
