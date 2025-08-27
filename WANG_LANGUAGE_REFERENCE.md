@@ -758,8 +758,9 @@ is_string(val)             // Check if string
 is_number(val)             // Check if number
 is_boolean(val)            // Check if boolean
 is_null(val)               // Check if null
-is_undefined(val)          // Check if undefined
 is_empty(val)              // Check if empty ([], {}, "", null, undefined)
+
+// Note: For undefined checking, use: val === undefined
 ```
 
 ### Math Operations

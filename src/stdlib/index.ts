@@ -322,7 +322,6 @@ export function is_null(val: any): boolean {
   return val === null;
 }
 
-
 export function is_empty(val: any): boolean {
   if (val == null) return true;
   if (Array.isArray(val) || typeof val === 'string') return val.length === 0;

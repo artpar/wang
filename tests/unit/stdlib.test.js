@@ -300,7 +300,7 @@ describe('Wang Standard Library', () => {
           notArray: is_array({})
         }
       `);
-      
+
       expect(result.array).toBe(true);
       expect(result.object).toBe(true);
       expect(result.string).toBe(true);
@@ -309,7 +309,7 @@ describe('Wang Standard Library', () => {
       expect(result.nullVal).toBe(true);
       expect(result.notArray).toBe(false);
     });
-    
+
     // Note: is_undefined function removed due to interpreter compatibility issues
     // Users can check for undefined using: val === undefined
 
