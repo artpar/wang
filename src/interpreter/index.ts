@@ -647,6 +647,18 @@ export class WangInterpreter {
         }
         return arrResult;
 
+      case 'PipelineExpression':
+        // Handle pipeline expressions synchronously
+        const pipelineLeft = this.evaluateNodeSync(node.left);
+        const prevPipelineValue = this.lastPipelineValue;
+        this.lastPipelineValue = pipelineLeft;
+        try {
+          const pipelineResult = this.evaluateNodeSync(node.right);
+          return pipelineResult;
+        } finally {
+          this.lastPipelineValue = prevPipelineValue;
+        }
+
       default:
         throw new Error(`Cannot evaluate node type synchronously: ${node.type}`);
     }

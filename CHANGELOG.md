@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-12-27
+
+### Added
+- **Advanced Pipeline Features**: Major enhancements to pipeline operators
+  - **Chained Pipelines**: Multiple pipelines can now be chained on the same line (`data |> filter() |> map() |> sort()`)
+  - **Nested Pipelines**: Full support for nested pipelines in single-line expressions (`groups |> map(_, g => g |> filter())`)
+  - **Pipeline Continuations in Blocks**: Multiline pipelines now work correctly in if/for/while block statements
+  - **Improved Grammar**: Fixed expression hierarchy to properly support pipelines in variable declarations
+  - **Synchronous Pipeline Support**: Added PipelineExpression handling in synchronous evaluation contexts
+
+### Fixed
+- **Pipeline Operator Fixes**:
+  - Fixed "Unknown node type: PipelineContinuation" error in block statements
+  - Fixed pipeline continuations in assignment expressions
+  - Fixed nested pipeline execution with proper value passing
+  - Fixed pipeline re-execution bug in loops (cached processed continuations)
+  - Fixed `get` function to handle numeric indices correctly
+  - Made stdlib functions async to handle async arrow functions in pipelines
+
+### Changed
+- Test suite expanded from 283 to 333 tests (99.4% passing - 333/335)
+- Two edge cases documented as known limitations (multiline arrow functions, ternary pipeline continuations)
+- Updated documentation with comprehensive pipeline examples and workarounds
+
+### Documentation
+- Added detailed pipeline operator examples showing chaining and nesting
+- Documented pipeline limitations and workarounds
+- Updated test coverage metrics in README
+
 ## [0.7.1] - 2024-12-27
 
 ### Fixed
