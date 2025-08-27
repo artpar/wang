@@ -489,8 +489,15 @@ ArrowBody ->
     Block {% id %}
   | AssignmentExpression {% id %}
 
-# NO ternary operator (causes ambiguity with multiline expressions)
-ConditionalExpression -> LogicalOrExpression {% id %}
+# Ternary operator (single-line only to avoid ambiguity)
+ConditionalExpression ->
+    LogicalOrExpression {% id %}
+  | LogicalOrExpression "?" AssignmentExpression ":" ConditionalExpression
+    {% d => createNode('ConditionalExpression', {
+      test: d[0],
+      consequent: d[2],
+      alternate: d[4]
+    }) %}
 
 LogicalOrExpression ->
     LogicalAndExpression {% id %}

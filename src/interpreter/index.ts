@@ -754,9 +754,8 @@ export class WangInterpreter {
       case 'UpdateExpression':
         return this.evaluateUpdateExpression(node);
 
-      // Ternary operator not supported (removed due to multiline ambiguity)
-      // case 'ConditionalExpression':
-      //   return this.evaluateConditionalExpression(node);
+      case 'ConditionalExpression':
+        return this.evaluateConditionalExpression(node);
 
       case 'PipelineExpression':
         return this.evaluatePipelineExpression(node);

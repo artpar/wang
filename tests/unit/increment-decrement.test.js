@@ -199,15 +199,14 @@ describe('Increment/Decrement Operators', () => {
   });
 
   describe('Edge Cases', () => {
-    // Ternary operator removed due to multiline ambiguity issues
-    // it('should handle increment with ternary', async () => {
-    //   const result = await ctx.execute(`
-    //     let x = 5
-    //     let y = true ? x++ : 0
-    //     { x, y }
-    //   `);
-    //   expect(result).toEqual({ x: 6, y: 5 });
-    // });
+    it('should handle increment with ternary', async () => {
+      const result = await ctx.execute(`
+        let x = 5
+        let y = true ? x++ : 0
+        { x, y }
+      `);
+      expect(result).toEqual({ x: 6, y: 5 });
+    });
 
     it('should handle decrement in function call', async () => {
       const result = await ctx.execute(`

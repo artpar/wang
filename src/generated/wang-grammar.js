@@ -951,6 +951,11 @@ var grammar = {
     {"name": "ArrowBody", "symbols": ["Block"], "postprocess": id},
     {"name": "ArrowBody", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression"], "postprocess": id},
+    {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression", {"literal":"?"}, "AssignmentExpression", {"literal":":"}, "ConditionalExpression"], "postprocess":  d => createNode('ConditionalExpression', {
+          test: d[0],
+          consequent: d[2],
+          alternate: d[4]
+        }) },
     {"name": "LogicalOrExpression", "symbols": ["LogicalAndExpression"], "postprocess": id},
     {"name": "LogicalOrExpression$subexpression$1", "symbols": [{"literal":"||"}]},
     {"name": "LogicalOrExpression$subexpression$1", "symbols": [{"literal":"??"}]},

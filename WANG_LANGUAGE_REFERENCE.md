@@ -1,7 +1,7 @@
 # Wang Language Reference - The Black Book
 
 **Version:** 0.5.0  
-**Test Coverage:** 202/202 tests (100%)  
+**Test Coverage:** 218/218 tests (100%)  
 **CSP Safe:** ✅ No eval(), new Function()  
 
 ## Overview
