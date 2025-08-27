@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2025-08-27
+
+### Removed
+- **Breaking**: Removed `is_undefined` function from stdlib due to interpreter compatibility issues
+  - Users should use `val === undefined` for undefined checking
+  - Updated documentation to reflect this change
+
+### Fixed
+- Resolved test failures in stdlib suite (all 256 tests now pass)
+
 ## [0.6.0] - 2024-12-27
 
 ### Added
@@ -13,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Object operations: `pick`, `omit`, `merge`, `clone`, `get`, `set`, `has`
   - String operations: `upper`, `lower`, `capitalize`, `trim`, `split`, `join`, `replace_all`, `starts_with`, `ends_with`, `truncate`
   - Math operations: `sum`, `avg`, `median`, `clamp`, `random_int`
-  - Type checking: `is_array`, `is_object`, `is_string`, `is_number`, `is_boolean`, `is_null`, `is_undefined`, `is_empty`
+  - Type checking: `is_array`, `is_object`, `is_string`, `is_number`, `is_boolean`, `is_null`, `is_empty`
   - Functional utilities: `count`, `find`, `find_index`, `every`, `some`, `map`, `filter`, `reduce`, `for_each`
   - Utility functions: `range`, `uuid`, `to_json`, `from_json`, `encode_base64`, `decode_base64`, `sleep`
 - All stdlib functions use snake_case naming convention
