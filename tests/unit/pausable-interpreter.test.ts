@@ -12,7 +12,7 @@ describe('PausableWangInterpreter', () => {
       moduleResolver,
       functions: {
         testFn: (x: number) => x * 2,
-        delay: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
+        delay: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
       },
     });
   });
@@ -30,20 +30,19 @@ describe('PausableWangInterpreter', () => {
 
     it('should track execution state', async () => {
       expect(interpreter.getExecutionState().type).toBe('completed');
-      
+
       const promise = interpreter.execute(`
         let x = 1
         x + 2
       `);
-      
+
       expect(interpreter.isRunning()).toBe(true);
-      
+
       const result = await promise;
       expect(result).toBe(3);
       expect(interpreter.isCompleted()).toBe(true);
     });
   });
-
 
   describe('State Serialization', () => {
     it('should serialize and deserialize basic state', async () => {
@@ -55,16 +54,16 @@ describe('PausableWangInterpreter', () => {
       `);
 
       const serialized = interpreter.serialize();
-      
+
       expect(serialized.version).toBe('1.0.0');
       expect(serialized.globalContext.variables).toContainEqual(['x', 42]);
       expect(serialized.globalContext.variables).toContainEqual(['y', 'hello']);
-      
+
       // Deserialize into new interpreter
       const newInterpreter = await PausableWangInterpreter.deserialize(serialized, {
         moduleResolver,
       });
-      
+
       const vars = newInterpreter.getCurrentVariables();
       expect(vars.x).toBe(42);
       expect(vars.y).toBe('hello');
@@ -84,14 +83,13 @@ describe('PausableWangInterpreter', () => {
       const newInterpreter = await PausableWangInterpreter.deserialize(serialized, {
         moduleResolver,
       });
-      
+
       const vars = newInterpreter.getCurrentVariables();
       expect(vars.undef).toBeUndefined();
       expect(vars.nan).toBeNaN();
       expect(vars.inf).toBe(Infinity);
       expect(vars.date).toBeInstanceOf(Date);
     });
-
 
     it('should handle nested contexts in serialization', async () => {
       await interpreter.execute(`
@@ -117,9 +115,9 @@ describe('PausableWangInterpreter', () => {
       await expect(
         interpreter.execute(`
           let x = undefinedVariable
-        `)
+        `),
       ).rejects.toThrow();
-      
+
       expect(interpreter.hasError()).toBe(true);
       expect(interpreter.getExecutionState().type).toBe('error');
     });
@@ -144,30 +142,29 @@ describe('PausableWangInterpreter', () => {
       `);
 
       let stackTraceAtPause: string[] = [];
-      
+
       const promise = interpreter.execute('a()');
-      
+
       setTimeout(() => {
         if (interpreter.isRunning()) {
           interpreter.pause();
           stackTraceAtPause = interpreter.getCallStackTrace();
         }
       }, 5);
-      
-      await new Promise(resolve => setTimeout(resolve, 20));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
       if (interpreter.isPaused()) {
         expect(stackTraceAtPause.length).toBeGreaterThan(0);
         await interpreter.resume();
       }
-      
+
       const result = await promise;
       expect(result).toBe(42);
     });
   });
 
   describe('Complex Scenarios', () => {
-
     it('should preserve closures across serialization', async () => {
       await interpreter.execute(`
         function makeCounter() {
@@ -181,7 +178,7 @@ describe('PausableWangInterpreter', () => {
       `);
 
       const serialized = interpreter.serialize();
-      const newInterpreter = await PausableWangInterpreter.deserialize(serialized, {
+      await PausableWangInterpreter.deserialize(serialized, {
         moduleResolver,
         functions: {
           testFn: (x: number) => x * 2,
@@ -201,9 +198,9 @@ describe('PausableWangInterpreter', () => {
         pauseCheckInterval: 1000, // Check only every 1000 operations
         moduleResolver,
       });
-      
+
       const start = Date.now();
-      
+
       const result = await perfInterpreter.execute(`
         let sum = 0
         for (let i = 0; i < 10000; i = i + 1) {
@@ -211,9 +208,9 @@ describe('PausableWangInterpreter', () => {
         }
         sum
       `);
-      
+
       const duration = Date.now() - start;
-      
+
       expect(result).toBe(49995000);
       expect(duration).toBeLessThan(5000); // Should complete in reasonable time
     });

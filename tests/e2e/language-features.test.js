@@ -569,6 +569,52 @@ it('should handle switch statements', async () => {
       expect(result).toEqual([42, undefined, undefined, 'default', 0, false, 'default']);
     });
 
+    it('should handle optional chaining with computed member access', async () => {
+      const result = await interpreter.execute(`
+        const titles = {
+          data: [
+            { textContent: "Title 1" },
+            { textContent: "Title 2" },
+            null,
+            { textContent: "Title 4" }
+          ]
+        }
+        
+        const emptyTitles = null
+        const arr = [10, 20, 30]
+        const nestedObj = {
+          items: {
+            list: ["a", "b", "c"]
+          }
+        }
+        
+        [
+          titles.data?.[0]?.textContent,     // "Title 1"
+          titles.data?.[1]?.textContent,     // "Title 2" 
+          titles.data?.[2]?.textContent,     // undefined (null item)
+          titles.data?.[3]?.textContent,     // "Title 4"
+          titles.data?.[10]?.textContent,    // undefined (out of bounds)
+          emptyTitles?.data?.[0]?.textContent, // undefined (null object)
+          arr?.[1],                          // 20
+          arr?.[10],                         // undefined
+          nestedObj?.items?.list?.[1],       // "b"
+          nestedObj?.missing?.list?.[0]      // undefined
+        ]
+      `);
+      expect(result).toEqual([
+        'Title 1',
+        'Title 2',
+        undefined,
+        'Title 4',
+        undefined,
+        undefined,
+        20,
+        undefined,
+        'b',
+        undefined,
+      ]);
+    });
+
     it('should handle comparison operators with type coercion', async () => {
       const result = await interpreter.execute(`
         [

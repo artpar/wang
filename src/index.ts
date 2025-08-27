@@ -10,11 +10,11 @@ export type { ExecutionContext, InterpreterOptions } from './interpreter';
 
 // Pausable interpreter exports
 export { PausableWangInterpreter } from './interpreter/pausable-interpreter';
-export type { 
-  ExecutionState, 
-  CallFrame, 
-  SerializedState, 
-  SerializedContext 
+export type {
+  ExecutionState,
+  CallFrame,
+  SerializedState,
+  SerializedContext,
 } from './interpreter/pausable-interpreter';
 
 // Resolver exports

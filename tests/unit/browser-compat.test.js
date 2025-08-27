@@ -47,7 +47,7 @@ __result = {
       x: 15,
       y: 17,
       z: 8,
-      w: 4
+      w: 4,
     });
   });
 
@@ -115,7 +115,7 @@ message += "World"
 __result = message`;
 
     const result = await interpreter.execute(code);
-    expect(result).toBe("Hello World");
+    expect(result).toBe('Hello World');
   });
 
   it('should work with conditionals and compound assignment', async () => {

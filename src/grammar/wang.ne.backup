@@ -580,8 +580,6 @@ CallExpression ->
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
   | CallExpression %NL:* "?." %identifier
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false, optional: true }) %}
-  | CallExpression "?." "[" Expression "]"
-    {% d => createNode('MemberExpression', { object: d[0], property: d[3], computed: true, optional: true }) %}
 
 NewExpression ->
     "new" MemberExpression Arguments:?
@@ -596,8 +594,6 @@ MemberExpression ->
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
   | MemberExpression %NL:* "?." %identifier
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false, optional: true }) %}
-  | MemberExpression "?." "[" Expression "]"
-    {% d => createNode('MemberExpression', { object: d[0], property: d[3], computed: true, optional: true }) %}
 
 Arguments ->
     "(" ArgumentList ")" {% d => d[1] %}

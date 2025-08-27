@@ -103,7 +103,7 @@ export class PausableWangInterpreter extends WangInterpreter {
     this.operationCounter++;
     if (this.operationCounter % this.pauseCheckInterval === 0) {
       // Allow other async operations to run
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
     if (this.executionState.pauseRequested) {
@@ -121,8 +121,16 @@ export class PausableWangInterpreter extends WangInterpreter {
     this.executionState.currentNode = node;
 
     // Add to call stack for certain node types
-    const frameTypes = ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression', 'BlockStatement', 'ForStatement', 'WhileStatement', 'DoWhileStatement'];
-    
+    const frameTypes = [
+      'FunctionDeclaration',
+      'FunctionExpression',
+      'ArrowFunctionExpression',
+      'BlockStatement',
+      'ForStatement',
+      'WhileStatement',
+      'DoWhileStatement',
+    ];
+
     let frame: CallFrame | undefined;
     if (frameTypes.includes(node.type)) {
       frame = {
@@ -136,24 +144,24 @@ export class PausableWangInterpreter extends WangInterpreter {
 
     try {
       const result = await super.evaluateNode(node);
-      
+
       // Remove frame from stack if we added one
       if (frame) {
         this.executionState.callStack.pop();
       }
-      
+
       return result;
     } catch (error) {
       // Check if this is a pause request
       if (error && typeof error === 'object' && (error as any).type === 'pause') {
         throw error;
       }
-      
+
       // Remove frame from stack on error too
       if (frame) {
         this.executionState.callStack.pop();
       }
-      
+
       throw error;
     }
   }
@@ -168,29 +176,29 @@ export class PausableWangInterpreter extends WangInterpreter {
     // Import the generated parser (will be imported at runtime)
     // @ts-ignore - Generated file
     const { grammar, nearley } = await import('../generated/wang-grammar.js');
-    
+
     // Create parser using bundled nearley runtime
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    
+
     try {
       // Parse the code
       parser.feed(code);
-      
+
       if (parser.results.length === 0) {
         throw new Error('No parse found');
       }
-      
+
       if (parser.results.length > 1) {
         console.warn('Ambiguous grammar detected, using first parse');
       }
-      
+
       const ast = parser.results[0];
-      
+
       // Execute the AST
       const executionContext = context || this.globalContext;
       const previousContext = this.currentContext;
       this.currentContext = executionContext;
-      
+
       try {
         const result = await this.evaluateNode(ast);
         this.executionState.type = 'completed';
@@ -205,14 +213,14 @@ export class PausableWangInterpreter extends WangInterpreter {
         // Execution was paused - don't throw, just return undefined
         return undefined;
       }
-      
+
       // Handle return at top level
       if (error && typeof error === 'object' && (error as any).type === 'return') {
         this.executionState.type = 'completed';
         this.executionState.result = (error as any).value;
         return (error as any).value;
       }
-      
+
       this.executionState.type = 'error';
       this.executionState.error = error;
       throw error;
@@ -246,7 +254,7 @@ export class PausableWangInterpreter extends WangInterpreter {
     options: {
       moduleResolver?: ModuleResolver;
       functions?: Record<string, Function>;
-    } = {}
+    } = {},
   ): Promise<PausableWangInterpreter> {
     const interpreter = new PausableWangInterpreter({
       moduleResolver: options.moduleResolver || new InMemoryModuleResolver(),
@@ -284,11 +292,13 @@ export class PausableWangInterpreter extends WangInterpreter {
   }
 
   private serializeContext(context: ExecutionContext): SerializedContext {
-    const contextId = this.contextIdMap.get(context);
     const parentId = context.parent ? this.contextIdMap.get(context.parent) : undefined;
 
     return {
-      variables: Array.from(context.variables.entries()).map(([k, v]) => [k, this.serializeValue(v)]),
+      variables: Array.from(context.variables.entries()).map(([k, v]) => [
+        k,
+        this.serializeValue(v),
+      ]),
       variableKinds: Array.from(context.variableKinds.entries()),
       functionNames: Array.from(context.functions.keys()),
       classNames: Array.from(context.classes.keys()),
@@ -304,10 +314,11 @@ export class PausableWangInterpreter extends WangInterpreter {
     if (value === null) return null;
     if (typeof value === 'function') return { __type: 'function', name: value.name || 'anonymous' };
     if (value instanceof Date) return { __type: 'Date', value: value.toISOString() };
-    if (value instanceof RegExp) return { __type: 'RegExp', source: value.source, flags: value.flags };
+    if (value instanceof RegExp)
+      return { __type: 'RegExp', source: value.source, flags: value.flags };
     if (value instanceof Map) return { __type: 'Map', entries: Array.from(value.entries()) };
     if (value instanceof Set) return { __type: 'Set', values: Array.from(value.values()) };
-    
+
     // For objects and arrays, we need to handle circular references
     if (typeof value === 'object') {
       try {
@@ -316,20 +327,29 @@ export class PausableWangInterpreter extends WangInterpreter {
         return { __type: 'circular_reference' };
       }
     }
-    
+
     return value;
   }
 
   private deserializeValue(value: any): any {
     if (value && typeof value === 'object' && '__type' in value) {
       switch (value.__type) {
-        case 'undefined': return undefined;
-        case 'function': return () => { throw new Error(`Function ${value.name} needs to be re-bound`) };
-        case 'Date': return new Date(value.value);
-        case 'RegExp': return new RegExp(value.source, value.flags);
-        case 'Map': return new Map(value.entries);
-        case 'Set': return new Set(value.values);
-        case 'circular_reference': return null;
+        case 'undefined':
+          return undefined;
+        case 'function':
+          return () => {
+            throw new Error(`Function ${value.name} needs to be re-bound`);
+          };
+        case 'Date':
+          return new Date(value.value);
+        case 'RegExp':
+          return new RegExp(value.source, value.flags);
+        case 'Map':
+          return new Map(value.entries);
+        case 'Set':
+          return new Set(value.values);
+        case 'circular_reference':
+          return null;
       }
     }
     return value;
@@ -338,7 +358,7 @@ export class PausableWangInterpreter extends WangInterpreter {
   private serializeExecutionState(): ExecutionState {
     return {
       ...this.executionState,
-      callStack: this.executionState.callStack.map(frame => ({
+      callStack: this.executionState.callStack.map((frame) => ({
         ...frame,
         context: this.serializeContext(frame.context) as any, // We'll restore this properly
       })),
@@ -348,7 +368,7 @@ export class PausableWangInterpreter extends WangInterpreter {
   private deserializeExecutionState(state: ExecutionState): ExecutionState {
     return {
       ...state,
-      callStack: state.callStack.map(frame => ({
+      callStack: state.callStack.map((frame) => ({
         ...frame,
         context: this.idContextMap.get((frame.context as any).parentId) || this.currentContext,
       })),
@@ -358,7 +378,7 @@ export class PausableWangInterpreter extends WangInterpreter {
   private deserializeContexts(state: SerializedState): void {
     // First, create all contexts
     const contexts = new Map<string, ExecutionContext>();
-    
+
     // Create global context
     const globalContext = this.createContext();
     this.restoreContextData(globalContext, state.globalContext);
@@ -436,7 +456,7 @@ export class PausableWangInterpreter extends WangInterpreter {
     // This is a simplified version - in a real implementation,
     // we'd need to restore the exact execution point within each frame
     const topFrame = this.executionState.callStack[this.executionState.callStack.length - 1];
-    
+
     if (!topFrame) {
       throw new Error('No frame to resume from');
     }
@@ -451,7 +471,7 @@ export class PausableWangInterpreter extends WangInterpreter {
   // Utility methods for debugging and inspection
 
   public getCallStackTrace(): string[] {
-    return this.executionState.callStack.map(frame => {
+    return this.executionState.callStack.map((frame) => {
       const name = frame.name || '<anonymous>';
       return `${frame.type}: ${name}`;
     });
@@ -460,7 +480,7 @@ export class PausableWangInterpreter extends WangInterpreter {
   public getCurrentVariables(): Record<string, any> {
     const vars: Record<string, any> = {};
     let ctx: ExecutionContext | undefined = this.currentContext;
-    
+
     while (ctx) {
       ctx.variables.forEach((value, key) => {
         if (!(key in vars)) {
@@ -469,7 +489,7 @@ export class PausableWangInterpreter extends WangInterpreter {
       });
       ctx = ctx.parent;
     }
-    
+
     return vars;
   }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { WangInterpreter, InMemoryModuleResolver } from '../../dist/esm/index.js';
 import * as stdlib from '../../dist/esm/stdlib/index.js';
 
@@ -93,7 +93,7 @@ describe('Pipeline Continuation Tests', () => {
       expect(result).toEqual([
         [10, 12],
         [12, 14],
-        [14, 16]
+        [14, 16],
       ]);
     });
 
@@ -163,7 +163,7 @@ describe('Pipeline Continuation Tests', () => {
       expect(result).toEqual({
         evens: [2, 4],
         odds: [1, 3, 5],
-        doubled: [2, 4, 6, 8, 10]
+        doubled: [2, 4, 6, 8, 10],
       });
     });
 
@@ -180,7 +180,7 @@ describe('Pipeline Continuation Tests', () => {
       `);
 
       expect(result).toEqual({
-        processed: [12, 13]
+        processed: [12, 13],
       });
     });
 
@@ -200,7 +200,7 @@ describe('Pipeline Continuation Tests', () => {
 
       expect(result).toEqual([
         [1, 2, 3],
-        [10, 15]
+        [10, 15],
       ]);
     });
 
@@ -216,7 +216,7 @@ describe('Pipeline Continuation Tests', () => {
 
       expect(result).toEqual({
         first: 10,
-        second: 20
+        second: 20,
       });
     });
   });
@@ -268,7 +268,10 @@ describe('Pipeline Continuation Tests', () => {
         result
       `);
 
-      expect(result).toEqual([[6, 8], [10, 12]]);
+      expect(result).toEqual([
+        [6, 8],
+        [10, 12],
+      ]);
     });
 
     it('should handle pipeline with complex arrow functions', async () => {
@@ -294,8 +297,8 @@ describe('Pipeline Continuation Tests', () => {
       `);
 
       expect(result).toEqual([
-        {name: "Alice", category: "junior", score: 60},
-        {name: "Charlie", category: "senior", score: 70}
+        { name: 'Alice', category: 'junior', score: 60 },
+        { name: 'Charlie', category: 'senior', score: 70 },
       ]);
     });
 
@@ -349,7 +352,7 @@ describe('Pipeline Continuation Tests', () => {
       expect(result).toEqual({
         r1: [2, 4, 6],
         r2: [2, 3],
-        r3: 6
+        r3: 6,
       });
     });
   });
@@ -410,7 +413,7 @@ describe('Pipeline Continuation Tests', () => {
         get(arr, 1)
       `);
 
-      expect(result).toBe("b");
+      expect(result).toBe('b');
     });
 
     it('should handle numeric index in string format', async () => {
@@ -419,7 +422,7 @@ describe('Pipeline Continuation Tests', () => {
         get(arr, "2")
       `);
 
-      expect(result).toBe("z");
+      expect(result).toBe('z');
     });
 
     it('should handle computed numeric index', async () => {
@@ -451,7 +454,7 @@ describe('Pipeline Continuation Tests', () => {
         [r1, r2]
       `);
 
-      expect(result).toEqual(["a", "d"]);
+      expect(result).toEqual(['a', 'd']);
     });
 
     it('should return default value for invalid numeric index', async () => {
@@ -464,7 +467,7 @@ describe('Pipeline Continuation Tests', () => {
         [r1, r2]
       `);
 
-      expect(result).toEqual(["default", "negative"]);
+      expect(result).toEqual(['default', 'negative']);
     });
 
     it('should handle numeric index with pipeline', async () => {

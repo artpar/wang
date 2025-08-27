@@ -161,7 +161,7 @@ export function get(obj: any, path: string | number, defaultValue?: any): any {
     const result = obj?.[path];
     return result === undefined ? defaultValue : result;
   }
-  
+
   // Convert path to string if needed
   const pathStr = String(path);
   const keys = pathStr.split('.');
@@ -273,7 +273,10 @@ export async function map(arr: any[], fn: (item: any, index?: number) => any): P
   return results;
 }
 
-export async function filter(arr: any[], pred: (item: any, index?: number) => boolean): Promise<any[]> {
+export async function filter(
+  arr: any[],
+  pred: (item: any, index?: number) => boolean,
+): Promise<any[]> {
   const results = [];
   for (let i = 0; i < arr.length; i++) {
     if (await pred(arr[i], i)) {
@@ -290,7 +293,7 @@ export async function reduce(
 ): Promise<any> {
   let acc = arguments.length > 2 ? init : arr[0];
   const startIdx = arguments.length > 2 ? 0 : 1;
-  
+
   for (let i = startIdx; i < arr.length; i++) {
     acc = await fn(acc, arr[i], i);
   }
@@ -306,7 +309,10 @@ export async function find(arr: any[], pred: (item: any, index?: number) => bool
   return undefined;
 }
 
-export async function find_index(arr: any[], pred: (item: any, index?: number) => boolean): Promise<number> {
+export async function find_index(
+  arr: any[],
+  pred: (item: any, index?: number) => boolean,
+): Promise<number> {
   for (let i = 0; i < arr.length; i++) {
     if (await pred(arr[i], i)) {
       return i;
@@ -315,7 +321,10 @@ export async function find_index(arr: any[], pred: (item: any, index?: number) =
   return -1;
 }
 
-export async function every(arr: any[], pred: (item: any, index?: number) => boolean): Promise<boolean> {
+export async function every(
+  arr: any[],
+  pred: (item: any, index?: number) => boolean,
+): Promise<boolean> {
   for (let i = 0; i < arr.length; i++) {
     if (!(await pred(arr[i], i))) {
       return false;
@@ -324,7 +333,10 @@ export async function every(arr: any[], pred: (item: any, index?: number) => boo
   return true;
 }
 
-export async function some(arr: any[], pred: (item: any, index?: number) => boolean): Promise<boolean> {
+export async function some(
+  arr: any[],
+  pred: (item: any, index?: number) => boolean,
+): Promise<boolean> {
   for (let i = 0; i < arr.length; i++) {
     if (await pred(arr[i], i)) {
       return true;

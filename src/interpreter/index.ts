@@ -1477,7 +1477,7 @@ export class WangInterpreter {
         node._processedBody = this.processContinuations(node.body);
       }
       const processedBody = node._processedBody;
-      
+
       let lastValue;
       for (const statement of processedBody) {
         lastValue = await this.evaluateNode(statement);
@@ -2161,9 +2161,16 @@ export class WangInterpreter {
     }
 
     // Handle built-in constructors specially
-    if (constructor === Date || constructor === Error || constructor === Array || 
-        constructor === Object || constructor === RegExp || constructor === Map || 
-        constructor === Set || constructor === Promise) {
+    if (
+      constructor === Date ||
+      constructor === Error ||
+      constructor === Array ||
+      constructor === Object ||
+      constructor === RegExp ||
+      constructor === Map ||
+      constructor === Set ||
+      constructor === Promise
+    ) {
       // Call with new for native constructors
       return new (constructor as any)(...args);
     }
