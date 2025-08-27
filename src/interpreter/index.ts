@@ -30,11 +30,11 @@ export interface InterpreterOptions {
 }
 
 export class WangInterpreter {
-  private moduleResolver: ModuleResolver;
-  private globalContext: ExecutionContext;
-  private currentContext: ExecutionContext;
-  private lastPipelineValue: any = undefined;
-  private globalModuleCache: Map<string, any> = new Map();
+  protected moduleResolver: ModuleResolver;
+  protected globalContext: ExecutionContext;
+  protected currentContext: ExecutionContext;
+  protected lastPipelineValue: any = undefined;
+  protected globalModuleCache: Map<string, any> = new Map();
 
   constructor(options: InterpreterOptions = {}) {
     this.moduleResolver = options.moduleResolver || new InMemoryModuleResolver();
@@ -52,7 +52,7 @@ export class WangInterpreter {
     }
   }
 
-  private createContext(parent?: ExecutionContext): ExecutionContext {
+  protected createContext(parent?: ExecutionContext): ExecutionContext {
     return {
       variables: new Map(),
       variableKinds: new Map(),
@@ -652,7 +652,7 @@ export class WangInterpreter {
     }
   }
 
-  private async evaluateNode(node: any): Promise<any> {
+  protected async evaluateNode(node: any): Promise<any> {
     if (!node) return undefined;
 
     switch (node.type) {
@@ -816,25 +816,51 @@ export class WangInterpreter {
 
           // Handle ExpressionStatement
           if (lastStmt.type === 'ExpressionStatement') {
-            if (stmt.type === 'PipelineContinuation') {
-              lastStmt.expression = {
-                type: 'PipelineExpression',
-                operator: stmt.operator,
-                left: lastStmt.expression,
-                right: stmt.right,
-              };
-            } else if (stmt.type === 'MemberContinuation') {
-              const memberExpr = {
-                type: 'MemberExpression',
-                object: lastStmt.expression,
-                property: stmt.property,
-                computed: false,
-                optional: stmt.optional,
-              };
+            // Check if the expression is an assignment
+            if (lastStmt.expression.type === 'AssignmentExpression') {
+              // Apply the continuation to the right-hand side of the assignment
+              if (stmt.type === 'PipelineContinuation') {
+                lastStmt.expression.right = {
+                  type: 'PipelineExpression',
+                  operator: stmt.operator,
+                  left: lastStmt.expression.right,
+                  right: stmt.right,
+                };
+              } else if (stmt.type === 'MemberContinuation') {
+                const memberExpr = {
+                  type: 'MemberExpression',
+                  object: lastStmt.expression.right,
+                  property: stmt.property,
+                  computed: false,
+                  optional: stmt.optional,
+                };
 
-              lastStmt.expression = stmt.arguments
-                ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
-                : memberExpr;
+                lastStmt.expression.right = stmt.arguments
+                  ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
+                  : memberExpr;
+              }
+            } else {
+              // Not an assignment, apply to the entire expression
+              if (stmt.type === 'PipelineContinuation') {
+                lastStmt.expression = {
+                  type: 'PipelineExpression',
+                  operator: stmt.operator,
+                  left: lastStmt.expression,
+                  right: stmt.right,
+                };
+              } else if (stmt.type === 'MemberContinuation') {
+                const memberExpr = {
+                  type: 'MemberExpression',
+                  object: lastStmt.expression,
+                  property: stmt.property,
+                  computed: false,
+                  optional: stmt.optional,
+                };
+
+                lastStmt.expression = stmt.arguments
+                  ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
+                  : memberExpr;
+              }
             }
             continue;
           }
@@ -1433,8 +1459,15 @@ export class WangInterpreter {
     this.currentContext = blockContext;
 
     try {
+      // Process continuations to merge multiline expressions
+      // Check if we've already processed this block
+      if (!node._processedBody) {
+        node._processedBody = this.processContinuations(node.body);
+      }
+      const processedBody = node._processedBody;
+      
       let lastValue;
-      for (const statement of node.body) {
+      for (const statement of processedBody) {
         lastValue = await this.evaluateNode(statement);
       }
       return lastValue;
@@ -2113,6 +2146,14 @@ export class WangInterpreter {
     const args = [];
     for (const arg of node.arguments) {
       args.push(await this.evaluateNode(arg));
+    }
+
+    // Handle built-in constructors specially
+    if (constructor === Date || constructor === Error || constructor === Array || 
+        constructor === Object || constructor === RegExp || constructor === Map || 
+        constructor === Set || constructor === Promise) {
+      // Call with new for native constructors
+      return new (constructor as any)(...args);
     }
 
     // Call the constructor function directly (it handles instance creation)

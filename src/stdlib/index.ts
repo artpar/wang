@@ -155,8 +155,16 @@ export function merge(...objects: any[]): any {
   return Object.assign({}, ...objects);
 }
 
-export function get(obj: any, path: string, defaultValue?: any): any {
-  const keys = path.split('.');
+export function get(obj: any, path: string | number, defaultValue?: any): any {
+  // Handle numeric indices directly
+  if (typeof path === 'number') {
+    const result = obj?.[path];
+    return result === undefined ? defaultValue : result;
+  }
+  
+  // Convert path to string if needed
+  const pathStr = String(path);
+  const keys = pathStr.split('.');
   let current = obj;
   for (const key of keys) {
     if (current == null) return defaultValue;
@@ -257,40 +265,81 @@ export function truncate(str: string, length: number, suffix: string = '...'): s
 }
 
 // Functional operations
-export function map(arr: any[], fn: (item: any, index?: number) => any): any[] {
-  return arr.map(fn);
+export async function map(arr: any[], fn: (item: any, index?: number) => any): Promise<any[]> {
+  const results = [];
+  for (let i = 0; i < arr.length; i++) {
+    results.push(await fn(arr[i], i));
+  }
+  return results;
 }
 
-export function filter(arr: any[], pred: (item: any, index?: number) => boolean): any[] {
-  return arr.filter(pred);
+export async function filter(arr: any[], pred: (item: any, index?: number) => boolean): Promise<any[]> {
+  const results = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (await pred(arr[i], i)) {
+      results.push(arr[i]);
+    }
+  }
+  return results;
 }
 
-export function reduce(
+export async function reduce(
   arr: any[],
   fn: (acc: any, item: any, index?: number) => any,
   init?: any,
-): any {
-  return arguments.length > 2 ? arr.reduce(fn, init) : arr.reduce(fn);
+): Promise<any> {
+  let acc = arguments.length > 2 ? init : arr[0];
+  const startIdx = arguments.length > 2 ? 0 : 1;
+  
+  for (let i = startIdx; i < arr.length; i++) {
+    acc = await fn(acc, arr[i], i);
+  }
+  return acc;
 }
 
-export function find(arr: any[], pred: (item: any, index?: number) => boolean): any {
-  return arr.find(pred);
+export async function find(arr: any[], pred: (item: any, index?: number) => boolean): Promise<any> {
+  for (let i = 0; i < arr.length; i++) {
+    if (await pred(arr[i], i)) {
+      return arr[i];
+    }
+  }
+  return undefined;
 }
 
-export function find_index(arr: any[], pred: (item: any, index?: number) => boolean): number {
-  return arr.findIndex(pred);
+export async function find_index(arr: any[], pred: (item: any, index?: number) => boolean): Promise<number> {
+  for (let i = 0; i < arr.length; i++) {
+    if (await pred(arr[i], i)) {
+      return i;
+    }
+  }
+  return -1;
 }
 
-export function every(arr: any[], pred: (item: any, index?: number) => boolean): boolean {
-  return arr.every(pred);
+export async function every(arr: any[], pred: (item: any, index?: number) => boolean): Promise<boolean> {
+  for (let i = 0; i < arr.length; i++) {
+    if (!(await pred(arr[i], i))) {
+      return false;
+    }
+  }
+  return true;
 }
 
-export function some(arr: any[], pred: (item: any, index?: number) => boolean): boolean {
-  return arr.some(pred);
+export async function some(arr: any[], pred: (item: any, index?: number) => boolean): Promise<boolean> {
+  for (let i = 0; i < arr.length; i++) {
+    if (await pred(arr[i], i)) {
+      return true;
+    }
+  }
+  return false;
 }
 
-export function count(arr: any[], pred?: (item: any) => boolean): number {
-  return pred ? arr.filter(pred).length : arr.length;
+export async function count(arr: any[], pred?: (item: any) => boolean): Promise<number> {
+  if (!pred) return arr.length;
+  let count = 0;
+  for (const item of arr) {
+    if (await pred(item)) count++;
+  }
+  return count;
 }
 
 // Type checking

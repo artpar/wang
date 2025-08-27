@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wang-Lang Browser Test</title>
+</head>
+<body>
+    <h1>Wang-Lang v0.7.1 Compound Assignment Test</h1>
+    <h2>Open browser console to see test results</h2>
+    
+    <div id="results" style="font-family: monospace; white-space: pre-wrap;"></div>
+    
+    <script src="../dist/browser/wang.min.js"></script>
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function log(msg) {
+            console.log(msg);
+            resultsDiv.innerHTML += msg + '\n';
+        }
+        
+        // Check what's available
+        log('Checking Wang availability...');
+        log('typeof Wang: ' + typeof Wang);
+        
+        if (typeof Wang !== 'undefined') {
+            log('Wang exports: ' + Object.keys(Wang).join(', '));
+            
+            const { WangInterpreter, InMemoryModuleResolver } = Wang;
+            
+            async function runTests() {
+                try {
+                    log('\n=== Test 1: Browser Extension Pattern ===');
+                    
+                    const resolver = new InMemoryModuleResolver();
+                    const interpreter = new WangInterpreter({ moduleResolver: resolver });
+                    
+                    const code = `let __inputs = {}
+let x = 10
+x += 5
+__result = x`;
+                    
+                    log('Code:');
+                    log(code);
+                    
+                    const result = await interpreter.execute(code);
+                    log('✅ Result: ' + result);
+                    
+                    if (result === 15) {
+                        log('✅ TEST PASSED!');
+                    } else {
+                        log('❌ TEST FAILED! Expected 15, got ' + result);
+                    }
+                    
+                } catch (error) {
+                    log('❌ Error: ' + error.message);
+                    console.error(error);
+                }
+                
+                try {
+                    log('\n=== Test 2: All Compound Operators ===');
+                    
+                    const resolver = new InMemoryModuleResolver();
+                    const interpreter = new WangInterpreter({ moduleResolver: resolver });
+                    
+                    const code = `let a = 10
+a += 5
+let b = 20  
+b -= 3
+let c = 4
+c *= 2
+let d = 16
+d /= 4
+__result = [a, b, c, d]`;
+                    
+                    const result = await interpreter.execute(code);
+                    log('✅ Result: ' + JSON.stringify(result));
+                    log('Expected: [15, 17, 8, 4]');
+                    
+                    if (JSON.stringify(result) === JSON.stringify([15, 17, 8, 4])) {
+                        log('✅ TEST PASSED!');
+                    } else {
+                        log('❌ TEST FAILED!');
+                    }
+                    
+                } catch (error) {
+                    log('❌ Error: ' + error.message);
+                    console.error(error);
+                }
+            }
+            
+            runTests();
+            
+        } else {
+            log('❌ Wang is not defined! The browser build may not be working correctly.');
+        }
+    </script>
+</body>
+</html>

@@ -450,17 +450,11 @@ ContinueStatement ->
 ExpressionStatement ->
     Expression {% d => createNode('ExpressionStatement', { expression: d[0] }) %}
 
-Expression -> PipelineExpression {% id %}
-
-# Pipeline operators (Wang-specific feature)
-PipelineExpression ->
-    AssignmentExpression {% id %}
-  | PipelineExpression %NL:* ("|>" | "->") %NL:* AssignmentExpression
-    {% d => createPipeline(d[0], d[2][0].value, d[4]) %}
+Expression -> AssignmentExpression {% id %}
 
 # Assignment - simple and compound
 AssignmentExpression ->
-    ConditionalExpression {% id %}
+    PipelineExpression {% id %}
   | ArrowFunction {% id %}
   | LeftHandSideExpression AssignmentOperator AssignmentExpression
     {% d => createNode('AssignmentExpression', {
@@ -468,6 +462,12 @@ AssignmentExpression ->
       left: d[0],
       right: d[2]
     }) %}
+
+# Pipeline operators (Wang-specific feature)
+PipelineExpression ->
+    ConditionalExpression {% id %}
+  | PipelineExpression ("|>" | "->") ConditionalExpression
+    {% d => createPipeline(d[0], d[1][0].value, d[2]) %}
 
 AssignmentOperator ->
     "=" {% d => d[0].value %}

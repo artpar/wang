@@ -8,6 +8,15 @@
 export { WangInterpreter } from './interpreter';
 export type { ExecutionContext, InterpreterOptions } from './interpreter';
 
+// Pausable interpreter exports
+export { PausableWangInterpreter } from './interpreter/pausable-interpreter';
+export type { 
+  ExecutionState, 
+  CallFrame, 
+  SerializedState, 
+  SerializedContext 
+} from './interpreter/pausable-interpreter';
+
 // Resolver exports
 export { ModuleResolver, type ModuleResolution } from './resolvers/base';
 export { InMemoryModuleResolver } from './resolvers/memory';
