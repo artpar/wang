@@ -16,40 +16,65 @@ import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang';
 // Create a module resolver
 const resolver = new InMemoryModuleResolver();
 
-// Create interpreter with custom functions
+// Create interpreter - 70+ stdlib functions are automatically available!
 const interpreter = new WangInterpreter({
   moduleResolver: resolver,
+  // Add custom functions if needed (stdlib already includes filter, map, etc.)
   functions: {
-    log: console.log,
     fetch: fetch,
     querySelector: (sel) => document.querySelector(sel)
   }
 });
 
-// Execute Wang code
+// Execute Wang code with compound assignment
 const result = await interpreter.execute(`
-  let message = "Hello, Wang!";
-  log(message);
-  message
+  let counter = 10;
+  counter += 5;           // Compound assignment
+  counter *= 2;           // More compound assignment
+  
+  let message = \`Counter is: \${counter}\`;
+  log(message);           // Built-in log function
+  
+  // Last expression becomes return value
+  { counter, message }
 `);
 
-console.log(result); // "Hello, Wang!"
+console.log(result); // { counter: 30, message: "Counter is: 30" }
 ```
 
 ## Pipeline Operators
 
-Wang supports elegant data flow with pipeline operators:
+Wang supports elegant data flow with pipeline operators and rich stdlib functions:
 
 ```javascript
 const result = await interpreter.execute(`
-  const data = [1, 2, 3, 4, 5];
+  // Array operations with stdlib functions (no imports needed!)
+  let numbers = [3, 1, 4, 1, 5, 9, 2, 6];
+  
+  // Pipeline with built-in functions
+  numbers
+    |> unique(_)          // Remove duplicates: [3, 1, 4, 5, 9, 2, 6]
+    |> sort(_)            // Sort: [1, 2, 3, 4, 5, 6, 9]
+    |> filter(_, n => n > 3)  // Filter: [4, 5, 6, 9]
+    |> map(_, n => n * 2)     // Double: [8, 10, 12, 18]
+    |> sum(_)                 // Sum: 48
+`);
+// Result: 48
+
+// Object operations with stdlib
+const users = await interpreter.execute(`
+  let data = [
+    { name: "Alice", age: 30, active: true },
+    { name: "Bob", age: 25, active: false },
+    { name: "Charlie", age: 35, active: true }
+  ];
   
   data
-    |> filter(_, n => n > 2)
-    |> map(_, n => n * 2)
-    |> reduce(_, (sum, n) => sum + n, 0)
+    |> filter(_, u => u.active)     // Only active users
+    |> sort_by(_, "age")            // Sort by age
+    |> map(_, u => pick(u, ["name", "age"]))  // Select fields
 `);
-// Result: 24 (6 + 8 + 10)
+// Result: [{ name: "Alice", age: 30 }, { name: "Charlie", age: 35 }]
 ```
 
 ## Classes and Inheritance
@@ -107,6 +132,100 @@ const result = await interpreter.execute(`
 // Result: "Hello, World! (v1.0.0)"
 ```
 
+## Standard Library (70+ Functions)
+
+Wang includes a comprehensive standard library with 70+ built-in functions. All functions are immutable and pipeline-friendly:
+
+```javascript
+// Array operations - no imports needed!
+await interpreter.execute(`
+  let numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
+  
+  // Core array functions
+  let processed = numbers
+    |> unique(_)              // Remove duplicates
+    |> sort(_)                // Sort ascending  
+    |> chunk(_, 3)            // Group into chunks of 3
+    |> flatten(_)             // Flatten back to array
+    |> partition(_, n => n > 4)  // Split into [>4, <=4]
+  
+  // Math operations
+  let stats = {
+    sum: sum(numbers),        // Sum all numbers
+    avg: avg(numbers),        // Average
+    median: median(numbers),  // Median value
+    min: min(...numbers),     // Minimum
+    max: max(...numbers)      // Maximum
+  };
+  
+  // String operations
+  let text = "  Hello World  "
+    |> trim(_)                // "Hello World"
+    |> upper(_)               // "HELLO WORLD"  
+    |> replace_all(_, "O", "0") // "HELL0 W0RLD"
+    |> split(_, " ")          // ["HELL0", "W0RLD"]
+    |> join(_, "-")           // "HELL0-W0RLD"
+  
+  // Object operations
+  let user = { 
+    name: "Alice", 
+    age: 30, 
+    email: "alice@example.com",
+    password: "secret123" 
+  };
+  
+  let publicData = pick(user, ["name", "age"]);     // Select fields
+  let withoutSecret = omit(user, ["password"]);     // Remove fields
+  let merged = merge(user, { location: "NYC" });    // Merge objects
+  
+  // Type checking
+  let types = {
+    isArray: is_array([1, 2, 3]),      // true
+    isObject: is_object({}),           // true
+    isEmpty: is_empty([]),             // true
+    isString: is_string("hello")       // true
+  };
+  
+  // Utilities
+  let utils = {
+    id: uuid(),                        // Generate UUID
+    range: range(5),                   // [0, 1, 2, 3, 4]
+    encoded: encode_base64("hello"),   // Base64 encode
+    json: to_json({ a: 1, b: 2 })     // JSON stringify
+  };
+  
+  log({ processed, stats, text, publicData, types, utils });
+`);
+```
+
+### Complete Standard Library Reference
+
+**Array Operations:**
+- `filter`, `map`, `reduce`, `forEach`, `find`, `some`, `every`
+- `sort`, `sort_by`, `reverse`, `unique`, `unique_by`  
+- `chunk`, `flatten`, `zip`, `partition`, `compact`
+- `slice`, `concat`, `join`, `includes`, `indexOf`
+
+**Object Operations:**
+- `pick`, `omit`, `merge`, `clone`, `keys`, `values`, `entries`
+- `get`, `set`, `has` (for nested property access)
+
+**String Operations:**
+- `upper`, `lower`, `capitalize`, `trim`
+- `split`, `join`, `replace_all`, `starts_with`, `ends_with`, `truncate`
+
+**Math Operations:**
+- `sum`, `avg`, `median`, `min`, `max`, `clamp`, `random_int`
+- `abs`, `ceil`, `floor`, `round`, `pow`, `sqrt`
+
+**Type Checking:**
+- `is_array`, `is_object`, `is_string`, `is_number`, `is_boolean`, `is_null`, `is_empty`
+
+**Utilities:**
+- `count`, `find_index`, `range`, `uuid`, `sleep`
+- `to_json`, `from_json`, `encode_base64`, `decode_base64`
+- `log`, `error`, `warn` (console functions)
+
 ## Browser Automation Example
 
 ```javascript
@@ -135,28 +254,40 @@ await interpreter.execute(`
 
 ## Advanced Language Features
 
-### Variable Declarations with Proper Scoping
+### Modern JavaScript Operators
 
-Wang supports all JavaScript variable types with proper scoping semantics:
+Wang supports all modern JavaScript operators with proper semantics:
 
 ```javascript
 await interpreter.execute(`
-  // Block-scoped variables
+  // Variable declarations with proper scoping
   let mutable = 10;
   const immutable = 20;
+  var hoisted = 30;
   
-  // Function-scoped with hoisting
-  console.log(typeof x); // "undefined" (hoisted but not initialized)
-  var x = 42;
-  console.log(x); // 42
+  // Compound assignment operators (NEW in v0.6.2!)
+  mutable += 5;           // Addition assignment: 15
+  mutable -= 2;           // Subtraction assignment: 13  
+  mutable *= 3;           // Multiplication assignment: 39
+  mutable /= 2;           // Division assignment: 19.5
   
-  // Block scoping with shadowing
-  let outer = 1;
-  {
-    let outer = 2; // Shadows outer variable
-    console.log(outer); // 2
-  };
-  console.log(outer); // 1
+  // Increment and decrement operators
+  let counter = 0;
+  let a = counter++;      // Post-increment: a = 0, counter = 1
+  let b = ++counter;      // Pre-increment: b = 2, counter = 2
+  let c = counter--;      // Post-decrement: c = 2, counter = 1
+  let d = --counter;      // Pre-decrement: d = 0, counter = 0
+  
+  // Ternary conditional operator
+  let status = counter > 0 ? "positive" : "zero or negative";
+  let nested = condition ? (nested ? 1 : 2) : 3;
+  
+  // Optional chaining and nullish coalescing
+  let obj = { a: { b: { c: 42 } } };
+  let value = obj.a?.b?.c ?? "default";  // 42
+  let missing = obj.x?.y?.z ?? "not found";  // "not found"
+  
+  log({ mutable, counter, status, value, missing });
 `);
 ```
 

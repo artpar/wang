@@ -1901,37 +1901,82 @@ export class WangInterpreter {
           const oldValue = this.evaluateIdentifier(node.left) || 0;
           const newValue = oldValue + value;
           // Update in the correct context
-          ctx = this.currentContext;
-          while (ctx) {
-            if (ctx.variables.has(name)) {
+          let addCtx: ExecutionContext | undefined = this.currentContext;
+          while (addCtx) {
+            if (addCtx.variables.has(name)) {
               // Check if it's a const variable
-              if (ctx.variableKinds.get(name) === 'const') {
+              if (addCtx.variableKinds.get(name) === 'const') {
                 throw new WangError(`Cannot reassign const variable "${name}"`);
               }
-              ctx.variables.set(name, newValue);
+              addCtx.variables.set(name, newValue);
               break;
             }
-            ctx = ctx.parent;
+            addCtx = addCtx.parent;
           }
-          if (!ctx) {
+          if (!addCtx) {
             this.currentContext.variables.set(name, newValue);
           }
           return newValue;
         case '-=':
           const oldVal = this.evaluateIdentifier(node.left) || 0;
           const newVal = oldVal - value;
-          ctx = this.currentContext;
-          while (ctx) {
-            if (ctx.variables.has(name)) {
-              ctx.variables.set(name, newVal);
+          let subCtx: ExecutionContext | undefined = this.currentContext;
+          while (subCtx) {
+            if (subCtx.variables.has(name)) {
+              // Check if it's a const variable
+              if (subCtx.variableKinds.get(name) === 'const') {
+                throw new WangError(`Cannot reassign const variable "${name}"`);
+              }
+              subCtx.variables.set(name, newVal);
               break;
             }
-            ctx = ctx.parent;
+            subCtx = subCtx.parent;
           }
-          if (!ctx) {
+          if (!subCtx) {
             this.currentContext.variables.set(name, newVal);
           }
           return newVal;
+        case '*=':
+          const oldMulVal = this.evaluateIdentifier(node.left) || 0;
+          const newMulVal = oldMulVal * value;
+          let mulCtx: ExecutionContext | undefined = this.currentContext;
+          while (mulCtx) {
+            if (mulCtx.variables.has(name)) {
+              // Check if it's a const variable
+              if (mulCtx.variableKinds.get(name) === 'const') {
+                throw new WangError(`Cannot reassign const variable "${name}"`);
+              }
+              mulCtx.variables.set(name, newMulVal);
+              break;
+            }
+            mulCtx = mulCtx.parent;
+          }
+          if (!mulCtx) {
+            this.currentContext.variables.set(name, newMulVal);
+          }
+          return newMulVal;
+        case '/=':
+          const oldDivVal = this.evaluateIdentifier(node.left) || 0;
+          if (value === 0) {
+            throw new WangError(`Division by zero in /= operation`);
+          }
+          const newDivVal = oldDivVal / value;
+          let divCtx: ExecutionContext | undefined = this.currentContext;
+          while (divCtx) {
+            if (divCtx.variables.has(name)) {
+              // Check if it's a const variable
+              if (divCtx.variableKinds.get(name) === 'const') {
+                throw new WangError(`Cannot reassign const variable "${name}"`);
+              }
+              divCtx.variables.set(name, newDivVal);
+              break;
+            }
+            divCtx = divCtx.parent;
+          }
+          if (!divCtx) {
+            this.currentContext.variables.set(name, newDivVal);
+          }
+          return newDivVal;
         default:
           throw new WangError(`Assignment operator ${node.operator} not implemented`, {
             type: 'RuntimeError',
@@ -1959,6 +2004,15 @@ export class WangInterpreter {
           return object[property];
         case '-=':
           object[property] = (object[property] || 0) - value;
+          return object[property];
+        case '*=':
+          object[property] = (object[property] || 0) * value;
+          return object[property];
+        case '/=':
+          if (value === 0) {
+            throw new WangError(`Division by zero in /= operation`);
+          }
+          object[property] = (object[property] || 0) / value;
           return object[property];
         default:
           throw new WangError(
