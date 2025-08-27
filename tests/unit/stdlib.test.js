@@ -427,9 +427,9 @@ describe('Wang Standard Library', () => {
       const result = await ctx.execute(`
         async function test() {
           let start = Date.now()
-          await sleep(10)
+          await sleep(50)
           let end = Date.now()
-          return end - start >= 10
+          return end - start >= 45
         }
         await test()
       `);

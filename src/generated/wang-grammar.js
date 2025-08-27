@@ -613,6 +613,9 @@ const lexer = moo.compile({
     })
   },
   
+  // Compound assignment operators (basic math only)
+  '+=': /\+=/u, '-=': /-=/u, '*=': /\*=/u, '/=': /\/=/u,
+  
   // Operators - Only what we're keeping
   '===': /===/u, '!==': /!==/u,
   '==': /==/u, '!=': /!=/u,
@@ -931,11 +934,16 @@ var grammar = {
     {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$ebnf$1", "PipelineExpression$subexpression$1", "PipelineExpression$ebnf$2", "AssignmentExpression"], "postprocess": d => createPipeline(d[0], d[2][0].value, d[4])},
     {"name": "AssignmentExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ArrowFunction"], "postprocess": id},
-    {"name": "AssignmentExpression", "symbols": ["LeftHandSideExpression", {"literal":"="}, "AssignmentExpression"], "postprocess":  d => createNode('AssignmentExpression', {
-          operator: '=',
+    {"name": "AssignmentExpression", "symbols": ["LeftHandSideExpression", "AssignmentOperator", "AssignmentExpression"], "postprocess":  d => createNode('AssignmentExpression', {
+          operator: d[1],
           left: d[0],
           right: d[2]
         }) },
+    {"name": "AssignmentOperator", "symbols": [{"literal":"="}], "postprocess": d => d[0].value},
+    {"name": "AssignmentOperator", "symbols": [{"literal":"+="}], "postprocess": d => d[0].value},
+    {"name": "AssignmentOperator", "symbols": [{"literal":"-="}], "postprocess": d => d[0].value},
+    {"name": "AssignmentOperator", "symbols": [{"literal":"*="}], "postprocess": d => d[0].value},
+    {"name": "AssignmentOperator", "symbols": [{"literal":"/="}], "postprocess": d => d[0].value},
     {"name": "ArrowFunction", "symbols": ["ArrowParameters", {"literal":"=>"}, "ArrowBody"], "postprocess":  d => createNode('ArrowFunctionExpression', {
           async: false,
           params: d[0],

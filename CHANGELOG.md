@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2025-08-27
+
+### Added
+- **Compound Assignment Operators**: Added `+=`, `-=`, `*=`, and `/=` operators for basic arithmetic compound assignments
+  - Simple, clean syntax for common operations: `counter += 5`, `value *= 2` 
+  - Maintains Wang's zero-ambiguity grammar principles
+  - Only basic math operators included to keep complexity low
+
+### Fixed
+- Fixed flaky timing test in stdlib sleep/wait function (improved timing tolerance)
+- All 256 tests now consistently pass
+
 ## [0.6.1] - 2025-08-27
 
 ### Removed

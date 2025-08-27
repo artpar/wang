@@ -53,6 +53,9 @@ const lexer = moo.compile({
     })
   },
   
+  // Compound assignment operators (basic math only)
+  '+=': /\+=/u, '-=': /-=/u, '*=': /\*=/u, '/=': /\/=/u,
+  
   // Operators - Only what we're keeping
   '===': /===/u, '!==': /!==/u,
   '==': /==/u, '!=': /!=/u,
@@ -455,16 +458,23 @@ PipelineExpression ->
   | PipelineExpression %NL:* ("|>" | "->") %NL:* AssignmentExpression
     {% d => createPipeline(d[0], d[2][0].value, d[4]) %}
 
-# Assignment - ONLY SIMPLE = (no compound assignments)
+# Assignment - simple and compound
 AssignmentExpression ->
     ConditionalExpression {% id %}
   | ArrowFunction {% id %}
-  | LeftHandSideExpression "=" AssignmentExpression
+  | LeftHandSideExpression AssignmentOperator AssignmentExpression
     {% d => createNode('AssignmentExpression', {
-      operator: '=',
+      operator: d[1],
       left: d[0],
       right: d[2]
     }) %}
+
+AssignmentOperator ->
+    "=" {% d => d[0].value %}
+  | "+=" {% d => d[0].value %}
+  | "-=" {% d => d[0].value %}
+  | "*=" {% d => d[0].value %}
+  | "/=" {% d => d[0].value %}
 
 # Arrow functions (always anonymous)
 ArrowFunction ->

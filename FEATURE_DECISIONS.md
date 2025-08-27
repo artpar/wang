@@ -90,10 +90,10 @@ FunctionExpression ->
    - Eliminates prefix/postfix confusion
    - Simpler grammar
    
-2. **Compound assignment operators** (`+=`, `-=`, `*=`, `/=`, etc.)
-   - Just use `x = x + 1`, `x = x * 2`, etc.
-   - One way to do things
-   - Clearer intent
+2. **Compound assignment operators** (`+=`, `-=`, `*=`, `/=`, etc.) ✅ **IMPLEMENTED**
+   - Originally planned for removal, but implemented for developer convenience
+   - Low complexity addition (4 basic operators only)
+   - Commonly expected syntax from other languages
 
 3. **`for-in` loops** → Remove (problematic with prototypes)
    - Keep **C-style for loops** for index-based iteration: `for (let i = 0; i < n; i = i + 1)`
@@ -211,14 +211,14 @@ const [x, y] = arr
 ### Operators:
 ```javascript
 // Arithmetic: +, -, *, /, %, **
-// Assignment: = (only simple assignment)
+// Assignment: =, +=, -=, *=, /= (basic compound assignments)
 // Comparison: ==, !=, ===, !==, <, >, <=, >=
 // Logical: &&, ||, !
 // Pipeline: |>, ->
 // Optional: ?.
 // Nullish: ??
 // Spread: ...
-// NO: ++, --, +=, -=, *=, /=, ternary (?:)
+// NO: ++, --, ternary (?:)
 ```
 
 ### Modules:

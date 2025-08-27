@@ -122,6 +122,12 @@ let mutable = 10;        // Block-scoped
 const immutable = 20;    // Block-scoped and immutable
 var hoisted = 30;        // Function-scoped with hoisting
 
+// Compound assignment operators
+mutable += 5;           // Addition assignment
+mutable -= 2;           // Subtraction assignment  
+mutable *= 3;           // Multiplication assignment
+mutable /= 2;           // Division assignment
+
 // Const immutability is enforced
 const PI = 3.14159;
 // PI = 3.14;  // ❌ Error: Cannot reassign const variable
@@ -417,7 +423,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
-- **Operators**: All arithmetic, comparison, logical, ternary (`? :`), and pipeline operators (`|>`, `->`)
+- **Operators**: All arithmetic, comparison, logical, compound assignment (`+=`, `-=`, `*=`, `/=`), and pipeline operators (`|>`, `->`)
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await, error handling
