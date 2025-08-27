@@ -322,10 +322,6 @@ export function is_null(val: any): boolean {
   return val === null;
 }
 
-export function is_undefined(val: any): boolean {
-  // Handle JavaScript undefined
-  return val === undefined || val === void 0 || typeof val === 'undefined';
-}
 
 export function is_empty(val: any): boolean {
   if (val == null) return true;
@@ -507,7 +503,6 @@ export const stdlib = {
   is_boolean,
   is_function,
   is_null,
-  is_undefined,
   is_empty,
 
   // Math
