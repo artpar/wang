@@ -54,3 +54,7 @@ lerna-debug.log*
 # Documentation - only ignore generated API docs
 docs/api/
 docs/reference/generated/
+
+# Debug/test files
+test-*.js
+!tests/**/*.js

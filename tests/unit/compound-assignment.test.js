@@ -191,7 +191,7 @@ describe('Compound Assignment Operators E2E', () => {
         interpreter.execute(`
           const x = 10
           x += 5
-        `)
+        `),
       ).rejects.toThrow(/Cannot reassign const variable/);
     });
 
@@ -201,7 +201,7 @@ describe('Compound Assignment Operators E2E', () => {
           const obj = { value: 10 }
           const x = 5
           x *= 2
-        `)
+        `),
       ).rejects.toThrow(/Cannot reassign const variable/);
     });
   });
@@ -213,7 +213,7 @@ describe('Compound Assignment Operators E2E', () => {
         str += " World"
         str
       `);
-      expect(result).toBe("Hello World");
+      expect(result).toBe('Hello World');
     });
 
     it('should handle undefined/null gracefully', async () => {
@@ -230,7 +230,7 @@ describe('Compound Assignment Operators E2E', () => {
         interpreter.execute(`
           let x = 10
           x /= 0
-        `)
+        `),
       ).rejects.toThrow(/Division by zero/);
     });
 
