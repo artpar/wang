@@ -24,7 +24,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (333/335 tests passing - 99.4% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (334/336 tests passing - 99.4% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
 - ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar
 - ⏸️ **Pausable Execution** - Pause and resume interpreter execution at any point
@@ -198,8 +198,10 @@ const [first, second, ...rest] = numbers;
 // Template literals
 const message = `Hello, ${name}!`;
 
-// Optional chaining and nullish coalescing
+// Optional chaining (dot notation and computed member access)
 const value = obj?.nested?.property ?? defaultValue;
+const title = titles.data?.[0]?.textContent;  // New in v0.8.1!
+const item = matrix?.[row]?.[col]?.value;
 
 // Spread operator
 const combined = [...array1, ...array2];
@@ -939,7 +941,7 @@ All functions follow **snake_case** naming and are **immutable** - they return n
   - Increment/Decrement (`++`, `--`) with prefix/postfix support
   - Compound Assignment (`+=`, `-=`, `*=`, `/=`)
   - Ternary Conditional (`? :`) with nested support
-  - Optional Chaining (`?.`) and Nullish Coalescing (`??`)
+  - Optional Chaining (`?.`) with computed member access (`?.[expression]`) and Nullish Coalescing (`??`)
 - **Data Types**: Arrays, objects, destructuring, template literals, spread/rest operators
 - **Module System**: Named imports/exports with ES6 syntax
 - **Error Handling**: Comprehensive try/catch/finally with proper error propagation

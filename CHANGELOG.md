@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2024-12-27
+
+### Added
+- **Optional Chaining with Computed Member Access**: Full support for `?.[expression]` syntax
+  - Works with arrays: `titles.data?.[0]?.textContent`
+  - Works with dynamic indices: `matrix?.[row]?.[col]?.value`
+  - Works with complex expressions: `obj?.[computedKey]?.nested?.[i]`
+  - Maintains CSP-safety and zero-ambiguity grammar
+  - Comprehensive test coverage with 11 test scenarios
+
+### Changed
+- Test suite expanded from 333 to 334 tests (99.4% passing - 334/336)
+- Updated grammar with unified OptionalMemberAccess rule to eliminate parser ambiguity
+- Enhanced documentation with optional chaining examples throughout
+
+### Technical Details
+- Implemented unified grammar rule for optional member access handling both identifier and computed access patterns
+- Eliminated Nearley parser ambiguity by creating single `OptionalMemberAccess` rule instead of separate ambiguous rules
+- Full backwards compatibility maintained - all existing optional chaining continues to work
+
 ## [0.8.0] - 2024-12-27
 
 ### Added

@@ -11,7 +11,8 @@ Wang is a modern workflow programming language that runs inside JavaScript, desi
 - CSP-safe execution (no eval/new Function)
 - Pluggable module resolution (memory, IndexedDB, HTTP)
 - Comprehensive error reporting with recovery suggestions
-- **100% test coverage** (167/167 tests passing) with intentional exclusion of complex edge cases
+- **99.4% test coverage** (334/336 tests passing) with intentional exclusion of complex edge cases
+- **Optional chaining** with computed member access (`titles.data?.[i]?.textContent`)
 
 ## Critical Security Requirements
 
@@ -81,6 +82,7 @@ class LinkedInWorkflow extends Workflow {
 let url = `${API_URL}/user/${userId}`
 let { name, email } = getUserData()
 let filtered = profiles?.filter(p => p.active) ?? []
+let title = titles.data?.[0]?.textContent  // Optional chaining with computed access
 ```
 
 ## How to Use
@@ -197,7 +199,7 @@ Wang achieves **167/167 tests passing** with comprehensive coverage of:
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await with comprehensive error handling
 - **Built-ins**: Error constructor, type conversion functions, array methods
-- **Modern Operators**: Optional chaining (`?.`), nullish coalescing (`??`)
+- **Modern Operators**: Optional chaining (`?.`) with computed member access (`?.[expression]`), nullish coalescing (`??`)
 
 ### Advanced Features
 - **Pipeline Operators**: `|>` (pipe) and `->` (arrow) for elegant data flow with multiline support

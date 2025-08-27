@@ -578,10 +578,13 @@ CallExpression ->
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
   | CallExpression %NL:* "." %identifier
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
-  | CallExpression %NL:* "?." %identifier
-    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false, optional: true }) %}
-  | CallExpression "?." "[" Expression "]"
-    {% d => createNode('MemberExpression', { object: d[0], property: d[3], computed: true, optional: true }) %}
+  | CallExpression %NL:* "?." OptionalMemberAccess
+    {% d => createNode('MemberExpression', { 
+      object: d[0], 
+      property: d[3].property, 
+      computed: d[3].computed, 
+      optional: true 
+    }) %}
 
 NewExpression ->
     "new" MemberExpression Arguments:?
@@ -594,10 +597,20 @@ MemberExpression ->
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
   | MemberExpression %NL:* "." %identifier
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
-  | MemberExpression %NL:* "?." %identifier
-    {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false, optional: true }) %}
-  | MemberExpression "?." "[" Expression "]"
-    {% d => createNode('MemberExpression', { object: d[0], property: d[3], computed: true, optional: true }) %}
+  | MemberExpression %NL:* "?." OptionalMemberAccess
+    {% d => createNode('MemberExpression', { 
+      object: d[0], 
+      property: d[3].property, 
+      computed: d[3].computed, 
+      optional: true 
+    }) %}
+
+# Optional member access after ?. - handles both identifier and computed access
+OptionalMemberAccess ->
+    %identifier
+    {% d => ({ property: createIdentifier(d[0].value), computed: false }) %}
+  | "[" Expression "]"
+    {% d => ({ property: d[1], computed: true }) %}
 
 Arguments ->
     "(" ArgumentList ")" {% d => d[1] %}

@@ -140,7 +140,7 @@ FunctionExpression ->
 4. **Async/await** - Essential
 5. **Destructuring** (basic) - Very useful
 6. **Template literals** - Cleaner than concatenation
-7. **Optional chaining** (`?.`) - Prevents errors
+7. **Optional chaining** (`?.`) with computed member access (`?.[expression]`) - Prevents errors, now supports arrays
 8. **Spread operator** (`...`) - Very useful
 
 ---

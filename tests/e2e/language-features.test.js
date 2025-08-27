@@ -615,6 +615,50 @@ it('should handle switch statements', async () => {
       ]);
     });
 
+    it('should handle optional chaining with complex expressions and edge cases', async () => {
+      const result = await interpreter.execute(`
+        const matrix = [
+          [1, 2, 3],
+          [4, 5, 6],
+          null
+        ]
+        
+        const users = [
+          { profile: { settings: { theme: "dark" } } },
+          { profile: null },
+          null
+        ]
+        
+        let dynamicIndex = 1
+        let computedKey = "profile"
+        
+        [
+          matrix?.[0]?.[2],                           // 3 (nested arrays)
+          matrix?.[2]?.[0],                           // undefined (null row)
+          matrix?.[dynamicIndex]?.[0],                // 4 (dynamic index)
+          users?.[0]?.[computedKey]?.settings?.theme, // "dark" (computed property)
+          users?.[1]?.[computedKey]?.settings?.theme, // undefined (null profile)
+          users?.[2]?.profile?.settings?.theme,       // undefined (null user)
+          matrix?.[0 + 1]?.[2 - 1],                   // 5 (computed indices)
+          users?.length,                              // 3 (regular property access)
+          matrix?.nonexistent?.[0],                   // undefined (missing property)
+          (null)?.[0]?.anything                       // undefined (null base)
+        ]
+      `);
+      expect(result).toEqual([
+        3,          // matrix[0][2]
+        undefined,  // matrix[2][0] - null row
+        4,          // matrix[1][0] - dynamic index
+        'dark',     // users[0].profile.settings.theme
+        undefined,  // users[1].profile.settings.theme - null profile
+        undefined,  // users[2].profile.settings.theme - null user
+        5,          // matrix[1][1] - computed indices
+        3,          // users.length
+        undefined,  // matrix.nonexistent[0]
+        undefined   // null[0].anything
+      ]);
+    });
+
     it('should handle comparison operators with type coercion', async () => {
       const result = await interpreter.execute(`
         [
