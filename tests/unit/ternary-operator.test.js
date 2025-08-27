@@ -9,14 +9,14 @@ describe('Ternary Operator (Single-line only)', () => {
       const result = await ctx.execute(`
         true ? "yes" : "no"
       `);
-      expect(result).toBe("yes");
+      expect(result).toBe('yes');
     });
 
     it('should handle false condition', async () => {
       const result = await ctx.execute(`
         false ? "yes" : "no"
       `);
-      expect(result).toBe("no");
+      expect(result).toBe('no');
     });
 
     it('should handle variable conditions', async () => {
@@ -24,7 +24,7 @@ describe('Ternary Operator (Single-line only)', () => {
         let age = 25
         age >= 18 ? "adult" : "minor"
       `);
-      expect(result).toBe("adult");
+      expect(result).toBe('adult');
     });
 
     it('should handle ternary in assignment', async () => {
@@ -33,7 +33,7 @@ describe('Ternary Operator (Single-line only)', () => {
         let status = x > 5 ? "high" : "low"
         status
       `);
-      expect(result).toBe("high");
+      expect(result).toBe('high');
     });
   });
 
@@ -43,7 +43,7 @@ describe('Ternary Operator (Single-line only)', () => {
         let score = 85
         score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : "D"
       `);
-      expect(result).toBe("B");
+      expect(result).toBe('B');
     });
   });
 
@@ -108,7 +108,7 @@ describe('Ternary Operator (Single-line only)', () => {
         }
         checkSign(-5)
       `);
-      expect(result).toBe("negative");
+      expect(result).toBe('negative');
     });
 
     it('should work in array literals', async () => {

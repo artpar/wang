@@ -2008,8 +2008,8 @@ export class WangInterpreter {
       return node.prefix ? newValue : oldValue;
     }
 
-    throw new WangError('Update expression only supports identifiers and member expressions', { 
-      type: 'RuntimeError' 
+    throw new WangError('Update expression only supports identifiers and member expressions', {
+      type: 'RuntimeError',
     });
   }
 

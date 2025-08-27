@@ -142,25 +142,25 @@ describe('Member Expression Increment/Decrement', () => {
     //       constructor() {
     //         this._count = 0
     //       }
-    //       
+    //
     //       get count() {
     //         return this._count
     //       }
-    //       
+    //
     //       set count(val) {
     //         this._count = val
     //       }
-    //       
+    //
     //       incrementInternal() {
     //         return ++this._count
     //       }
     //     }
-    //     
+    //
     //     let counter = new Counter()
     //     counter.count = 5
     //     let val1 = counter.incrementInternal()
     //     let val2 = counter.count
-    //     
+    //
     //     { val1, val2 }
     //   `);
     //   expect(result).toEqual({ val1: 6, val2: 6 });
@@ -188,17 +188,21 @@ describe('Member Expression Increment/Decrement', () => {
     });
 
     it('should throw error when object is null', async () => {
-      await expect(ctx.execute(`
+      await expect(
+        ctx.execute(`
         let obj = null
         obj.count++
-      `)).rejects.toThrow(/Cannot update property/);
+      `),
+      ).rejects.toThrow(/Cannot update property/);
     });
 
     it('should throw error when object is undefined', async () => {
-      await expect(ctx.execute(`
+      await expect(
+        ctx.execute(`
         let obj
         obj.value--
-      `)).rejects.toThrow(/Cannot update property/);
+      `),
+      ).rejects.toThrow(/Cannot update property/);
     });
   });
 
@@ -251,9 +255,9 @@ describe('Member Expression Increment/Decrement', () => {
         let sum = obj.a++ + obj.b++ + obj.c++
         { sum, obj }
       `);
-      expect(result).toEqual({ 
-        sum: 6,  // 1 + 2 + 3
-        obj: { a: 2, b: 3, c: 4 }
+      expect(result).toEqual({
+        sum: 6, // 1 + 2 + 3
+        obj: { a: 2, b: 3, c: 4 },
       });
     });
   });

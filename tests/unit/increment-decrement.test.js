@@ -130,9 +130,9 @@ describe('Increment/Decrement Operators', () => {
         values.push(arr[i++])
         { values, i }
       `);
-      expect(result).toEqual({ 
+      expect(result).toEqual({
         values: [10, 20, 30],
-        i: 3 
+        i: 3,
       });
     });
 
@@ -177,24 +177,30 @@ describe('Increment/Decrement Operators', () => {
 
   describe('Error Cases', () => {
     it('should not allow increment on const', async () => {
-      await expect(ctx.execute(`
+      await expect(
+        ctx.execute(`
         const x = 5
         x++
-      `)).rejects.toThrow('Cannot reassign const variable');
+      `),
+      ).rejects.toThrow('Cannot reassign const variable');
     });
 
     it('should not allow decrement on const', async () => {
-      await expect(ctx.execute(`
+      await expect(
+        ctx.execute(`
         const x = 5
         x--
-      `)).rejects.toThrow('Cannot reassign const variable');
+      `),
+      ).rejects.toThrow('Cannot reassign const variable');
     });
 
     it('should not allow prefix increment on const', async () => {
-      await expect(ctx.execute(`
+      await expect(
+        ctx.execute(`
         const x = 5
         ++x
-      `)).rejects.toThrow('Cannot reassign const variable');
+      `),
+      ).rejects.toThrow('Cannot reassign const variable');
     });
   });
 
