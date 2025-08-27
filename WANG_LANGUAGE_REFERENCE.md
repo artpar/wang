@@ -1,7 +1,7 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 0.5.0  
-**Test Coverage:** 218/218 tests (100%)  
+**Version:** 0.6.0  
+**Test Coverage:** 256/256 tests (100%)  
 **CSP Safe:** ✅ No eval(), new Function()  
 
 ## Overview
@@ -655,6 +655,219 @@ class CustomResolver extends ModuleResolver {
 }
 ```
 
+## Standard Library (New in v0.6.0!)
+
+Wang includes 70+ built-in functions that are automatically available globally - no imports needed! All functions follow snake_case naming, are immutable, and work seamlessly with pipeline operators.
+
+### Array Operations
+
+#### Sorting & Ordering
+```javascript
+sort_by(arr, key?)         // Sort by property or function
+reverse(arr)               // Reverse array order
+```
+
+#### Filtering & Uniqueness  
+```javascript
+unique(arr)                // Remove duplicates
+unique_by(arr, key)        // Remove duplicates by property/function
+partition(arr, predicate)  // Split into [truthy, falsy] arrays
+```
+
+#### Grouping & Chunking
+```javascript
+group_by(arr, key)         // Group into object by key
+chunk(arr, size)           // Split into chunks of size
+zip(...arrays)             // Combine arrays element-wise
+```
+
+#### Flattening & Nesting
+```javascript
+flatten(arr, depth?)       // Flatten nested arrays
+compact(arr)               // Remove null/undefined values
+```
+
+#### Accessing Elements
+```javascript
+first(arr, n?)             // Get first element(s)
+last(arr, n?)              // Get last element(s) 
+take(arr, n)               // Take first n elements
+drop(arr, n)               // Drop first n elements
+at(arr, index)             // Safe array access with negative indexing
+```
+
+### Object Operations
+
+#### Property Access
+```javascript
+keys(obj)                  // Get object keys
+values(obj)                // Get object values
+entries(obj)               // Get [key, value] pairs
+has(obj, key)              // Check if key exists
+```
+
+#### Object Transformation
+```javascript
+pick(obj, keys)            // Select specific keys
+omit(obj, keys)            // Remove specific keys
+merge(...objects)          // Deep merge objects
+clone(obj)                 // Deep clone object
+```
+
+#### Deep Operations
+```javascript
+get(obj, path, default?)   // Get nested value by path
+set(obj, path, value)      // Set nested value (returns new object)
+```
+
+### String Operations
+
+#### Case Transformation
+```javascript
+upper(str)                 // Convert to uppercase
+lower(str)                 // Convert to lowercase
+capitalize(str)            // Capitalize first letter
+```
+
+#### Trimming & Padding
+```javascript
+trim(str)                  // Remove whitespace from both ends
+trim_start(str)            // Remove whitespace from start
+trim_end(str)              // Remove whitespace from end
+pad_start(str, len, char?) // Pad string start
+pad_end(str, len, char?)   // Pad string end
+truncate(str, len, suffix?)// Truncate with suffix
+```
+
+#### String Utilities
+```javascript
+split(str, sep)            // Split string into array
+join(arr, sep)             // Join array into string
+replace_all(str, find, rep)// Replace all occurrences
+starts_with(str, search)   // Check if starts with
+ends_with(str, search)     // Check if ends with
+includes(str, search)      // Check if contains
+```
+
+### Type Checking
+
+```javascript
+is_array(val)              // Check if array
+is_object(val)             // Check if object (not array/null)
+is_string(val)             // Check if string
+is_number(val)             // Check if number
+is_boolean(val)            // Check if boolean
+is_null(val)               // Check if null
+is_undefined(val)          // Check if undefined
+is_empty(val)              // Check if empty ([], {}, "", null, undefined)
+```
+
+### Math Operations
+
+#### Aggregations
+```javascript
+sum(arr)                   // Sum of numbers
+avg(arr)                   // Average of numbers
+min(arr)                   // Minimum value
+max(arr)                   // Maximum value
+median(arr)                // Median value
+```
+
+#### Number Operations
+```javascript
+abs(n)                     // Absolute value
+floor(n)                   // Floor value
+ceil(n)                    // Ceiling value
+round(n, decimals?)        // Round to decimals
+clamp(n, min, max)         // Clamp value between min and max
+```
+
+### Functional Utilities
+
+#### Collection Operations
+```javascript
+count(arr, predicate?)     // Count elements (matching predicate)
+find(arr, predicate)       // Find first matching element
+find_index(arr, predicate) // Find index of first match
+every(arr, predicate)      // Check if all match
+some(arr, predicate)       // Check if any match
+```
+
+#### Data Transformation
+```javascript
+map(arr, fn)               // Transform each element
+filter(arr, fn)            // Keep matching elements
+reduce(arr, fn, initial)   // Reduce to single value
+for_each(arr, fn)          // Execute function for each
+```
+
+### Utility Functions
+
+#### Data Generation
+```javascript
+range(start, end?, step?)  // Generate number range
+uuid()                     // Generate UUID v4
+random_int(min, max)       // Random integer between min and max
+```
+
+#### JSON Operations
+```javascript
+to_json(val)               // Convert to JSON string
+from_json(str)             // Parse JSON string
+```
+
+#### Async Utilities
+```javascript
+sleep(ms)                  // Async delay (returns Promise)
+wait(ms)                   // Alias for sleep
+```
+
+#### Encoding
+```javascript
+encode_base64(str)         // Encode string to base64
+decode_base64(str)         // Decode base64 to string
+```
+
+### Examples
+
+#### Data Pipeline
+```javascript
+// Process user data
+users
+  |> filter(_, user => user.active)
+  |> unique_by(_, "email")
+  |> sort_by(_, "created_at")
+  |> map(_, user => pick(user, ["id", "name", "email"]))
+  |> take(_, 10)
+```
+
+#### Object Manipulation
+```javascript
+// Deep object operations
+let config = {
+  server: {
+    host: "localhost",
+    port: 3000
+  }
+}
+
+let prod = config
+  |> set(_, "server.host", "api.example.com")
+  |> set(_, "server.port", 443)
+  |> merge(_, { ssl: true })
+```
+
+#### String Processing
+```javascript
+// Clean and format text
+"  Hello WORLD  "
+  |> trim
+  |> lower
+  |> capitalize
+  |> replace_all(_, "world", "Wang")
+// Result: "Hello wang"
+```
+
 ### Built-in Functions
 
 #### Console
@@ -1210,4 +1423,4 @@ const workflowResult = await interpreter.execute(`
 
 ---
 
-*This document covers Wang Language v0.5.0 with 100% test coverage (183/183 tests passing). For implementation details, see source code and test suite.*
+*This document covers Wang Language v0.6.0 with 100% test coverage (256/256 tests passing). For implementation details, see source code and test suite.*

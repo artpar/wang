@@ -6,6 +6,7 @@
 import { ModuleResolver } from '../resolvers/base';
 import { InMemoryModuleResolver } from '../resolvers/memory';
 import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/errors';
+import { stdlib } from '../stdlib/index';
 
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
@@ -78,6 +79,11 @@ export class WangInterpreter {
     this.bindFunction('isNaN', (val: any) => isNaN(val));
     this.bindFunction('isFinite', (val: any) => isFinite(val));
     this.bindFunction('isInteger', (val: any) => Number.isInteger(val));
+    
+    // Register all stdlib functions
+    Object.entries(stdlib).forEach(([name, fn]) => {
+      this.bindFunction(name, fn);
+    });
 
     // Error constructor - needs to work as both function and constructor
     // We need to set it as a variable so it can be used with 'new'
@@ -102,6 +108,9 @@ export class WangInterpreter {
     this.currentContext.variables.set('Infinity', Infinity);
     this.currentContext.variables.set('NaN', NaN);
     this.currentContext.variables.set('undefined', undefined);
+    
+    // Date support
+    this.currentContext.variables.set('Date', Date);
 
     // Promise support
     this.currentContext.variables.set('Promise', {
@@ -210,10 +219,12 @@ export class WangInterpreter {
       }
       return sorted;
     });
-    this.bindFunction('reverse', (arr: any[]) => [...arr].reverse());
+    // Commented as stdlib provides this
+    // this.bindFunction('reverse', (arr: any[]) => [...arr].reverse());
 
     // The functional programming test needs a reverse function that works in the pipeline
-    this.currentContext.functions.set('reverse', (arr: any[]) => [...arr].reverse());
+    // Now provided by stdlib
+    // this.currentContext.functions.set('reverse', (arr: any[]) => [...arr].reverse());
     this.bindFunction('slice', (arr: any[], start?: number, end?: number) => arr.slice(start, end));
     this.bindFunction('concat', (...arrays: any[]) => [].concat(...arrays));
     this.bindFunction('join', (arr: any[], separator?: string) => arr.join(separator));
@@ -240,10 +251,10 @@ export class WangInterpreter {
       return arr;
     });
 
-    // Object functions
-    this.bindFunction('keys', (obj: any) => Object.keys(obj));
-    this.bindFunction('values', (obj: any) => Object.values(obj));
-    this.bindFunction('entries', (obj: any) => Object.entries(obj));
+    // Object functions - some commented as stdlib provides better versions
+    // this.bindFunction('keys', (obj: any) => Object.keys(obj));
+    // this.bindFunction('values', (obj: any) => Object.values(obj));
+    // this.bindFunction('entries', (obj: any) => Object.entries(obj));
     this.bindFunction('assign', Object.assign);
     this.bindFunction('freeze', Object.freeze);
     this.bindFunction('seal', Object.seal);
@@ -273,13 +284,13 @@ export class WangInterpreter {
       str.padEnd(length, fill),
     );
 
-    // Math functions
-    this.bindFunction('abs', Math.abs);
-    this.bindFunction('ceil', Math.ceil);
-    this.bindFunction('floor', Math.floor);
-    this.bindFunction('round', Math.round);
-    this.bindFunction('min', Math.min);
-    this.bindFunction('max', Math.max);
+    // Math functions - commented out as stdlib provides better versions
+    // this.bindFunction('abs', Math.abs);
+    // this.bindFunction('ceil', Math.ceil);
+    // this.bindFunction('floor', Math.floor);
+    // this.bindFunction('round', Math.round);
+    // this.bindFunction('min', Math.min);
+    // this.bindFunction('max', Math.max);
     this.bindFunction('pow', Math.pow);
     this.bindFunction('sqrt', Math.sqrt);
     this.bindFunction('random', Math.random);
