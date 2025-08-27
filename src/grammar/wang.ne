@@ -60,6 +60,7 @@ const lexer = moo.compile({
   '<<': /<</u, '>>': />>/u, '>>>': />>>/u,
   '&&': /&&/u, '||': /\|\|/u, '??': /\?\?/u,
   '?.': /\?\./u, '...': /\.\.\./u,
+  '++': /\+\+/u, '--': /--/u,
   '**': /\*\*/u,
   
   // Pipeline operators (Wang-specific)
@@ -488,15 +489,8 @@ ArrowBody ->
     Block {% id %}
   | AssignmentExpression {% id %}
 
-# Ternary operator support
-ConditionalExpression ->
-    LogicalOrExpression {% id %}
-  | LogicalOrExpression "?" AssignmentExpression ":" ConditionalExpression
-    {% d => createNode('ConditionalExpression', {
-      test: d[0],
-      consequent: d[2],
-      alternate: d[4]
-    }) %}
+# NO ternary operator (causes ambiguity with multiline expressions)
+ConditionalExpression -> LogicalOrExpression {% id %}
 
 LogicalOrExpression ->
     LogicalAndExpression {% id %}
@@ -539,9 +533,22 @@ UnaryExpression ->
     PostfixExpression {% id %}
   | ("!" | "+" | "-" | "~" | "typeof" | "await") UnaryExpression
     {% d => createUnaryOp(d[0][0].value, d[1]) %}
+  | ("++" | "--") UnaryExpression
+    {% d => createNode('UpdateExpression', {
+      operator: d[0][0].value,
+      argument: d[1],
+      prefix: true
+    }) %}
 
-# NO postfix ++ or --
-PostfixExpression -> LeftHandSideExpression {% id %}
+# Postfix ++ and --
+PostfixExpression ->
+    LeftHandSideExpression {% id %}
+  | LeftHandSideExpression ("++" | "--")
+    {% d => createNode('UpdateExpression', {
+      operator: d[1][0].value,
+      argument: d[0],
+      prefix: false
+    }) %}
 
 LeftHandSideExpression ->
     CallExpression {% id %}

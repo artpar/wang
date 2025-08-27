@@ -754,8 +754,9 @@ export class WangInterpreter {
       case 'UpdateExpression':
         return this.evaluateUpdateExpression(node);
 
-      case 'ConditionalExpression':
-        return this.evaluateConditionalExpression(node);
+      // Ternary operator not supported (removed due to multiline ambiguity)
+      // case 'ConditionalExpression':
+      //   return this.evaluateConditionalExpression(node);
 
       case 'PipelineExpression':
         return this.evaluatePipelineExpression(node);
@@ -1963,33 +1964,54 @@ export class WangInterpreter {
   }
 
   private async evaluateUpdateExpression(node: any): Promise<any> {
-    if (node.argument.type !== 'Identifier') {
-      throw new WangError('Update expression only supports identifiers', { type: 'RuntimeError' });
-    }
+    if (node.argument.type === 'Identifier') {
+      // Handle identifier update (x++, --y)
+      const name = node.argument.name;
+      const oldValue = this.evaluateIdentifier(node.argument) || 0;
+      const newValue = node.operator === '++' ? oldValue + 1 : oldValue - 1;
 
-    const name = node.argument.name;
-    const oldValue = this.evaluateIdentifier(node.argument) || 0;
-    const newValue = node.operator === '++' ? oldValue + 1 : oldValue - 1;
-
-    // Update in the correct context
-    let ctx: ExecutionContext | undefined = this.currentContext;
-    while (ctx) {
-      if (ctx.variables.has(name)) {
-        // Check if it's a const variable
-        if (ctx.variableKinds.get(name) === 'const') {
-          throw new WangError(`Cannot reassign const variable "${name}"`);
+      // Update in the correct context
+      let ctx: ExecutionContext | undefined = this.currentContext;
+      while (ctx) {
+        if (ctx.variables.has(name)) {
+          // Check if it's a const variable
+          if (ctx.variableKinds.get(name) === 'const') {
+            throw new WangError(`Cannot reassign const variable "${name}"`);
+          }
+          ctx.variables.set(name, newValue);
+          break;
         }
-        ctx.variables.set(name, newValue);
-        break;
+        ctx = ctx.parent;
       }
-      ctx = ctx.parent;
-    }
-    if (!ctx) {
-      // Variable doesn't exist, create it in current context
-      this.currentContext.variables.set(name, newValue);
+      if (!ctx) {
+        // Variable doesn't exist, create it in current context
+        this.currentContext.variables.set(name, newValue);
+      }
+
+      return node.prefix ? newValue : oldValue;
+    } else if (node.argument.type === 'MemberExpression') {
+      // Handle member expression update (obj.prop++, this.count++)
+      const object = await this.evaluateNode(node.argument.object);
+      const property = node.argument.computed
+        ? await this.evaluateNode(node.argument.property)
+        : node.argument.property.name;
+
+      if (object == null) {
+        throw new WangError(`Cannot update property '${property}' on null or undefined`, {
+          type: 'RuntimeError',
+        });
+      }
+
+      const oldValue = object[property] || 0;
+      const newValue = node.operator === '++' ? oldValue + 1 : oldValue - 1;
+      object[property] = newValue;
+
+      return node.prefix ? newValue : oldValue;
     }
 
-    return node.prefix ? newValue : oldValue;
+    throw new WangError('Update expression only supports identifiers and member expressions', { 
+      type: 'RuntimeError' 
+    });
   }
 
   private async evaluateConditionalExpression(node: any): Promise<any> {

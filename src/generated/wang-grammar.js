@@ -620,6 +620,7 @@ const lexer = moo.compile({
   '<<': /<</u, '>>': />>/u, '>>>': />>>/u,
   '&&': /&&/u, '||': /\|\|/u, '??': /\?\?/u,
   '?.': /\?\./u, '...': /\.\.\./u,
+  '++': /\+\+/u, '--': /--/u,
   '**': /\*\*/u,
   
   // Pipeline operators (Wang-specific)
@@ -950,11 +951,6 @@ var grammar = {
     {"name": "ArrowBody", "symbols": ["Block"], "postprocess": id},
     {"name": "ArrowBody", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression"], "postprocess": id},
-    {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression", {"literal":"?"}, "AssignmentExpression", {"literal":":"}, "ConditionalExpression"], "postprocess":  d => createNode('ConditionalExpression', {
-          test: d[0],
-          consequent: d[2],
-          alternate: d[4]
-        }) },
     {"name": "LogicalOrExpression", "symbols": ["LogicalAndExpression"], "postprocess": id},
     {"name": "LogicalOrExpression$subexpression$1", "symbols": [{"literal":"||"}]},
     {"name": "LogicalOrExpression$subexpression$1", "symbols": [{"literal":"??"}]},
@@ -995,7 +991,21 @@ var grammar = {
     {"name": "UnaryExpression$subexpression$1", "symbols": [{"literal":"typeof"}]},
     {"name": "UnaryExpression$subexpression$1", "symbols": [{"literal":"await"}]},
     {"name": "UnaryExpression", "symbols": ["UnaryExpression$subexpression$1", "UnaryExpression"], "postprocess": d => createUnaryOp(d[0][0].value, d[1])},
+    {"name": "UnaryExpression$subexpression$2", "symbols": [{"literal":"++"}]},
+    {"name": "UnaryExpression$subexpression$2", "symbols": [{"literal":"--"}]},
+    {"name": "UnaryExpression", "symbols": ["UnaryExpression$subexpression$2", "UnaryExpression"], "postprocess":  d => createNode('UpdateExpression', {
+          operator: d[0][0].value,
+          argument: d[1],
+          prefix: true
+        }) },
     {"name": "PostfixExpression", "symbols": ["LeftHandSideExpression"], "postprocess": id},
+    {"name": "PostfixExpression$subexpression$1", "symbols": [{"literal":"++"}]},
+    {"name": "PostfixExpression$subexpression$1", "symbols": [{"literal":"--"}]},
+    {"name": "PostfixExpression", "symbols": ["LeftHandSideExpression", "PostfixExpression$subexpression$1"], "postprocess":  d => createNode('UpdateExpression', {
+          operator: d[1][0].value,
+          argument: d[0],
+          prefix: false
+        }) },
     {"name": "LeftHandSideExpression", "symbols": ["CallExpression"], "postprocess": id},
     {"name": "LeftHandSideExpression", "symbols": ["NewExpression"], "postprocess": id},
     {"name": "CallExpression", "symbols": ["MemberExpression", "Arguments"], "postprocess": d => createNode('CallExpression', { callee: d[0], arguments: d[1] })},
