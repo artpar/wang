@@ -24,7 +24,9 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (256 tests passing - 100% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (283 tests passing - 100% coverage)
+- 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
+- ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar
 
 ## Installation
 
@@ -81,33 +83,66 @@ console.log(result); // { processed: ["Alice", "Charlie"], count: 2 }
 
 ## Language Features
 
-### Standard Library (New in v0.6.0!)
+### Standard Library (70+ Functions)
 
-Wang includes 70+ built-in functions that work seamlessly with pipelines:
+Wang includes a comprehensive standard library with 70+ built-in functions that work seamlessly with pipelines and require no imports:
 
 ```javascript
-// Array operations
+// Array operations (immutable)
 [3, 1, 4, 1, 5, 9, 2, 6]
-  |> unique           // Remove duplicates
-  |> sort_by          // Sort
-  |> chunk(_, 2)      // Group into pairs
-  |> map(_, pair => sum(pair))  // Sum each pair
+  |> unique(_)        // [3, 1, 4, 5, 9, 2, 6] - Remove duplicates  
+  |> sort(_)          // [1, 2, 3, 4, 5, 6, 9] - Sort ascending
+  |> chunk(_, 2)      // [[1,2], [3,4], [5,6], [9]] - Group into pairs
+  |> map(_, pair => sum(pair))  // [3, 7, 11, 9] - Sum each pair
+
+// Advanced array operations
+let users = [
+  { name: "Alice", age: 30, active: true },
+  { name: "Bob", age: 25, active: false },
+  { name: "Charlie", age: 35, active: true }
+]
+
+users
+  |> filter(_, u => u.active)           // Only active users
+  |> sort_by(_, "age")                  // Sort by age property
+  |> map(_, u => u.name)                // Extract names
+  |> join(_, ", ")                      // "Alice, Charlie"
 
 // Object operations
-let user = { name: "Alice", age: 30, email: "alice@example.com" }
-let filtered = pick(user, ["name", "age"])  // { name: "Alice", age: 30 }
+let user = { name: "Alice", age: 30, email: "alice@example.com", password: "secret" }
+let publicData = pick(user, ["name", "age"])        // { name: "Alice", age: 30 }
+let withoutSecret = omit(user, ["password"])        // Remove sensitive data
+let merged = merge(user, { location: "NYC" })       // Add new properties
 
 // String operations
-"hello world"
-  |> upper            // "HELLO WORLD"
-  |> replace_all(_, "O", "0")  // "HELL0 W0RLD"
-  |> split(_, " ")   // ["HELL0", "W0RLD"]
+"  hello world  "
+  |> trim(_)                      // "hello world" - Remove whitespace
+  |> upper(_)                     // "HELLO WORLD" - Uppercase
+  |> replace_all(_, "O", "0")     // "HELL0 W0RLD" - Replace all O's
+  |> split(_, " ")                // ["HELL0", "W0RLD"] - Split to array
 
-// Type checking and utilities
-is_array([1, 2, 3])     // true
-is_empty([])            // true
-range(5)                // [0, 1, 2, 3, 4]
-uuid()                  // "123e4567-e89b-12d3-a456-426614174000"
+// Math and utilities  
+let numbers = [1, 5, 3, 9, 2]
+let stats = {
+  total: sum(numbers),              // 20
+  average: avg(numbers),            // 4
+  median: median(numbers),          // 3
+  min: min(...numbers),             // 1
+  max: max(...numbers)              // 9
+}
+
+// Type checking and validation
+is_array([1, 2, 3])               // true
+is_object({a: 1})                 // true  
+is_string("hello")                // true
+is_empty([])                      // true
+is_empty("")                      // true
+is_empty({})                      // true
+
+// Functional utilities
+range(5)                          // [0, 1, 2, 3, 4] - Generate sequence
+uuid()                            // "123e4567-e89b-12d3-a456-426614174000"
+sleep(1000)                       // Promise that resolves after 1 second
 ```
 
 See [Standard Library Reference](#standard-library-reference) for the complete list.
@@ -122,11 +157,18 @@ let mutable = 10;        // Block-scoped
 const immutable = 20;    // Block-scoped and immutable
 var hoisted = 30;        // Function-scoped with hoisting
 
-// Compound assignment operators
-mutable += 5;           // Addition assignment
-mutable -= 2;           // Subtraction assignment  
-mutable *= 3;           // Multiplication assignment
-mutable /= 2;           // Division assignment
+// Compound assignment operators (v0.6.3 - fully working!)
+mutable += 5;           // Addition assignment: 15
+mutable -= 2;           // Subtraction assignment: 13
+mutable *= 3;           // Multiplication assignment: 39
+mutable /= 2;           // Division assignment: 19.5
+
+// Increment and decrement operators
+let counter = 0;
+counter++;              // Post-increment: returns 0, then increments to 1
+++counter;              // Pre-increment: increments to 2, then returns 2
+counter--;              // Post-decrement: returns 2, then decrements to 1  
+--counter;              // Pre-decrement: decrements to 0, then returns 0
 
 // Const immutability is enforced
 const PI = 3.14159;
@@ -423,7 +465,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
-- **Operators**: All arithmetic, comparison, logical, compound assignment (`+=`, `-=`, `*=`, `/=`), and pipeline operators (`|>`, `->`)
+- **Operators**: All arithmetic, comparison, logical, increment/decrement (`++`, `--`), compound assignment (`+=`, `-=`, `*=`, `/=`), ternary (`? :`), and pipeline operators (`|>`, `->`)
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await, error handling
@@ -446,7 +488,7 @@ All unsupported features have clear workarounds using supported syntax.
 Wang achieves **100% test coverage** with comprehensive testing:
 
 ```bash
-# Run all tests (256/256 passing)
+# Run all tests (283/283 passing)
 npm test
 
 # Watch mode for development  
@@ -459,7 +501,7 @@ npm test:coverage
 npm test:ui
 ```
 
-**Test Results**: 256/256 tests passing with 100% coverage, including comprehensive stdlib and operator tests.
+**Test Results**: 283/283 tests passing with 100% coverage, including comprehensive stdlib, compound assignment, and operator tests.
 
 ## Development
 
@@ -597,99 +639,159 @@ abstract class ModuleResolver {
 }
 ```
 
-## Built-in Functions
+## Standard Library Reference
 
-Wang comes with many built-in functions:
+Wang's standard library provides 70+ functions organized into logical categories. All functions are **immutable** and **pipeline-friendly**:
 
-### Console
-- `log(...args)` - Console log
-- `error(...args)` - Console error
-- `warn(...args)` - Console warn
+### Array Operations
+```javascript
+// Core operations
+filter(arr, predicate)           // Filter elements
+map(arr, mapper)                 // Transform elements  
+reduce(arr, reducer, initial)    // Reduce to single value
+forEach(arr, fn)                 // Iterate (side effects)
+find(arr, predicate)             // Find first match
+some(arr, predicate)             // Test if any match
+every(arr, predicate)            // Test if all match
 
-### Arrays
-- `filter(arr, predicate)` - Filter array
-- `map(arr, mapper)` - Map array
-- `reduce(arr, reducer, initial)` - Reduce array
-- `forEach(arr, fn)` - Iterate array
-- `find(arr, predicate)` - Find element
-- `some(arr, predicate)` - Test if any match
-- `every(arr, predicate)` - Test if all match
-- `sort(arr, compareFn)` - Sort array
-- `reverse(arr)` - Reverse array
-- `slice(arr, start, end)` - Slice array
-- `concat(...arrays)` - Concatenate arrays
-- `join(arr, separator)` - Join to string
-- `includes(arr, item)` - Check inclusion
-- `indexOf(arr, item)` - Find index
+// Sorting and ordering
+sort(arr, compareFn?)            // Sort array
+sort_by(arr, property)           // Sort by property
+reverse(arr)                     // Reverse order
 
-### Objects
-- `keys(obj)` - Get object keys
-- `values(obj)` - Get object values
-- `entries(obj)` - Get object entries
-- `assign(...objects)` - Merge objects
+// Array manipulation
+slice(arr, start, end)           // Extract portion
+concat(...arrays)               // Combine arrays
+flatten(arr, depth?)            // Flatten nested arrays
+chunk(arr, size)                // Split into chunks
+zip(...arrays)                  // Combine arrays element-wise
+partition(arr, predicate)       // Split based on condition
 
-### Strings
-- `toUpperCase(str)` - Convert to uppercase
-- `toLowerCase(str)` - Convert to lowercase
-- `trim(str)` - Trim whitespace
-- `split(str, separator)` - Split string
-- `replace(str, search, replacement)` - Replace in string
-- `substring(str, start, end)` - Get substring
-- `startsWith(str, search)` - Check string start
-- `endsWith(str, search)` - Check string end
+// Unique and grouping
+unique(arr)                     // Remove duplicates
+unique_by(arr, property)        // Remove duplicates by property
+group_by(arr, property)         // Group by property
 
-### Math
-- `abs(n)` - Absolute value
-- `ceil(n)` - Ceiling
-- `floor(n)` - Floor
-- `round(n)` - Round
-- `min(...nums)` - Minimum
-- `max(...nums)` - Maximum
-- `pow(base, exp)` - Power
-- `sqrt(n)` - Square root
-- `random()` - Random number
+// Utilities
+compact(arr)                    // Remove falsy values
+at(arr, index)                  // Safe array access
+join(arr, separator)            // Join to string
+includes(arr, item)             // Check inclusion
+indexOf(arr, item)              // Find index
+```
 
-### Utilities
-- `typeof(val)` - Type of value
-- `isArray(val)` - Check if array
-- `parseInt(str)` - Parse integer
-- `parseFloat(str)` - Parse float
-- `parseJSON(str)` - Parse JSON
-- `stringify(obj)` - Stringify to JSON
-- `wait(ms)` - Async wait
+### Object Operations
+```javascript
+// Property manipulation
+pick(obj, keys)                 // Select specific properties
+omit(obj, keys)                 // Remove specific properties  
+merge(...objects)               // Deep merge objects
+clone(obj)                      // Deep clone object
+
+// Property access
+get(obj, path)                  // Safe nested access: get(obj, "a.b.c")
+set(obj, path, value)           // Set nested property
+has(obj, path)                  // Check if property exists
+
+// Object inspection
+keys(obj)                       // Get object keys
+values(obj)                     // Get object values
+entries(obj)                    // Get [key, value] pairs
+```
+
+### String Operations
+```javascript
+// Case transformation
+upper(str)                      // Convert to uppercase
+lower(str)                      // Convert to lowercase  
+capitalize(str)                 // Capitalize first letter
+
+// String manipulation
+trim(str)                       // Remove whitespace
+split(str, separator)           // Split to array
+join(arr, separator)            // Join array to string
+replace_all(str, search, replace) // Replace all occurrences
+
+// String testing
+starts_with(str, prefix)        // Check prefix
+ends_with(str, suffix)          // Check suffix
+truncate(str, length)           // Truncate with ellipsis
+```
+
+### Math Operations
+```javascript
+// Basic math
+sum(numbers)                    // Sum all numbers
+avg(numbers)                    // Average
+median(numbers)                 // Median value
+min(...nums)                    // Minimum
+max(...nums)                    // Maximum
+
+// Advanced math
+clamp(value, min, max)          // Constrain value to range
+random_int(min, max)            // Random integer in range
+abs(n), ceil(n), floor(n), round(n) // Standard math functions
+pow(base, exp), sqrt(n)         // Power and square root
+```
+
+### Type Checking
+```javascript
+is_array(val)                   // Check if array
+is_object(val)                  // Check if object (not array/null)
+is_string(val)                  // Check if string
+is_number(val)                  // Check if number
+is_boolean(val)                 // Check if boolean
+is_null(val)                    // Check if null
+is_empty(val)                   // Check if empty (array/object/string)
+```
+
+### Functional Utilities
+```javascript
+count(arr, predicate?)          // Count elements (optionally matching predicate)
+find_index(arr, predicate)      // Find index of first match
+range(n)                        // Generate array [0, 1, ..., n-1]
+uuid()                          // Generate UUID v4
+sleep(ms)                       // Async sleep (returns Promise)
+```
+
+### Data Conversion
+```javascript
+to_json(obj)                    // Convert to JSON string
+from_json(str)                  // Parse JSON string
+encode_base64(str)              // Base64 encode
+decode_base64(str)              // Base64 decode
+```
+
+### Console Functions
+```javascript  
+log(...args)                    // Console log
+error(...args)                  // Console error
+warn(...args)                   // Console warn
+```
+
+All functions follow **snake_case** naming and are **immutable** - they return new values without modifying inputs.
 
 ## Implementation Status
 
 ### ✅ Fully Implemented
-- Classes with constructors and methods
-- Class inheritance with `extends` and `super()`
-- Static methods in classes
-- Getters and setters (synchronous execution)
-- Pipeline operators (`|>` and `->`)
-- Variable declarations (let, const, var) with proper scoping
-- Functions (regular and arrow)
-- Default parameters in functions
-- Async/await
-- Arrays and objects
-- Control flow (if/else, for, while, for...of, for...in)
-- Switch statements with fall-through
-- Do-while loops
-- Break and continue statements
-- Labeled statements with labeled break/continue
-- Try/catch/finally with proper error propagation
-- Error constructor for creating error objects
-- Module imports/exports
-- Template literals with expression interpolation
-- Spread operator
-- Rest parameters
-- Method chaining
-- Type conversion functions (Number, String, Boolean)
-- Type checking functions (isNaN, isFinite, isInteger)
-- Special numeric values (Infinity, NaN, undefined)
-- Synchronous arrow functions for callbacks (filter, map, reduce)
-- ThisExpression for proper `this` keyword support
-- Optional chaining (`?.`) and nullish coalescing (`??`)
-- `new` operator with proper constructor handling
+- **Classes**: Constructors, methods, inheritance with `extends` and `super()`, static methods, getters/setters
+- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) with multiline support
+- **Variable Declarations**: `let`, `const`, `var` with proper hoisting and block scoping
+- **Functions**: Regular functions, arrow functions, async/await, closures, recursion, default parameters
+- **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`, `for...of`, `for...in`), `switch` statements, `try/catch/finally`
+- **Operators**: 
+  - Arithmetic (`+`, `-`, `*`, `/`, `%`, `**`)
+  - Comparison (`==`, `!=`, `===`, `!==`, `<`, `>`, `<=`, `>=`)
+  - Logical (`&&`, `||`, `!`)
+  - Increment/Decrement (`++`, `--`) with prefix/postfix support
+  - Compound Assignment (`+=`, `-=`, `*=`, `/=`)
+  - Ternary Conditional (`? :`) with nested support
+  - Optional Chaining (`?.`) and Nullish Coalescing (`??`)
+- **Data Types**: Arrays, objects, destructuring, template literals, spread/rest operators
+- **Module System**: Named imports/exports with ES6 syntax
+- **Error Handling**: Comprehensive try/catch/finally with proper error propagation
+- **Advanced Features**: Method chaining, labeled statements, `new` operator, proper `this` binding
+- **Standard Library**: 70+ built-in functions for arrays, objects, strings, math, and utilities
 
 ### 🚧 Partially Implemented
 - Destructuring (works in most contexts except function parameters)

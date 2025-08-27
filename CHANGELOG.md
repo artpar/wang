@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2024-12-27
+
+### Fixed
+- **Compound Assignment Operators**: Fixed critical runtime bugs in `+=`, `-=`, `*=`, `/=` operators
+  - Resolved variable scoping issues causing "Cannot access 'ctx' before initialization" errors
+  - Implemented missing `*=` and `/=` operators in interpreter (were only in grammar)
+  - Added proper const variable protection for all compound operators
+  - Fixed member expression compound assignments for objects and arrays
+  - Added division by zero protection for `/=` operator
+  - All compound assignment operators now fully functional
+
+### Added
+- Comprehensive E2E test suite for compound assignment operators (27 new tests)
+  - Tests for basic operators, object properties, array elements
+  - Tests for scoping, closures, and type coercion
+  - Tests for integration with other operators
+  - All tests verify actual execution, not just parsing
+
+### Changed
+- Total test count increased from 256 to 283 (all passing)
+
 ## [0.6.2] - 2025-08-27
 
 ### Added

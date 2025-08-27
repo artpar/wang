@@ -19,12 +19,17 @@ When you execute Wang code using `interpreter.execute(code)`, the interpreter:
 const result = await interpreter.execute(`
   let x = 5;
   let y = 10;
-  x + y
+  
+  // Compound assignment (NEW in v0.6.2!)
+  x += y;     // x becomes 15
+  x *= 2;     // x becomes 30
+  
+  x  // Last expression becomes return value
 `);
-// result = 15
+// result = 30
 ```
 
-The last line `x + y` is an expression that evaluates to `15`, which becomes the return value.
+The last line `x` is an expression that evaluates to `30`, which becomes the return value.
 
 ### Declaration Returns Undefined
 
@@ -53,35 +58,74 @@ const result = await interpreter.execute(`
 // result = 25
 ```
 
-### Object and Array Literals
+### Object and Array Literals with Standard Library
 
 ```javascript
 const result = await interpreter.execute(`
   let name = "Wang";
-  let version = "1.0";
-  { name, version, active: true }  // Object literal as last expression
+  let version = "0.6.2";
+  let features = ["Compound Assignment", "70+ Stdlib Functions", "Pipeline Operators"];
+  
+  // Use stdlib functions (no imports needed!)
+  let featureCount = features |> count(_);
+  let upperFeatures = features |> map(_, f => upper(f));
+  
+  // Object literal as last expression
+  { 
+    name, 
+    version, 
+    active: true,
+    featureCount,
+    features: upperFeatures,
+    id: uuid()  // Built-in UUID generation
+  }
 `);
-// result = { name: "Wang", version: "1.0", active: true }
+// result = { 
+//   name: "Wang", 
+//   version: "0.6.2", 
+//   active: true, 
+//   featureCount: 3,
+//   features: ["COMPOUND ASSIGNMENT", "70+ STDLIB FUNCTIONS", "PIPELINE OPERATORS"],
+//   id: "123e4567-e89b-12d3-a456-426614174000"
+// }
 ```
 
-### Pipeline Operations
+### Pipeline Operations with Standard Library
 
 ```javascript
 const result = await interpreter.execute(`
-  let start = 5;
-  start |> double(_) |> addTen(_)  // Pipeline result is returned
+  let numbers = [3, 1, 4, 1, 5, 9, 2, 6];
+  
+  // Comprehensive pipeline using stdlib functions
+  numbers
+    |> unique(_)              // Remove duplicates: [3, 1, 4, 5, 9, 2, 6]
+    |> sort(_)                // Sort: [1, 2, 3, 4, 5, 6, 9]
+    |> filter(_, n => n > 3)  // Filter: [4, 5, 6, 9]
+    |> map(_, n => n * n)     // Square: [16, 25, 36, 81]
+    |> sum(_)                 // Sum: 158
 `);
-// result = 20 (if double and addTen are defined)
+// result = 158
 ```
 
-### Conditional Expressions
+### Conditional Expressions and Operators
 
 ```javascript
 const result = await interpreter.execute(`
   let x = 10;
-  x > 5 ? "big" : "small"  // Ternary expression
+  
+  // Increment operators (NEW feature!)
+  let y = x++;    // Post-increment: y = 10, x = 11
+  let z = ++x;    // Pre-increment: z = 12, x = 12
+  
+  // Ternary expression with compound assignment
+  let status = x > 10 ? "high" : "low";
+  
+  // Nested ternary
+  let category = x > 15 ? "very high" : (x > 10 ? "high" : "normal");
+  
+  { x, y, z, status, category }  // Return object with all values
 `);
-// result = "big"
+// result = { x: 12, y: 10, z: 12, status: "high", category: "high" }
 ```
 
 ### Loop Results
@@ -120,29 +164,50 @@ This feature is particularly useful for:
 ```javascript
 import { WangInterpreter } from 'wang-lang';
 
+// Create interpreter with custom functions (stdlib functions automatic!)
 const interpreter = new WangInterpreter({
   functions: {
     fetch: fetch,
-    process: (data) => data.map(x => x * 2)
+    getCurrentTime: () => new Date().toISOString()
   }
 });
 
 // Execute a workflow and get the result
 const workflowResult = await interpreter.execute(`
   const data = [1, 2, 3, 4, 5];
-  const processed = process(data);
+  
+  // Use stdlib functions (no imports needed)
+  let processed = data |> map(_, x => x * 2);  // Double each value
+  let stats = {
+    sum: sum(processed),      // Built-in sum function
+    avg: avg(processed),      // Built-in average function
+    max: max(...processed)    // Built-in max function
+  };
+  
+  // Compound assignment for additional processing
+  let multiplier = 1;
+  multiplier *= 10;  // Compound assignment: multiplier = 10
   
   // This object becomes the return value
   {
     original: data,
     processed: processed,
-    sum: processed.reduce((a, b) => a + b, 0),
-    timestamp: Date.now()
+    stats: stats,
+    multiplier: multiplier,
+    timestamp: getCurrentTime(),
+    id: uuid()  // Built-in UUID generator
   }
 `);
 
 console.log(workflowResult);
-// { original: [1,2,3,4,5], processed: [2,4,6,8,10], sum: 30, timestamp: ... }
+// { 
+//   original: [1,2,3,4,5], 
+//   processed: [2,4,6,8,10], 
+//   stats: { sum: 30, avg: 6, max: 10 },
+//   multiplier: 10,
+//   timestamp: "2023-12-01T10:30:00.000Z", 
+//   id: "123e4567-e89b-12d3-a456-426614174000"
+// }
 ```
 
 This pattern makes Wang scripts behave like functions that implicitly return their last computed value, making them composable and easy to integrate into larger applications.
