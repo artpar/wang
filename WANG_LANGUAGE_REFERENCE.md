@@ -1,7 +1,7 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 0.4.6  
-**Test Coverage:** 167/167 tests (100%)  
+**Version:** 0.5.0  
+**Test Coverage:** 183/183 tests (100%)  
 **CSP Safe:** ✅ No eval(), new Function()  
 
 ## Overview
@@ -200,13 +200,14 @@ if (condition) {
   // block
 }
 
-// Complex conditional chains (no ternary operator)
-const classify = n => {
-  if (n > 100) return "huge"
-  if (n > 50) return "large"
-  if (n > 10) return "small"
-  return "tiny"
-}
+// Ternary operator (conditional expression)
+const result = condition ? value1 : value2
+
+// Complex ternary chains
+const classify = n => 
+  n > 100 ? "huge" :
+  n > 50 ? "large" :
+  n > 10 ? "small" : "tiny"
 ```
 
 #### Complex Conditionals
@@ -803,7 +804,6 @@ Wang intentionally excludes certain JavaScript features to maintain simplicity, 
 // ❌ Not supported
 x++, ++x, x--, --x          // Use: x = x + 1
 x += 5, x -= 3, x *= 2      // Use: x = x + 5, x = x - 3, x = x * 2
-result = condition ? a : b   // Use: if-else statements
 ```
 
 ### Removed Statements
@@ -889,7 +889,7 @@ const html = tag(["template ", ""], value)
 Wang follows the principle of **"one way to do things"**:
 - **Newlines separate statements** (no semicolons)
 - **Simple assignment only** (no compound operators)
-- **Clear conditionals** (no ternary)
+- **Clear conditionals** (with ternary operator support)
 - **Named imports/exports** (no defaults)
 - **Method calls** (no getters/setters)
 
@@ -1210,4 +1210,4 @@ const workflowResult = await interpreter.execute(`
 
 ---
 
-*This document covers Wang Language v0.4.6 with 100% test coverage (167/167 tests passing). For implementation details, see source code and test suite.*
+*This document covers Wang Language v0.5.0 with 100% test coverage (183/183 tests passing). For implementation details, see source code and test suite.*

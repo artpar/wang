@@ -488,8 +488,15 @@ ArrowBody ->
     Block {% id %}
   | AssignmentExpression {% id %}
 
-# NO ternary operator
-ConditionalExpression -> LogicalOrExpression {% id %}
+# Ternary operator support
+ConditionalExpression ->
+    LogicalOrExpression {% id %}
+  | LogicalOrExpression "?" AssignmentExpression ":" ConditionalExpression
+    {% d => createNode('ConditionalExpression', {
+      test: d[0],
+      consequent: d[2],
+      alternate: d[4]
+    }) %}
 
 LogicalOrExpression ->
     LogicalAndExpression {% id %}

@@ -23,7 +23,8 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (167 tests passing - 100% coverage)
+- ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (183 tests passing - 100% coverage)
 
 ## Installation
 
@@ -128,6 +129,10 @@ const merged = { ...obj1, ...obj2 };
 // Arrow functions
 const double = x => x * 2;
 const add = (a, b) => a + b;
+
+// Ternary conditional operator
+const status = age >= 18 ? "adult" : "minor";
+const value = condition ? (nested ? 1 : 2) : 3;
 
 // Async/await
 async function fetchData() {
@@ -382,8 +387,8 @@ Wang supports all core JavaScript features for workflow automation:
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
-- **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `switch`, `try/catch/finally`
-- **Operators**: All arithmetic, comparison, logical, and pipeline operators (`|>`, `->`)
+- **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
+- **Operators**: All arithmetic, comparison, logical, ternary (`? :`), and pipeline operators (`|>`, `->`)
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await, error handling
