@@ -27,6 +27,8 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🧪 **Fully Tested** - Comprehensive test suite using Vitest (283 tests passing - 100% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
 - ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar
+- ⏸️ **Pausable Execution** - Pause and resume interpreter execution at any point
+- 💾 **State Serialization** - Save and restore complete interpreter state to/from JSON
 
 ## Installation
 
@@ -412,6 +414,121 @@ await interpreter.execute(`
   let profiles = await extractProfiles();
   log(\`Found \${profiles.length} profiles\`);
 `);
+```
+
+## Pausable Execution & State Serialization
+
+Wang includes a `PausableWangInterpreter` that extends the base interpreter with pause/resume capabilities and state serialization:
+
+### Pause and Resume Execution
+
+```javascript
+import { PausableWangInterpreter } from 'wang-lang';
+
+const interpreter = new PausableWangInterpreter({
+  functions: {
+    fetchData: async (id) => {
+      // Simulate async work
+      await new Promise(r => setTimeout(r, 100));
+      return { id, data: `Data ${id}` };
+    }
+  }
+});
+
+// Start long-running execution
+const promise = interpreter.execute(`
+  let results = []
+  for (let i = 1; i <= 100; i = i + 1) {
+    let data = await fetchData(i)
+    results.push(data)
+  }
+  results
+`);
+
+// Pause execution after some time
+setTimeout(() => {
+  if (interpreter.isRunning()) {
+    interpreter.pause();
+    console.log('Paused at:', interpreter.getCurrentVariables());
+  }
+}, 500);
+
+// Resume later
+if (interpreter.isPaused()) {
+  const result = await interpreter.resume();
+  console.log('Completed:', result);
+}
+```
+
+### State Serialization
+
+Save and restore the complete interpreter state:
+
+```javascript
+// Execute some code to build state
+await interpreter.execute(`
+  let gameState = {
+    player: { name: "Alice", score: 100 },
+    level: 5,
+    inventory: ["sword", "shield"]
+  }
+  
+  function updateScore(points) {
+    gameState.player.score += points
+  }
+`);
+
+// Start a process
+const promise = interpreter.execute(`
+  for (let round = 1; round <= 20; round = round + 1) {
+    updateScore(round * 10)
+    if (round === 10) {
+      log("Checkpoint!")
+    }
+  }
+  gameState
+`);
+
+// Pause at checkpoint
+setTimeout(() => interpreter.pause(), 200);
+
+// Save state to JSON
+if (interpreter.isPaused()) {
+  const serialized = interpreter.serialize();
+  
+  // Save to file, database, etc.
+  await saveToFile('game-state.json', serialized);
+  
+  // Later, restore from saved state
+  const savedState = await loadFromFile('game-state.json');
+  const restored = await PausableWangInterpreter.deserialize(savedState, {
+    functions: { /* re-bind custom functions */ }
+  });
+  
+  // Continue execution from saved point
+  const result = await restored.resume();
+}
+```
+
+### Execution State API
+
+Monitor and control execution:
+
+```javascript
+// Check execution state
+interpreter.isRunning()   // true during execution
+interpreter.isPaused()    // true when paused
+interpreter.isCompleted() // true after completion
+interpreter.hasError()    // true if error occurred
+
+// Get execution information
+interpreter.getExecutionState()     // Full state object
+interpreter.getCallStackTrace()      // Current call stack
+interpreter.getCurrentVariables()    // All accessible variables
+
+// Control execution
+interpreter.pause()   // Request pause at next checkpoint
+interpreter.resume()  // Continue from pause point
 ```
 
 ## Metadata API
