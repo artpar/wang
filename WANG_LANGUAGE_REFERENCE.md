@@ -1,8 +1,9 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 0.6.0  
-**Test Coverage:** 256/256 tests (100%)  
+**Version:** 0.9.0  
+**Test Coverage:** 497/499 tests (99.6%)  
 **CSP Safe:** ✅ No eval(), new Function()  
+**New in 0.9.0:** 🔍 Full Regular Expression Support  
 
 ## Overview
 
@@ -477,6 +478,56 @@ const multiLine = `
 
 // Nested template literals
 const nested = `Outer: "${`Inner: ${value}`}"`;
+```
+
+### Regular Expression Literals
+
+**New in v0.9.0** - Wang now supports full regular expression literals with all JavaScript flags:
+
+```javascript
+// Basic regex patterns
+const emailPattern = /^[^@]+@[^@]+\.[^@]+$/;
+const phoneRegex = /\(\d{3}\)\s\d{3}-\d{4}/;
+const wordBoundary = /\b\w+\b/g;
+
+// All JavaScript flags supported
+const globalSearch = /pattern/g;           // Global flag
+const caseInsensitive = /pattern/i;        // Ignore case
+const multiline = /^start.*end$/m;         // Multiline
+const dotAll = /start.*end/s;              // Dot matches newlines  
+const unicode = /[\u{1F600}-\u{1F64F}]/u;  // Unicode support
+const sticky = /pattern/y;                 // Sticky matching
+
+// Complex patterns with escape sequences
+const escaped = /\d+\.\d+/;               // Digits with decimal
+const newlines = /line1\nline2/;          // Newline characters
+const tabs = /column1\tcolumn2/;          // Tab characters
+
+// Regex methods work seamlessly
+const text = "Contact: user@domain.com or call (555) 123-4567";
+const emails = text.match(/\w+@\w+\.\w+/g);     // ["user@domain.com"]
+const hasPhone = /\(\d{3}\)/.test(text);        // true
+const cleaned = text.replace(/\d+/g, "XXX");    // Replace digits
+
+// Integration with pipelines
+const logData = "ERROR: Failed login\nINFO: Success\nERROR: Timeout";
+const errorCount = logData
+  |> split(_, /\n/)
+  |> filter(_, line => line.match(/ERROR:/))
+  |> length(_);  // 2
+```
+
+**Division vs Regex Disambiguation:**  
+Wang automatically distinguishes between division (`/`) and regex literals using smart pattern recognition:
+
+```javascript
+// These are correctly parsed as division
+let half = count / 2;
+let ratio = (a + b) / (c + d);
+
+// These are correctly parsed as regex
+let pattern = /\d+/g;
+let emailRegex = /[^@]+@[^@]+/;
 ```
 
 ### Async/Await

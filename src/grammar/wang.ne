@@ -14,16 +14,40 @@ const lexer = moo.compile({
   
   // String literals
   string: [
-    { match: /"(?:[^"\\]|\\[^])*"/u, value: s => s.slice(1, -1).replace(/\\(.)/g, '$1') },
-    { match: /'(?:[^'\\]|\\[^])*'/u, value: s => s.slice(1, -1).replace(/\\(.)/g, '$1') }
+    { match: /"(?:[^"\\]|\\[^])*"/u, value: s => {
+      return s.slice(1, -1).replace(/\\(.)/g, (match, char) => {
+        switch (char) {
+          case 'n': return '\n';
+          case 't': return '\t';
+          case 'r': return '\r';
+          case '\\': return '\\';
+          case '"': return '"';
+          case "'": return "'";
+          default: return char;
+        }
+      });
+    }},
+    { match: /'(?:[^'\\]|\\[^])*'/u, value: s => {
+      return s.slice(1, -1).replace(/\\(.)/g, (match, char) => {
+        switch (char) {
+          case 'n': return '\n';
+          case 't': return '\t';
+          case 'r': return '\r';
+          case '\\': return '\\';
+          case '"': return '"';
+          case "'": return "'";
+          default: return char;
+        }
+      });
+    }}
   ],
   
   // Template literals (basic - no embedded expressions for now)
   templateLiteral: { match: /`(?:[^`\\]|\\[^])*`/u, value: s => s.slice(1, -1) },
   
-  // Regular expression literals
+  // Regular expression literals - allow backslashes and non-space first characters
   regex: { 
-    match: /\/(?:[^\/\\\r\n]|\\[^])+\/[gimsuy]*/u,
+    match: /\/(?:\\[^]|[^\s\/])(?:[^\/\\\r\n]|\\[^])*\/[gimsuy]*/u,
     value: s => {
       const lastSlash = s.lastIndexOf('/');
       const pattern = s.slice(1, lastSlash);
@@ -91,68 +115,14 @@ const lexer = moo.compile({
   ',': /,/u, '.': /\./u, ';': /;/u
 });
 
-// Track parser state for contextual regex parsing
-let lastToken = null;
-
-// Skip whitespace and comments, preserve newlines
+// Simple whitespace and comment skipping 
 lexer.next = (next => () => {
   let tok;
   while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'lineComment' || tok.type === 'blockComment')) {
     // Skip whitespace and comments
   }
-  
-  // Handle contextual regex vs division
-  if (tok && tok.type === 'regex') {
-    // Check if this context allows regex literals
-    if (!isRegexContext(lastToken)) {
-      // This should be treated as division, not regex
-      // Reset the lexer position and try to parse as division
-      const input = lexer.buffer.slice(tok.offset);
-      if (input.startsWith('/')) {
-        // Create a division token instead
-        tok = {
-          type: '/',
-          value: '/',
-          text: '/',
-          offset: tok.offset,
-          line: tok.line,
-          col: tok.col
-        };
-        lexer.index = tok.offset + 1;
-      }
-    }
-  }
-  
-  // Update last token (excluding whitespace and comments, but including newlines for context)
-  if (tok && tok.type !== 'WS' && tok.type !== 'lineComment' && tok.type !== 'blockComment') {
-    lastToken = tok;
-  }
-  
   return tok;
 })(lexer.next);
-
-// Function to determine if current context allows regex literals
-function isRegexContext(lastToken) {
-  if (!lastToken) return true; // Start of input
-  
-  const regexContextTypes = [
-    '=', '+=', '-=', '*=', '/=', // Assignment operators
-    '(', '[', '{', ',', ';', ':', // Structural tokens
-    '!', '&', '|', '^', '?', // Logical operators
-    'return', 'throw', 'case', // Keywords that expect expressions
-    'NL' // Newlines
-  ];
-  
-  const regexContextValues = [
-    '=', '+=', '-=', '*=', '/=',
-    '(', '[', '{', ',', ';', ':', 
-    '!', '&&', '||', '??',
-    'return', 'throw'
-  ];
-  
-  return regexContextTypes.includes(lastToken.type) || 
-         regexContextValues.includes(lastToken.value);
-}
 
 // AST helper functions
 function createNode(type, props = {}) {

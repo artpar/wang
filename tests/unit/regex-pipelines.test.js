@@ -56,6 +56,9 @@ describe('Wang Regex with Pipelines and Method Chaining', () => {
     ctx.addFunction('sum', (arr) => arr.reduce((a, b) => a + b, 0));
     ctx.addFunction('max', (arr) => Math.max(...arr));
     ctx.addFunction('min', (arr) => Math.min(...arr));
+    ctx.addFunction('Date', () => ({ now: () => Date.now() }));
+    ctx.addFunction('parseInt', (str, radix) => parseInt(str, radix));
+    ctx.addFunction('parseFloat', (str) => parseFloat(str));
   });
 
   describe('Basic Pipeline Operations with Regex', () => {
@@ -124,7 +127,7 @@ describe('Wang Regex with Pipelines and Method Chaining', () => {
         |> split(_, /\\n/)
         |> filter(_, line => test(line, /ERROR:/))
         |> map(_, line => match(line, /ERROR: (.+)$/))
-        |> map(_, match => match ? match[1] : "")
+        |> map(_, matchResult => matchResult ? matchResult[1] : "")
         |> length(_)
       `);
       expect(result).toBe(2);
@@ -205,7 +208,7 @@ describe('Wang Regex with Pipelines and Method Chaining', () => {
         |> sort(_)
         |> length(_)
       `);
-      expect(result).toBe(6); // "quick", "brown", "jumped", "over", "lazy"
+      expect(result).toBe(5); // "quick", "brown", "jumped", "over", "lazy"
     });
   });
 
@@ -263,8 +266,8 @@ describe('Wang Regex with Pipelines and Method Chaining', () => {
       const result = await ctx.execute(`
         '{"name": "John", "age": 30}, {"name": "Jane", "age": 25}'
         |> match(_, /\\{"name": "([^"]+)", "age": (\\d+)\\}/g)
-        |> map(_, match => {
-          let fullMatch = match(match, /\\{"name": "([^"]+)", "age": (\\d+)\\}/)
+        |> map(_, jsonStr => {
+          let fullMatch = match(jsonStr, /\\{"name": "([^"]+)", "age": (\\d+)\\}/)
           return fullMatch ? {
             name: fullMatch[1],
             age: parseInt(fullMatch[2])
@@ -357,7 +360,7 @@ describe('Wang Regex with Pipelines and Method Chaining', () => {
       const result = await ctx.execute(`
         "price: $12.99, discount: 20%, tax: $2.50"
         |> match(_, /\\$([0-9.]+)/g)
-        |> map(_, match => parseFloat(match(match, /\\$([0-9.]+)/)[1]))
+        |> map(_, priceStr => parseFloat(match(priceStr, /\\$([0-9.]+)/)[1]))
         |> sum(_)
       `);
       expect(result).toBe(15.49);

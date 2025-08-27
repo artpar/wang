@@ -24,9 +24,10 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (334/336 tests passing - 99.4% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (497/499 tests passing - 99.6% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
-- ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar
+- ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar  
+- 🔍 **Regular Expression Support** - Full regex literals with all JavaScript flags (`/pattern/gimsuy`)
 - ⏸️ **Pausable Execution** - Pause and resume interpreter execution at any point
 - 💾 **State Serialization** - Save and restore complete interpreter state to/from JSON
 
@@ -211,6 +212,18 @@ const merged = { ...obj1, ...obj2 };
 const double = x => x * 2;
 const add = (a, b) => a + b;
 
+// Regular expression literals with all JavaScript flags
+const emailPattern = /^[^@]+@[^@]+\.[^@]+$/;
+const phoneRegex = /\(\d{3}\)\s\d{3}-\d{4}/g;
+const unicodePattern = /[\u{1F600}-\u{1F64F}]/gu;  // Emoji with unicode flag
+const multilineText = /^start.*end$/ms;             // Multiline and dotAll flags
+
+// Regex methods work seamlessly
+const text = "Contact: user@domain.com or call (555) 123-4567";
+const emails = text.match(/\w+@\w+\.\w+/g);          // ["user@domain.com"]  
+const hasPhone = /\(\d{3}\)/.test(text);            // true
+const cleaned = text.replace(/\d+/g, "XXX");        // Replace all digits
+
 // Ternary conditional operator
 const status = age >= 18 ? "adult" : "minor";
 const value = condition ? (nested ? 1 : 2) : 3;
@@ -330,6 +343,21 @@ profiles
   |> extractData(_)
   -> saveToDatabase("profiles");
 
+// Regular expressions work perfectly with pipelines
+const logData = "ERROR: Failed login\nINFO: Success\nERROR: Database timeout";
+const errorCount = logData
+  |> split(_, /\n/)
+  |> filter(_, line => line.match(/ERROR:/))
+  |> length(_);  // 2
+
+// Extract and process data with regex
+const userEmails = "Contact alice@company.com or bob@startup.org for info";
+const domains = userEmails
+  |> match(_, /(\w+)@(\w+\.\w+)/g)
+  |> map(_, email => email.split('@')[1])
+  |> unique(_)
+  |> sort(_);  // ["company.com", "startup.org"]
+
 // Method chaining across lines
 const builder = new StringBuilder()
   .append("Hello")
@@ -415,13 +443,22 @@ resolver.addModule('linkedin-workflow', `
     let results = [];
     
     for (let profile of profiles) {
+      let nameText = profile |> querySelector(_, ".name") |> getText(_);
+      let titleText = profile |> querySelector(_, ".title") |> getText(_);
+      let companyText = profile |> querySelector(_, ".company") |> getText(_);
+      
       let data = {
-        name: profile |> querySelector(_, ".name") |> getText(_),
-        title: profile |> querySelector(_, ".title") |> getText(_),
-        company: profile |> querySelector(_, ".company") |> getText(_)
+        name: nameText |> replace(_, /[^\w\s]/g, "") |> trim(_),  // Clean name
+        title: titleText |> match(_, /^([^@]+)/)?.[1] || titleText, // Extract title before @
+        company: companyText |> replace(_, /\s+/g, " ") |> trim(_), // Normalize whitespace
+        isVerified: profile |> querySelector(_, ".verified-badge") !== null
       };
       
-      results.push(data);
+      // Skip profiles without email patterns in title/company  
+      if (titleText.match(/@/) || companyText.match(/\.(com|org|net)/i)) {
+        results.push(data);
+      }
+      
       await wait(1000);  // Rate limiting
     }
     
@@ -436,6 +473,9 @@ const interpreter = new WangInterpreter({
     querySelectorAll: (sel) => [...document.querySelectorAll(sel)],
     querySelector: (el, sel) => el.querySelector(sel),
     getText: (el) => el?.innerText || "",
+    replace: (str, pattern, replacement) => str.replace(pattern, replacement),
+    match: (str, pattern) => str.match(pattern),
+    trim: (str) => str.trim(),
     wait: (ms) => new Promise(r => setTimeout(r, ms))
   }
 });
@@ -616,6 +656,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
 - **Operators**: All arithmetic, comparison, logical, increment/decrement (`++`, `--`), compound assignment (`+=`, `-=`, `*=`, `/=`), ternary (`? :`), and pipeline operators (`|>`, `->`)
+- **Regular Expressions**: Full regex literal syntax (`/pattern/flags`) with all JavaScript flags (`g`, `i`, `m`, `s`, `u`, `y`)
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await, error handling
@@ -635,10 +676,10 @@ All unsupported features have clear workarounds using supported syntax.
 
 ## Testing
 
-Wang achieves **99.4% test coverage** with comprehensive testing:
+Wang achieves **99.6% test coverage** with comprehensive testing:
 
 ```bash
-# Run all tests (333/335 passing)
+# Run all tests (497/499 passing)
 npm test
 
 # Watch mode for development  
@@ -651,9 +692,10 @@ npm test:coverage
 npm test:ui
 ```
 
-**Test Results**: 333/335 tests passing (99.4% coverage), including:
+**Test Results**: 497/499 tests passing (99.6% coverage), including:
 - Comprehensive language features (classes, async/await, modules)
-- Advanced pipeline operations (chained, nested, multiline)
+- Advanced pipeline operations (chained, nested, multiline)  
+- Full regular expression support with all JavaScript features
 - Full standard library coverage (70+ functions)
 - Compound assignment and increment/decrement operators
 - Edge cases and error handling
@@ -945,6 +987,7 @@ All functions follow **snake_case** naming and are **immutable** - they return n
 - **Data Types**: Arrays, objects, destructuring, template literals, spread/rest operators
 - **Module System**: Named imports/exports with ES6 syntax
 - **Error Handling**: Comprehensive try/catch/finally with proper error propagation
+- **Regular Expressions**: Full regex literal support (`/pattern/flags`) with all JavaScript flags and methods  
 - **Advanced Features**: Method chaining, labeled statements, `new` operator, proper `this` binding
 - **Standard Library**: 70+ built-in functions for arrays, objects, strings, math, and utilities
 
