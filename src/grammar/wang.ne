@@ -21,6 +21,17 @@ const lexer = moo.compile({
   // Template literals (basic - no embedded expressions for now)
   templateLiteral: { match: /`(?:[^`\\]|\\[^])*`/u, value: s => s.slice(1, -1) },
   
+  // Regular expression literals
+  regex: { 
+    match: /\/(?:[^\/\\\r\n]|\\[^])+\/[gimsuy]*/u,
+    value: s => {
+      const lastSlash = s.lastIndexOf('/');
+      const pattern = s.slice(1, lastSlash);
+      const flags = s.slice(lastSlash + 1);
+      return { pattern, flags };
+    }
+  },
+  
   // Numbers (simplified - decimal only for now)
   number: {
     match: /(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/u,
@@ -80,14 +91,68 @@ const lexer = moo.compile({
   ',': /,/u, '.': /\./u, ';': /;/u
 });
 
+// Track parser state for contextual regex parsing
+let lastToken = null;
+
 // Skip whitespace and comments, preserve newlines
 lexer.next = (next => () => {
   let tok;
   while ((tok = next.call(lexer)) && (tok.type === 'WS' || tok.type === 'lineComment' || tok.type === 'blockComment')) {
     // Skip whitespace and comments
   }
+  
+  // Handle contextual regex vs division
+  if (tok && tok.type === 'regex') {
+    // Check if this context allows regex literals
+    if (!isRegexContext(lastToken)) {
+      // This should be treated as division, not regex
+      // Reset the lexer position and try to parse as division
+      const input = lexer.buffer.slice(tok.offset);
+      if (input.startsWith('/')) {
+        // Create a division token instead
+        tok = {
+          type: '/',
+          value: '/',
+          text: '/',
+          offset: tok.offset,
+          line: tok.line,
+          col: tok.col
+        };
+        lexer.index = tok.offset + 1;
+      }
+    }
+  }
+  
+  // Update last token (excluding whitespace and comments, but including newlines for context)
+  if (tok && tok.type !== 'WS' && tok.type !== 'lineComment' && tok.type !== 'blockComment') {
+    lastToken = tok;
+  }
+  
   return tok;
 })(lexer.next);
+
+// Function to determine if current context allows regex literals
+function isRegexContext(lastToken) {
+  if (!lastToken) return true; // Start of input
+  
+  const regexContextTypes = [
+    '=', '+=', '-=', '*=', '/=', // Assignment operators
+    '(', '[', '{', ',', ';', ':', // Structural tokens
+    '!', '&', '|', '^', '?', // Logical operators
+    'return', 'throw', 'case', // Keywords that expect expressions
+    'NL' // Newlines
+  ];
+  
+  const regexContextValues = [
+    '=', '+=', '-=', '*=', '/=',
+    '(', '[', '{', ',', ';', ':', 
+    '!', '&&', '||', '??',
+    'return', 'throw'
+  ];
+  
+  return regexContextTypes.includes(lastToken.type) || 
+         regexContextValues.includes(lastToken.value);
+}
 
 // AST helper functions
 function createNode(type, props = {}) {
@@ -112,6 +177,10 @@ function createIdentifier(name) {
 
 function createLiteral(value, raw) {
   return createNode('Literal', { value, raw });
+}
+
+function createRegexLiteral(pattern, flags) {
+  return createNode('RegexLiteral', { pattern, flags });
 }
 
 %}
@@ -653,6 +722,7 @@ FunctionExpression ->
 Literal ->
     %number {% d => createLiteral(d[0].value, d[0].text) %}
   | %string {% d => createLiteral(d[0].value, d[0].text) %}
+  | %regex {% d => createRegexLiteral(d[0].value.pattern, d[0].value.flags) %}
   | "true" {% () => createLiteral(true, 'true') %}
   | "false" {% () => createLiteral(false, 'false') %}
   | "null" {% () => createLiteral(null, 'null') %}

@@ -112,6 +112,9 @@ export class WangInterpreter {
     // Date support
     this.currentContext.variables.set('Date', Date);
 
+    // RegExp constructor support
+    this.currentContext.variables.set('RegExp', RegExp);
+
     // Promise support
     this.currentContext.variables.set('Promise', {
       all: (promises: Promise<any>[]) => Promise.all(promises),
@@ -437,6 +440,9 @@ export class WangInterpreter {
       case 'Literal':
         return node.value;
 
+      case 'RegexLiteral':
+        return new RegExp(node.pattern, node.flags);
+
       case 'Identifier':
         return this.evaluateIdentifier(node);
 
@@ -742,6 +748,9 @@ export class WangInterpreter {
 
       case 'Literal':
         return node.value;
+
+      case 'RegexLiteral':
+        return new RegExp(node.pattern, node.flags);
 
       case 'TemplateLiteral':
         return this.evaluateTemplateLiteral(node);

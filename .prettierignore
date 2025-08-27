@@ -7,6 +7,10 @@ node_modules/
 *.min.js
 *.bundle.js
 
+# Test files - exclude from formatting
+tests/
+test-wang-build/
+
 # Documentation
 docs/
 coverage/
