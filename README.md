@@ -30,6 +30,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🔍 **Regular Expression Support** - Full regex literals with all JavaScript flags (`/pattern/gimsuy`)
 - ⏸️ **Pausable Execution** - Pause and resume interpreter execution at any point
 - 💾 **State Serialization** - Save and restore complete interpreter state to/from JSON
+- 🔤 **Reserved Keywords as Properties** - Use reserved words like `from`, `import`, `class` as property names (JavaScript-compatible)
 
 ## Installation
 
@@ -201,8 +202,17 @@ const message = `Hello, ${name}!`;
 
 // Optional chaining (dot notation and computed member access)
 const value = obj?.nested?.property ?? defaultValue;
-const title = titles.data?.[0]?.textContent;  // New in v0.8.1!
+const title = titles.data?.[0]?.textContent;
 const item = matrix?.[row]?.[col]?.value;
+
+// Reserved keywords as property names (JavaScript-compatible)
+const result = Array.from([1, 2, 3]);  // 'from' is a reserved keyword
+const config = { 
+  import: "module", 
+  class: "MyClass",
+  from: "source" 
+};
+const source = config.from;  // Access reserved keyword properties
 
 // Spread operator
 const combined = [...array1, ...array2];

@@ -191,14 +191,14 @@ PipelineContinuation ->
 
 # Handle member access at the start of a line as continuations  
 MemberContinuation ->
-    "." %identifier Arguments:?
+    "." PropertyName Arguments:?
     {% d => {
       return createNode('MemberContinuation', {
         property: createIdentifier(d[1].value),
         arguments: d[2] || null
       });
     } %}
-  | "?." %identifier Arguments:?
+  | "?." PropertyName Arguments:?
     {% d => {
       return createNode('MemberContinuation', {
         property: createIdentifier(d[1].value),
@@ -615,7 +615,7 @@ CallExpression ->
   | CallExpression Arguments {% d => createNode('CallExpression', { callee: d[0], arguments: d[1] }) %}
   | CallExpression "[" Expression "]"
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
-  | CallExpression %NL:* "." %identifier
+  | CallExpression %NL:* "." PropertyName
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
   | CallExpression %NL:* "?." OptionalMemberAccess
     {% d => createNode('MemberExpression', { 
@@ -634,7 +634,7 @@ MemberExpression ->
     PrimaryExpression {% id %}
   | MemberExpression "[" Expression "]"
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
-  | MemberExpression %NL:* "." %identifier
+  | MemberExpression %NL:* "." PropertyName
     {% d => createNode('MemberExpression', { object: d[0], property: createIdentifier(d[3].value), computed: false }) %}
   | MemberExpression %NL:* "?." OptionalMemberAccess
     {% d => createNode('MemberExpression', { 
@@ -646,10 +646,53 @@ MemberExpression ->
 
 # Optional member access after ?. - handles both identifier and computed access
 OptionalMemberAccess ->
-    %identifier
+    PropertyName
     {% d => ({ property: createIdentifier(d[0].value), computed: false }) %}
   | "[" Expression "]"
     {% d => ({ property: d[1], computed: true }) %}
+
+# Allow keywords as property names in member expressions
+PropertyName ->
+    %identifier {% d => d[0] %}
+  | ReservedKeyword {% d => d[0] %}
+
+ReservedKeyword ->
+    "let" {% d => ({ value: 'let' }) %}
+  | "const" {% d => ({ value: 'const' }) %}
+  | "var" {% d => ({ value: 'var' }) %}
+  | "if" {% d => ({ value: 'if' }) %}
+  | "else" {% d => ({ value: 'else' }) %}
+  | "for" {% d => ({ value: 'for' }) %}
+  | "while" {% d => ({ value: 'while' }) %}
+  | "do" {% d => ({ value: 'do' }) %}
+  | "break" {% d => ({ value: 'break' }) %}
+  | "continue" {% d => ({ value: 'continue' }) %}
+  | "return" {% d => ({ value: 'return' }) %}
+  | "function" {% d => ({ value: 'function' }) %}
+  | "class" {% d => ({ value: 'class' }) %}
+  | "extends" {% d => ({ value: 'extends' }) %}
+  | "constructor" {% d => ({ value: 'constructor' }) %}
+  | "async" {% d => ({ value: 'async' }) %}
+  | "await" {% d => ({ value: 'await' }) %}
+  | "import" {% d => ({ value: 'import' }) %}
+  | "export" {% d => ({ value: 'export' }) %}
+  | "from" {% d => ({ value: 'from' }) %}
+  | "as" {% d => ({ value: 'as' }) %}
+  | "try" {% d => ({ value: 'try' }) %}
+  | "catch" {% d => ({ value: 'catch' }) %}
+  | "finally" {% d => ({ value: 'finally' }) %}
+  | "throw" {% d => ({ value: 'throw' }) %}
+  | "true" {% d => ({ value: 'true' }) %}
+  | "false" {% d => ({ value: 'false' }) %}
+  | "null" {% d => ({ value: 'null' }) %}
+  | "undefined" {% d => ({ value: 'undefined' }) %}
+  | "this" {% d => ({ value: 'this' }) %}
+  | "super" {% d => ({ value: 'super' }) %}
+  | "new" {% d => ({ value: 'new' }) %}
+  | "typeof" {% d => ({ value: 'typeof' }) %}
+  | "instanceof" {% d => ({ value: 'instanceof' }) %}
+  | "in" {% d => ({ value: 'in' }) %}
+  | "of" {% d => ({ value: 'of' }) %}
 
 Arguments ->
     "(" ArgumentList ")" {% d => d[1] %}
@@ -730,9 +773,9 @@ PropertyDefinitionList ->
   | PropertyDefinitionList %NL:* "," {% d => d[0] %}
 
 PropertyDef ->
-    PropertyKey %NL:* ":" %NL:* AssignmentExpression
+    ObjectPropertyKey %NL:* ":" %NL:* AssignmentExpression
     {% d => createNode('Property', { key: d[0], value: d[4], shorthand: false }) %}
-  | %identifier
+  | PropertyName
     {% d => createNode('Property', { 
       key: createIdentifier(d[0].value), 
       value: createIdentifier(d[0].value), 
@@ -740,6 +783,13 @@ PropertyDef ->
     }) %}
   | "..." AssignmentExpression
     {% d => createNode('SpreadElement', { argument: d[1] }) %}
+
+# Object property keys can include reserved words
+ObjectPropertyKey ->
+    PropertyName {% d => createIdentifier(d[0].value) %}
+  | %string {% d => createLiteral(d[0].value, d[0].text) %}
+  | %number {% d => createLiteral(d[0].value, d[0].text) %}
+  | "[" Expression "]" {% d => d[1] %}
 
 PropertyKey ->
     %identifier {% d => createIdentifier(d[0].value) %}

@@ -230,6 +230,26 @@ export const z = value
 // No default exports, no renaming
 ```
 
+## 15. Reserved Keywords as Properties ✅
+
+**Decision**: Allow reserved keywords as property names in member expressions and object literals (JavaScript-compatible).
+
+**Implementation**: 
+- Reserved keywords can be used after `.` in member expressions
+- Reserved keywords can be used as keys in object literals
+- Maintains JavaScript compatibility
+
+```javascript
+// ✅ Supported
+Array.from([1, 2, 3])
+obj.import
+config.class
+{ from: "source", import: "module", class: "MyClass" }
+
+// Works with optional chaining too
+data?.from?.value
+```
+
 ---
 
 ## 🎯 NEXT STEPS
