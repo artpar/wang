@@ -79,7 +79,7 @@ export class WangInterpreter {
     this.bindFunction('isNaN', (val: any) => isNaN(val));
     this.bindFunction('isFinite', (val: any) => isFinite(val));
     this.bindFunction('isInteger', (val: any) => Number.isInteger(val));
-    
+
     // Register all stdlib functions
     Object.entries(stdlib).forEach(([name, fn]) => {
       this.bindFunction(name, fn);
@@ -108,7 +108,7 @@ export class WangInterpreter {
     this.currentContext.variables.set('Infinity', Infinity);
     this.currentContext.variables.set('NaN', NaN);
     this.currentContext.variables.set('undefined', undefined);
-    
+
     // Date support
     this.currentContext.variables.set('Date', Date);
 

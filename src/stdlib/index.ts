@@ -1,6 +1,6 @@
 /**
  * Wang Standard Library
- * 
+ *
  * Core functions always available globally in Wang.
  * All functions are immutable and pipeline-friendly.
  */
@@ -11,9 +11,7 @@ export function sort_by(arr: any[], key?: string | ((item: any) => any)): any[] 
   if (!key) {
     return sorted.sort();
   }
-  const keyFn = typeof key === 'string' 
-    ? (item: any) => item?.[key]
-    : key;
+  const keyFn = typeof key === 'string' ? (item: any) => item?.[key] : key;
   return sorted.sort((a, b) => {
     const aVal = keyFn(a);
     const bVal = keyFn(b);
@@ -32,9 +30,7 @@ export function unique(arr: any[]): any[] {
 }
 
 export function unique_by(arr: any[], key: string | ((item: any) => any)): any[] {
-  const keyFn = typeof key === 'string'
-    ? (item: any) => item?.[key]
-    : key;
+  const keyFn = typeof key === 'string' ? (item: any) => item?.[key] : key;
   const seen = new Set();
   const result: any[] = [];
   for (const item of arr) {
@@ -48,9 +44,7 @@ export function unique_by(arr: any[], key: string | ((item: any) => any)): any[]
 }
 
 export function group_by(arr: any[], key: string | ((item: any) => any)): Record<string, any[]> {
-  const keyFn = typeof key === 'string'
-    ? (item: any) => item?.[key]
-    : key;
+  const keyFn = typeof key === 'string' ? (item: any) => item?.[key] : key;
   const groups: Record<string, any[]> = {};
   for (const item of arr) {
     const k = String(keyFn(item));
@@ -109,10 +103,10 @@ export function sample(arr: any[], n: number = 1): any {
 }
 
 export function zip(...arrays: any[][]): any[][] {
-  const minLen = Math.min(...arrays.map(a => a.length));
+  const minLen = Math.min(...arrays.map((a) => a.length));
   const result: any[][] = [];
   for (let i = 0; i < minLen; i++) {
-    result.push(arrays.map(arr => arr[i]));
+    result.push(arrays.map((arr) => arr[i]));
   }
   return result;
 }
@@ -190,10 +184,10 @@ export function set(obj: any, path: string, value: any): any {
 export function clone(obj: any): any {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj.getTime());
-  if (Array.isArray(obj)) return obj.map(item => clone(item));
+  if (Array.isArray(obj)) return obj.map((item) => clone(item));
   const cloned: any = {};
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       cloned[key] = clone(obj[key]);
     }
   }
@@ -271,7 +265,11 @@ export function filter(arr: any[], pred: (item: any, index?: number) => boolean)
   return arr.filter(pred);
 }
 
-export function reduce(arr: any[], fn: (acc: any, item: any, index?: number) => any, init?: any): any {
+export function reduce(
+  arr: any[],
+  fn: (acc: any, item: any, index?: number) => any,
+  init?: any,
+): any {
   return arguments.length > 2 ? arr.reduce(fn, init) : arr.reduce(fn);
 }
 
@@ -325,7 +323,8 @@ export function is_null(val: any): boolean {
 }
 
 export function is_undefined(val: any): boolean {
-  return val === undefined;
+  // Handle JavaScript undefined
+  return val === undefined || val === void 0 || typeof val === 'undefined';
 }
 
 export function is_empty(val: any): boolean {
@@ -358,9 +357,7 @@ export function median(arr: number[]): number {
   if (arr.length === 0) return 0;
   const sorted = [...arr].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0 
-    ? (sorted[mid - 1] + sorted[mid]) / 2
-    : sorted[mid];
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
 export function round(n: number, decimals: number = 0): number {
@@ -404,7 +401,7 @@ export function range(start: number, end?: number, step: number = 1): number[] {
 }
 
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function wait(ms: number): Promise<void> {
@@ -413,8 +410,8 @@ export function wait(ms: number): Promise<void> {
 
 export function uuid(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -463,7 +460,7 @@ export const stdlib = {
   sample,
   zip,
   partition,
-  
+
   // Object
   keys,
   values,
@@ -474,7 +471,7 @@ export const stdlib = {
   get,
   set,
   clone,
-  
+
   // String
   split,
   join,
@@ -491,7 +488,7 @@ export const stdlib = {
   pad_start,
   pad_end,
   truncate,
-  
+
   // Functional
   map,
   filter,
@@ -501,7 +498,7 @@ export const stdlib = {
   every,
   some,
   count,
-  
+
   // Type checking
   is_array,
   is_object,
@@ -512,7 +509,7 @@ export const stdlib = {
   is_null,
   is_undefined,
   is_empty,
-  
+
   // Math
   min,
   max,
@@ -524,7 +521,7 @@ export const stdlib = {
   ceil,
   abs,
   clamp,
-  
+
   // Utility
   range,
   sleep,
