@@ -24,7 +24,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (183 tests passing - 100% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (256 tests passing - 100% coverage)
 
 ## Installation
 
@@ -50,14 +50,12 @@ resolver.addModule('utils', `
   }
 `);
 
-// Create interpreter with custom functions
+// Create interpreter - 70+ stdlib functions are automatically available!
 const interpreter = new WangInterpreter({
   moduleResolver: resolver,
+  // Add custom functions if needed (stdlib already includes filter, map, sort_by, etc.)
   functions: {
-    filter: (arr, pred) => arr.filter(pred),
-    map: (arr, fn) => arr.map(fn),
-    sort: (arr) => arr.sort(),
-    log: console.log
+    myCustomFunction: (x) => x * 2
   }
 });
 
@@ -82,6 +80,37 @@ console.log(result); // { processed: ["Alice", "Charlie"], count: 2 }
 ```
 
 ## Language Features
+
+### Standard Library (New in v0.6.0!)
+
+Wang includes 70+ built-in functions that work seamlessly with pipelines:
+
+```javascript
+// Array operations
+[3, 1, 4, 1, 5, 9, 2, 6]
+  |> unique           // Remove duplicates
+  |> sort_by          // Sort
+  |> chunk(_, 2)      // Group into pairs
+  |> map(_, pair => sum(pair))  // Sum each pair
+
+// Object operations
+let user = { name: "Alice", age: 30, email: "alice@example.com" }
+let filtered = pick(user, ["name", "age"])  // { name: "Alice", age: 30 }
+
+// String operations
+"hello world"
+  |> upper            // "HELLO WORLD"
+  |> replace_all(_, "O", "0")  // "HELL0 W0RLD"
+  |> split(_, " ")   // ["HELL0", "W0RLD"]
+
+// Type checking and utilities
+is_array([1, 2, 3])     // true
+is_empty([])            // true
+range(5)                // [0, 1, 2, 3, 4]
+uuid()                  // "123e4567-e89b-12d3-a456-426614174000"
+```
+
+See [Standard Library Reference](#standard-library-reference) for the complete list.
 
 ### Modern JavaScript Syntax
 
@@ -411,7 +440,7 @@ All unsupported features have clear workarounds using supported syntax.
 Wang achieves **100% test coverage** with comprehensive testing:
 
 ```bash
-# Run all tests (90/90 passing)
+# Run all tests (256/256 passing)
 npm test
 
 # Watch mode for development  
@@ -424,7 +453,7 @@ npm test:coverage
 npm test:ui
 ```
 
-**Test Results**: 90/90 tests passing, including tests that verify unsupported features fail gracefully.
+**Test Results**: 256/256 tests passing with 100% coverage, including comprehensive stdlib and operator tests.
 
 ## Development
 
