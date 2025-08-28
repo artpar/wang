@@ -25,25 +25,43 @@ if (!fs.existsSync(nearleyModulePath)) {
 let grammarContent = fs.readFileSync(grammarPath, 'utf8');
 const nearleySource = fs.readFileSync(nearleyModulePath, 'utf8');
 
+// Read moo source
+const mooModulePath = path.join(process.cwd(), 'node_modules', 'moo', 'moo.js');
+let mooSource = fs.readFileSync(mooModulePath, 'utf8');
+
 // Extract the factory function content from nearley UMD wrapper
 const factoryStart = nearleySource.indexOf('function() {') + 'function() {'.length;
 const factoryEnd = nearleySource.lastIndexOf('    return {');
 const factoryContent = nearleySource.slice(factoryStart, factoryEnd).trim();
 const returnStatement = nearleySource.slice(factoryEnd, nearleySource.lastIndexOf('}));')).trim();
 
-// Create a wrapper that exports both nearley and the grammar
-const bundledGrammar = `// Bundled Nearley Runtime (${(nearleySource.length / 1024).toFixed(1)}KB)
+// Create a bundled version with moo and nearley inline
+const bundledGrammar = `// Bundled Moo and Nearley Runtime
+// This file is self-contained and requires no external dependencies
+
+// Inline Moo (${(mooSource.length / 1024).toFixed(1)}KB)
+const moo = (() => {
+  const module = { exports: {} };
+  const exports = module.exports;
+  
+  ${mooSource.replace(/\(function\(root, factory\) {[\s\S]*?}\)\(this, function\(\) {/, '').replace(/}\);[\s]*$/, '')}
+  
+  return module.exports;
+})();
+
+// Bundled Nearley Runtime (${(nearleySource.length / 1024).toFixed(1)}KB)
 const nearley = (function() {
 ${factoryContent}
 
 ${returnStatement}
 })();
 
-// Original Generated Grammar (extracted from IIFE, with exports replaced)
+// Original Generated Grammar (with require statements removed)
 ${(() => {
   let content = grammarContent
     .replace('(function () {', '')
-    .replace(/}\)\(\);[\s]*$/, '');
+    .replace(/}\)\(\);[\s]*$/, '')
+    .replace("const moo = require('moo');", '// moo is already bundled above');
   
   // Remove the CommonJS/browser export section
   const exportStart = content.indexOf('if (typeof module !== \'undefined\'&& typeof module.exports !== \'undefined\') {');
@@ -63,6 +81,7 @@ export default grammar;`;
 // Write the bundled grammar
 fs.writeFileSync(grammarPath, bundledGrammar, 'utf8');
 
-console.log('✅ Bundled nearley runtime into grammar file');
+console.log('✅ Bundled moo and nearley runtime into grammar file');
+console.log(`📦 Moo lexer: ${(mooSource.length / 1024).toFixed(1)}KB bundled`);
 console.log(`📦 Nearley runtime: ${(nearleySource.length / 1024).toFixed(1)}KB bundled`);
-console.log('🚀 Grammar file is now self-contained - no nearley dependency!');
+console.log('🚀 Grammar file is now self-contained - no external dependencies!');
