@@ -31,6 +31,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - ⏸️ **Pausable Execution** - Pause and resume interpreter execution at any point
 - 💾 **State Serialization** - Save and restore complete interpreter state to/from JSON
 - 🔤 **Reserved Keywords as Properties** - Use reserved words like `from`, `import`, `class` as property names (JavaScript-compatible)
+- 📝 **Console Capture** - Capture all console.log, warn, and error outputs with metadata (v0.12.0+)
 
 ## Installation
 
@@ -834,10 +835,64 @@ class WangInterpreter {
     globalContext?: ExecutionContext;
   });
   
+  // Default: returns execution result
   execute(code: string, context?: ExecutionContext): Promise<any>;
+  
+  // With metadata: returns result and captured console logs (v0.12.0+)
+  execute(code: string, context?: ExecutionContext, options?: { withMetadata: true }): 
+    Promise<{ result: any; metadata: { logs: ConsoleLog[] } }>;
+    
   bindFunction(name: string, fn: Function): void;
   setVariable(name: string, value: any): void;  // v0.11.1+
 }
+```
+
+#### Console Capture (v0.12.0+)
+
+The `execute()` method can capture all console output from Wang code when using the `withMetadata` option:
+
+```javascript
+const interpreter = new WangInterpreter();
+
+// Capture console logs with metadata
+const { result, metadata } = await interpreter.execute(`
+  log("Processing started")
+  warn("Low memory")
+  error("Failed to connect")
+  
+  let data = [1, 2, 3]
+  log("Data:", data)
+  
+  data.reduce((sum, n) => sum + n, 0)
+`, undefined, { withMetadata: true });
+
+console.log(result); // 6
+console.log(metadata.logs); 
+// [
+//   { type: 'log', args: ['Processing started'], timestamp: 1234567890 },
+//   { type: 'warn', args: ['Low memory'], timestamp: 1234567891 },
+//   { type: 'error', args: ['Failed to connect'], timestamp: 1234567892 },
+//   { type: 'log', args: ['Data:', [1, 2, 3]], timestamp: 1234567893 }
+// ]
+
+// Process captured logs
+metadata.logs.forEach(log => {
+  switch(log.type) {
+    case 'error':
+      // Handle errors
+      break;
+    case 'warn':
+      // Handle warnings
+      break;
+    case 'log':
+      // Handle info logs
+      break;
+  }
+});
+
+// Default behavior (backward compatible) - no metadata
+const result2 = await interpreter.execute(`log("Hello"); 42`);
+console.log(result2); // 42
 ```
 
 #### Setting Variables

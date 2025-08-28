@@ -930,6 +930,8 @@ error(...args)     // Error output
 warn(...args)      // Warning output
 ```
 
+**Console Capture (v0.12.0+)**: All console outputs from Wang code can be captured using the `withMetadata` option in the interpreter's execute method. See the API documentation for details.
+
 #### Type Checking & Conversion
 ```javascript
 typeof(value)      // Type of value

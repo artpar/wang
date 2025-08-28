@@ -35,6 +35,7 @@ export class WangInterpreter {
   protected currentContext: ExecutionContext;
   protected lastPipelineValue: any = undefined;
   protected globalModuleCache: Map<string, any> = new Map();
+  protected consoleLogs: Array<{ type: 'log' | 'error' | 'warn'; args: any[]; timestamp: number }> = [];
 
   constructor(options: InterpreterOptions = {}) {
     this.moduleResolver = options.moduleResolver || new InMemoryModuleResolver();
@@ -65,10 +66,19 @@ export class WangInterpreter {
   }
 
   private bindBuiltins() {
-    // Console functions
-    this.bindFunction('log', (...args: any[]) => console.log(...args));
-    this.bindFunction('error', (...args: any[]) => console.error(...args));
-    this.bindFunction('warn', (...args: any[]) => console.warn(...args));
+    // Console functions with capture
+    this.bindFunction('log', (...args: any[]) => {
+      this.consoleLogs.push({ type: 'log', args, timestamp: Date.now() });
+      console.log(...args);
+    });
+    this.bindFunction('error', (...args: any[]) => {
+      this.consoleLogs.push({ type: 'error', args, timestamp: Date.now() });
+      console.error(...args);
+    });
+    this.bindFunction('warn', (...args: any[]) => {
+      this.consoleLogs.push({ type: 'warn', args, timestamp: Date.now() });
+      console.warn(...args);
+    });
 
     // Type conversion functions
     this.bindFunction('Number', (val: any) => Number(val));
@@ -323,7 +333,12 @@ export class WangInterpreter {
     this.globalContext.variables.set(name, value);
   }
 
-  async execute(code: string, context?: ExecutionContext): Promise<any> {
+  async execute(code: string, context?: ExecutionContext): Promise<any>;
+  async execute(code: string, context: ExecutionContext | undefined, options: { withMetadata: true }): Promise<{ result: any; metadata: { logs: Array<{ type: 'log' | 'error' | 'warn'; args: any[]; timestamp: number }> } }>;
+  async execute(code: string, context?: ExecutionContext, options?: { withMetadata?: boolean }): Promise<any> {
+    // Clear console logs for this execution
+    this.consoleLogs = [];
+    
     // Create parser using bundled nearley runtime
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
@@ -348,18 +363,43 @@ export class WangInterpreter {
 
       try {
         const result = await this.evaluateNode(ast);
+        
+        // Return with metadata if requested
+        if (options?.withMetadata) {
+          return {
+            result,
+            metadata: {
+              logs: [...this.consoleLogs]
+            }
+          };
+        }
+        
+        // Default: return just the result for backward compatibility
         return result;
       } finally {
         this.currentContext = previousContext;
       }
     } catch (error: any) {
+      // Handle return at top level
+      if (error && typeof error === 'object' && error.type === 'return') {
+        // Return with metadata if requested
+        if (options?.withMetadata) {
+          return {
+            result: error.value,
+            metadata: {
+              logs: [...this.consoleLogs]
+            }
+          };
+        }
+        // Default: return just the value for backward compatibility
+        return error.value;
+      }
+      
+      // For errors, we still throw them but attach metadata
       if (error instanceof WangError) {
         throw error;
       }
-      // Handle return at top level
-      if (error && typeof error === 'object' && error.type === 'return') {
-        return error.value;
-      }
+      
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
       throw new WangError(
         `Parse error: ${errorMessage}`,
@@ -2436,9 +2476,9 @@ export class WangInterpreter {
     // Store reference to exports object so we can update it during evaluation
     moduleContext.moduleExports = exports;
 
-    // Execute module
+    // Execute module (use default behavior - no metadata)
     await this.execute(code, moduleContext);
-
+    
     // Get exports and copy to the cached object
     moduleContext.exports.forEach((value, key) => {
       exports[key] = value;

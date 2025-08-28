@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2025-01-01
+
+### Added
+- **Console Capture**: New metadata API for capturing console output from Wang code
+  - `execute()` method now supports optional `withMetadata` parameter
+  - When enabled, returns `{ result, metadata: { logs } }` with all console.log, warn, and error outputs
+  - Each captured log includes type, arguments, and timestamp
+  - Fully backward compatible - default behavior returns just the result
+  - Comprehensive test suite with 20+ test scenarios covering all aspects
+
+### Changed
+- Enhanced `bindBuiltins()` to capture console outputs when logging from Wang code
+- Updated TypeScript method signatures with proper overloads for type safety
+- Test suite expanded to include console capture tests
+
+### Technical Details
+- Console logs are captured in a dedicated array that's cleared on each execution
+- Timestamps are captured using `Date.now()` for each log entry
+- Internal module imports don't affect user-facing console capture
+- Full backward compatibility maintained through optional parameter approach
+
 ## [0.8.1] - 2024-12-27
 
 ### Added
