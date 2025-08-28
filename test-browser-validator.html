@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wang Validator Test</title>
+</head>
+<body>
+    <h1>Wang Validator Browser Test</h1>
+    <pre id="output"></pre>
+    
+    <script type="module">
+        import * as Wang from './dist/browser/wang.min.js';
+        
+        const output = document.getElementById('output');
+        
+        // Test if validator is available
+        output.textContent = 'Testing Wang validator in browser...\n\n';
+        
+        try {
+            const validator = new Wang.WangValidator();
+            
+            // Test 1: Valid code
+            const validCode = `let x = 1 + 2
+console.log(x)`;
+            const result1 = validator.validate(validCode);
+            output.textContent += `Test 1 (valid code): ${result1.valid ? '✅ PASS' : '❌ FAIL'}\n`;
+            
+            // Test 2: Invalid code (multiline arrow without braces)
+            const invalidCode = `let arr = [1, 2, 3]
+let result = arr |> filter(_, x => 
+  x > 1
+)`;
+            const result2 = validator.validate(invalidCode);
+            output.textContent += `Test 2 (invalid multiline arrow): ${!result2.valid ? '✅ PASS' : '❌ FAIL'}\n`;
+            if (result2.error) {
+                output.textContent += `  Error: ${result2.error.message.split('\n')[0]}\n`;
+                if (result2.error.suggestion) {
+                    output.textContent += `  Suggestion: ${result2.error.suggestion}\n`;
+                }
+            }
+            
+            // Test 3: Fixed code
+            const fixedCode = `let arr = [1, 2, 3]
+let result = arr |> filter(_, x => {
+  return x > 1
+})`;
+            const result3 = validator.validate(fixedCode);
+            output.textContent += `Test 3 (fixed code): ${result3.valid ? '✅ PASS' : '❌ FAIL'}\n`;
+            
+            output.textContent += '\n✅ All tests completed!';
+        } catch (error) {
+            output.textContent += `\n❌ Error: ${error.message}\n${error.stack}`;
+        }
+    </script>
+</body>
+</html>
