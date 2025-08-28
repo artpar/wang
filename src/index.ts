@@ -33,7 +33,12 @@ export {
 } from './utils/errors';
 
 // Validator exports
-export { WangValidator, validator, type ValidationResult, type ParserOptions } from './parser/wang-validator';
+export {
+  WangValidator,
+  validator,
+  type ValidationResult,
+  type ParserOptions,
+} from './parser/wang-validator';
 
 // Import for createInterpreter
 import { WangInterpreter } from './interpreter';

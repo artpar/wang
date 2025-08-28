@@ -30,15 +30,15 @@ export class WangValidator {
     try {
       const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
       parser.feed(code);
-      
+
       if (parser.results.length === 0) {
         return {
           valid: false,
           error: {
             message: 'No valid parse found',
             line: 0,
-            column: 0
-          }
+            column: 0,
+          },
         };
       }
 
@@ -48,7 +48,7 @@ export class WangValidator {
 
       return {
         valid: true,
-        ast: options.includeAST ? parser.results[0] : undefined
+        ast: options.includeAST ? parser.results[0] : undefined,
       };
     } catch (error: any) {
       return this.formatError(error, code);
@@ -60,7 +60,7 @@ export class WangValidator {
    */
   private formatError(error: any, code: string): ValidationResult {
     const errorMessage = error.message || error.toString();
-    
+
     // Extract line and column from error message
     const match = errorMessage.match(/line (\d+) col (\d+)/);
     const line = match ? parseInt(match[1]) : 0;
@@ -68,13 +68,16 @@ export class WangValidator {
 
     // Provide specific suggestions for common errors
     let suggestion: string | undefined;
-    
+
     if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('=>')) {
-      suggestion = 'Arrow functions with newlines require braces. Change "=> \\n expression" to either "=> expression" (single line) or "=> { return expression }" (with braces).';
+      suggestion =
+        'Arrow functions with newlines require braces. Change "=> \\n expression" to either "=> expression" (single line) or "=> { return expression }" (with braces).';
     } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('ArrowBody')) {
-      suggestion = 'Multi-line arrow function bodies must use braces. Wrap your expression in { return ... }';
+      suggestion =
+        'Multi-line arrow function bodies must use braces. Wrap your expression in { return ... }';
     } else if (errorMessage.includes('Unexpected }')) {
-      suggestion = 'Check for missing commas between object properties or unclosed parentheses/brackets.';
+      suggestion =
+        'Check for missing commas between object properties or unclosed parentheses/brackets.';
     } else if (errorMessage.includes('Unexpected identifier')) {
       suggestion = 'Check for missing operators, commas, or semicolons between statements.';
     } else if (errorMessage.includes('|>') || errorMessage.includes('->')) {
@@ -84,7 +87,7 @@ export class WangValidator {
     // Get the problematic line for context
     const lines = code.split('\\n');
     const problemLine = lines[line - 1];
-    
+
     let formattedMessage = errorMessage.split('\\n')[0];
     if (problemLine) {
       formattedMessage += `\\n\\nProblematic line ${line}:\\n${problemLine}\\n${' '.repeat(column - 1)}^`;
@@ -96,8 +99,8 @@ export class WangValidator {
         message: formattedMessage,
         line,
         column,
-        suggestion
-      }
+        suggestion,
+      },
     };
   }
 
@@ -116,7 +119,7 @@ export class WangValidator {
       hasPipelines: /\|>|->/.test(code),
       hasAsyncAwait: /\basync\b|\bawait\b/.test(code),
       hasClasses: /\bclass\b/.test(code),
-      hasModules: /\bimport\b|\bexport\b/.test(code)
+      hasModules: /\bimport\b|\bexport\b/.test(code),
     };
   }
 
@@ -128,16 +131,22 @@ export class WangValidator {
     const patterns = this.checkSyntaxPatterns(code);
 
     if (patterns.hasMultilineArrows) {
-      suggestions.push('Found multi-line arrow functions without braces. Consider using braces for multi-line arrow function bodies.');
+      suggestions.push(
+        'Found multi-line arrow functions without braces. Consider using braces for multi-line arrow function bodies.',
+      );
     }
 
     // Check for common mistakes
     if (/\)\s*\n\s*{/.test(code) && !/"function"/.test(code)) {
-      suggestions.push('Found newline between closing parenthesis and opening brace. This might cause parsing issues in some contexts.');
+      suggestions.push(
+        'Found newline between closing parenthesis and opening brace. This might cause parsing issues in some contexts.',
+      );
     }
 
     if (/,\s*}/.test(code)) {
-      suggestions.push('Found trailing comma before closing brace. While valid in JavaScript, ensure Wang supports this.');
+      suggestions.push(
+        'Found trailing comma before closing brace. While valid in JavaScript, ensure Wang supports this.',
+      );
     }
 
     return suggestions;

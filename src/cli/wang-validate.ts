@@ -42,12 +42,12 @@ async function main() {
   const options = {
     showAST: args.includes('--ast'),
     showSuggestions: args.includes('--suggestions'),
-    quiet: args.includes('--quiet')
+    quiet: args.includes('--quiet'),
   };
 
   // Get the file path (first non-flag argument)
-  const filePath = args.find(arg => !arg.startsWith('--'));
-  
+  const filePath = args.find((arg) => !arg.startsWith('--'));
+
   if (!filePath) {
     console.error('Error: No file specified');
     showHelp();
@@ -73,7 +73,7 @@ async function main() {
     if (result.valid) {
       if (!options.quiet) {
         console.log('✅ Valid Wang syntax');
-        
+
         if (options.showAST && result.ast) {
           console.log('\\nAST:');
           console.log(JSON.stringify(result.ast, null, 2));
@@ -83,7 +83,7 @@ async function main() {
           const suggestions = validator.suggestFixes(code);
           if (suggestions.length > 0) {
             console.log('\\nSuggestions:');
-            suggestions.forEach(s => console.log(`  • ${s}`));
+            suggestions.forEach((s) => console.log(`  • ${s}`));
           }
         }
       }
@@ -93,24 +93,24 @@ async function main() {
       if (!options.quiet) {
         console.error('❌ Invalid Wang syntax\\n');
       }
-      
+
       if (result.error) {
         console.error(`Error at line ${result.error.line}, column ${result.error.column}:`);
         console.error(result.error.message);
-        
+
         if (result.error.suggestion) {
           console.error(`\\n💡 Suggestion: ${result.error.suggestion}`);
         }
       }
-      
+
       if (options.showSuggestions && !options.quiet) {
         const suggestions = validator.suggestFixes(code);
         if (suggestions.length > 0) {
           console.error('\\nAdditional suggestions:');
-          suggestions.forEach(s => console.error(`  • ${s}`));
+          suggestions.forEach((s) => console.error(`  • ${s}`));
         }
       }
-      
+
       process.exit(1);
     }
   } catch (error: any) {
@@ -123,24 +123,24 @@ function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
     let data = '';
     process.stdin.setEncoding('utf-8');
-    
-    process.stdin.on('data', chunk => {
+
+    process.stdin.on('data', (chunk) => {
       data += chunk;
     });
-    
+
     process.stdin.on('end', () => {
       resolve(data);
     });
-    
+
     process.stdin.on('error', reject);
-    
+
     // Start reading
     process.stdin.resume();
   });
 }
 
 // Run the CLI
-main().catch(error => {
+main().catch((error) => {
   console.error('Unexpected error:', error);
   process.exit(1);
 });
