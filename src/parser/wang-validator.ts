@@ -119,18 +119,31 @@ export class WangValidator {
     let suggestion: string | undefined;
 
     // Check if error occurs near regex patterns with HTML-like content
-    if ((errorMessage.includes('Unexpected identifier') || errorMessage.includes('Unexpected /')) && 
-        line > 0 && lines[line - 1] && lines[line - 1].includes('match(')) {
+    if (
+      (errorMessage.includes('Unexpected identifier') || errorMessage.includes('Unexpected /')) &&
+      line > 0 &&
+      lines[line - 1] &&
+      lines[line - 1].includes('match(')
+    ) {
       suggestion =
         'This appears to be a regex pattern containing HTML tags (e.g., </a>). The parser may be interpreting "</" as operators. ' +
         'Try escaping the forward slash in closing tags: "<\\/a>" instead of "</a>".';
-    } else if (errorMessage.includes('Unexpected ) token') || errorMessage.includes('Unexpected }')) {
+    } else if (
+      errorMessage.includes('Unexpected ) token') ||
+      errorMessage.includes('Unexpected }')
+    ) {
       suggestion =
         'Check for missing commas between object properties, or a missing closing brace/bracket earlier in the code.';
-    } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('=>')) {
+    } else if (
+      errorMessage.includes('Unexpected NL token') &&
+      errorMessage.includes('=>')
+    ) {
       suggestion =
         'Arrow functions with newlines require braces. Change "=> \\n expression" to either "=> expression" (single line) or "=> { return expression }" (with braces).';
-    } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('ArrowBody')) {
+    } else if (
+      errorMessage.includes('Unexpected NL token') &&
+      errorMessage.includes('ArrowBody')
+    ) {
       suggestion =
         'Multi-line arrow function bodies must use braces. Wrap your expression in { return ... }';
     } else if (errorMessage.includes('Unexpected identifier')) {
