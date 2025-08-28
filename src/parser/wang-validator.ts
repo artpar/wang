@@ -66,31 +66,77 @@ export class WangValidator {
     const line = match ? parseInt(match[1]) : 0;
     const column = match ? parseInt(match[2]) : 0;
 
+    // Build formatted message with context
+    const lines = code.split('\n');
+    let formattedMessage = '';
+
+    // Check if this is a Nearley parse error with location info
+    if (match && line > 0) {
+      formattedMessage = `Parse error: Syntax error at line ${line} col ${column}:\n\n`;
+      
+      // Add context lines (show 2 lines before the error if possible)
+      const startLine = Math.max(0, line - 3);
+      const endLine = Math.min(lines.length, line);
+      
+      for (let i = startLine; i < endLine; i++) {
+        const lineNum = i + 1;
+        const lineContent = lines[i];
+        const lineNumStr = String(lineNum).padStart(String(line).length, ' ');
+        formattedMessage += `${lineNumStr} ${lineContent}\n`;
+      }
+      
+      // Add the error pointer
+      formattedMessage += ' '.repeat(String(line).length + column) + '^\n';
+      
+      // Add the token info from the error message
+      const unexpectedMatch = errorMessage.match(/Unexpected (.+?) token: "(.+?)"/);
+      if (unexpectedMatch) {
+        formattedMessage += `Unexpected ${unexpectedMatch[1]} token: "${unexpectedMatch[2]}". `;
+      }
+      
+      // Add expectations
+      const expectationsMatch = errorMessage.match(/Instead, I was expecting to see one of the following:([\s\S]*)/);
+      if (expectationsMatch) {
+        formattedMessage += 'Instead, I was expecting to see one of the following:\n';
+        // Extract and format the expectations
+        const expectations = expectationsMatch[1].trim();
+        const expectationLines = expectations.split('\n').slice(0, 10); // Limit to first 10 expectations
+        for (const expLine of expectationLines) {
+          if (expLine.trim()) {
+            formattedMessage += '\n' + expLine;
+          }
+        }
+        if (expectations.split('\n').length > 10) {
+          formattedMessage += '\n... and more';
+        }
+      }
+    } else {
+      // Fallback to original error message if we can't parse it
+      formattedMessage = errorMessage;
+    }
+
     // Provide specific suggestions for common errors
     let suggestion: string | undefined;
 
-    if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('=>')) {
+    // Check if error occurs near regex patterns with HTML-like content
+    if ((errorMessage.includes('Unexpected identifier') || errorMessage.includes('Unexpected /')) && 
+        line > 0 && lines[line - 1] && lines[line - 1].includes('match(')) {
+      suggestion =
+        'This appears to be a regex pattern containing HTML tags (e.g., </a>). The parser may be interpreting "</" as operators. ' +
+        'Try escaping the forward slash in closing tags: "<\\/a>" instead of "</a>".';
+    } else if (errorMessage.includes('Unexpected ) token') || errorMessage.includes('Unexpected }')) {
+      suggestion =
+        'Check for missing commas between object properties, or a missing closing brace/bracket earlier in the code.';
+    } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('=>')) {
       suggestion =
         'Arrow functions with newlines require braces. Change "=> \\n expression" to either "=> expression" (single line) or "=> { return expression }" (with braces).';
     } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('ArrowBody')) {
       suggestion =
         'Multi-line arrow function bodies must use braces. Wrap your expression in { return ... }';
-    } else if (errorMessage.includes('Unexpected }')) {
-      suggestion =
-        'Check for missing commas between object properties or unclosed parentheses/brackets.';
     } else if (errorMessage.includes('Unexpected identifier')) {
       suggestion = 'Check for missing operators, commas, or semicolons between statements.';
     } else if (errorMessage.includes('|>') || errorMessage.includes('->')) {
       suggestion = 'Pipeline operators must be followed by a valid expression or function call.';
-    }
-
-    // Get the problematic line for context
-    const lines = code.split('\\n');
-    const problemLine = lines[line - 1];
-
-    let formattedMessage = errorMessage.split('\\n')[0];
-    if (problemLine) {
-      formattedMessage += `\\n\\nProblematic line ${line}:\\n${problemLine}\\n${' '.repeat(column - 1)}^`;
     }
 
     return {
