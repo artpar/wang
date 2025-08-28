@@ -194,9 +194,9 @@
         </header>
         
         <!-- Main Content Area -->
-        <div class="flex-1 flex overflow-hidden">
-            <!-- Sidebar -->
-            <aside id="sidebar" class="w-12 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-2 gap-1 flex-shrink-0">
+        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <!-- Sidebar (hidden on mobile) -->
+            <aside id="sidebar" class="hidden lg:flex w-12 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col items-center py-2 gap-1 flex-shrink-0">
                 <button class="sidebar-btn p-2.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-emerald-500" title="Editor">
                     <i class="fas fa-code"></i>
                 </button>
@@ -217,19 +217,19 @@
                 </button>
             </aside>
             
-            <!-- Editor and Output Panels -->
-            <div class="flex-1 flex overflow-hidden">
+            <!-- Editor and Output Panels Container -->
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
                 <!-- Editor Panel -->
-                <div id="editor-panel" class="flex flex-col bg-white dark:bg-gray-900" style="flex: 2;">
+                <div id="editor-panel" class="flex flex-col bg-white dark:bg-gray-900 w-full md:w-1/2 lg:w-3/5 h-1/2 md:h-full">
                     <!-- Editor Header -->
                     <div class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-1 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-medium">main.wang</span>
                             <span id="modified-indicator" class="text-xs text-orange-500 hidden">●</span>
                         </div>
-                        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                            <span id="cursor-position">Ln 1, Col 1</span>
-                            <span id="selection-info"></span>
+                        <div class="flex items-center gap-2 md:gap-3 text-xs text-gray-500 dark:text-gray-400">
+                            <span id="cursor-position" class="hidden sm:inline">Ln 1, Col 1</span>
+                            <span id="selection-info" class="hidden sm:inline"></span>
                             <span id="exec-time" class="hidden">
                                 <i class="fas fa-clock text-emerald-500"></i>
                                 <span id="exec-time-value">0ms</span>
@@ -237,27 +237,27 @@
                         </div>
                     </div>
                     <!-- Monaco Editor Container -->
-                    <div id="editor-container" class="flex-1"></div>
+                    <div id="editor-container" class="flex-1 min-h-0"></div>
                 </div>
                 
-                <!-- Resizer -->
-                <div id="resizer" class="resize-handle w-1 bg-gray-200 dark:bg-gray-700 hover:bg-emerald-500 transition-colors"></div>
+                <!-- Resizer (hidden on mobile, visible on desktop) -->
+                <div id="resizer" class="hidden md:block resize-handle w-1 bg-gray-200 dark:bg-gray-700 hover:bg-emerald-500 transition-colors flex-shrink-0"></div>
                 
                 <!-- Output Panel -->
-                <div id="output-panel" class="flex flex-col bg-white dark:bg-gray-900" style="flex: 1;">
+                <div id="output-panel" class="flex flex-col bg-white dark:bg-gray-900 w-full md:w-1/2 lg:w-2/5 h-1/2 md:h-full border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-700">
                     <!-- Output Header -->
                     <div class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-1 flex items-center justify-between">
-                        <div class="flex gap-4">
-                            <button class="tab-btn text-sm font-medium text-emerald-500 border-b-2 border-emerald-500 pb-1" data-tab="output">Output</button>
-                            <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1" data-tab="ast">AST</button>
-                            <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1" data-tab="console">Console</button>
+                        <div class="flex gap-2 md:gap-4 overflow-x-auto">
+                            <button class="tab-btn text-sm font-medium text-emerald-500 border-b-2 border-emerald-500 pb-1 whitespace-nowrap" data-tab="output">Output</button>
+                            <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1 whitespace-nowrap" data-tab="ast">AST</button>
+                            <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1 whitespace-nowrap" data-tab="console">Console</button>
                         </div>
-                        <button id="clear-output" class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors">
+                        <button id="clear-output" class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0">
                             <i class="fas fa-trash text-xs"></i>
                         </button>
                     </div>
                     <!-- Output Container -->
-                    <div id="output-container" class="flex-1 overflow-y-auto p-4 font-mono text-sm">
+                    <div id="output-container" class="flex-1 overflow-y-auto p-2 md:p-4 font-mono text-xs md:text-sm min-h-0">
                         <div class="text-gray-500 dark:text-gray-400">
                             <i class="fas fa-info-circle"></i> Ready. Press <kbd class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl+Enter</kbd> to run your code.
                         </div>
@@ -742,32 +742,56 @@ pet.speak()`
                 });
             });
             
-            // Panel resizing
+            // Panel resizing (only on desktop)
             const resizer = document.getElementById('resizer');
             const editorPanel = document.getElementById('editor-panel');
             const outputPanel = document.getElementById('output-panel');
             let isResizing = false;
             
-            resizer.addEventListener('mousedown', (e) => {
-                isResizing = true;
-                document.body.style.cursor = 'col-resize';
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (!isResizing) return;
+            if (resizer && window.innerWidth >= 768) { // md breakpoint
+                resizer.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    document.body.style.cursor = 'col-resize';
+                });
                 
-                const container = editorPanel.parentElement;
-                const containerWidth = container.offsetWidth;
-                const pointerRelativeXpos = e.clientX - container.offsetLeft;
-                const editorWidth = Math.max(200, Math.min(containerWidth - 200, pointerRelativeXpos));
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    
+                    const container = editorPanel.parentElement;
+                    const containerWidth = container.offsetWidth;
+                    const pointerRelativeXpos = e.clientX - container.offsetLeft - (window.innerWidth >= 1024 ? 48 : 0); // Account for sidebar on lg screens
+                    const editorWidth = Math.max(200, Math.min(containerWidth - 200, pointerRelativeXpos));
+                    
+                    // Use specific widths instead of flex to maintain sizes
+                    editorPanel.style.width = `${editorWidth}px`;
+                    editorPanel.classList.remove('md:w-1/2', 'lg:w-3/5');
+                    outputPanel.style.width = `${containerWidth - editorWidth - 4}px`; // 4px for resizer
+                    outputPanel.classList.remove('md:w-1/2', 'lg:w-2/5');
+                });
                 
-                editorPanel.style.flex = `0 0 ${editorWidth}px`;
-                outputPanel.style.flex = '1';
-            });
+                document.addEventListener('mouseup', () => {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                });
+            }
             
-            document.addEventListener('mouseup', () => {
-                isResizing = false;
-                document.body.style.cursor = '';
+            // Handle window resize to reset layout on mobile/desktop switch
+            let previousWidth = window.innerWidth;
+            window.addEventListener('resize', () => {
+                const currentWidth = window.innerWidth;
+                const crossedBreakpoint = (previousWidth < 768 && currentWidth >= 768) || 
+                                         (previousWidth >= 768 && currentWidth < 768);
+                
+                if (crossedBreakpoint) {
+                    // Reset to default widths when crossing breakpoint
+                    editorPanel.style.width = '';
+                    outputPanel.style.width = '';
+                    if (currentWidth >= 768) {
+                        editorPanel.classList.add('md:w-1/2', 'lg:w-3/5');
+                        outputPanel.classList.add('md:w-1/2', 'lg:w-2/5');
+                    }
+                }
+                previousWidth = currentWidth;
             });
             
             // Keyboard shortcuts
