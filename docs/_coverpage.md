@@ -13,4 +13,5 @@
 - 🧪 100% test coverage (256/256 tests passing)
 
 [GitHub](https://github.com/artpar/wang)
+[Playground](playground.html)
 [Get Started](#quick-start)
