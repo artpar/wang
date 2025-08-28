@@ -806,7 +806,7 @@ log("Processed:", processData(numbers))`
             output.value = '';
             status.style.display = 'block';
             
-            const result = validator.validate(code);
+            const result = validator.validate(code, { includeAST: true });
             
             if (result.valid) {
                 output.value = '🌳 Abstract Syntax Tree:\n\n';
