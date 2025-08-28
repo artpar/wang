@@ -197,6 +197,7 @@
             padding: 8px 0;
             gap: 4px;
             z-index: 50;
+            flex-shrink: 0;
         }
         
         .sidebar-btn {
@@ -209,10 +210,12 @@
             cursor: pointer;
             transition: all var(--transition-fast);
             position: relative;
+            color: var(--text-secondary);
         }
         
         .sidebar-btn:hover {
             background: var(--bg-hover);
+            color: var(--text-primary);
         }
         
         .sidebar-btn.active {
@@ -223,7 +226,9 @@
         .sidebar-btn svg {
             width: 20px;
             height: 20px;
-            fill: currentColor;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
         }
         
         .tooltip {
@@ -864,31 +869,35 @@
             <!-- Sidebar -->
             <nav class="sidebar" role="navigation">
                 <div class="sidebar-btn active" id="sidebar-code" aria-label="Code editor" role="button">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l5.6 5.6a1 1 0 0 1 0 1.4l-5.6 5.6a1 1 0 1 0 1.4 1.4l5.6-5.6a3 3 0 0 0 0-4.2l-5.6-5.6a1 1 0 0 0-1.4 0z"/>
-                        <path d="M9.3 17.7a1 1 0 0 0 0-1.4L3.7 10.7a1 1 0 0 1 0-1.4L9.3 3.7a1 1 0 1 0-1.4-1.4L2.3 7.9a3 3 0 0 0 0 4.2l5.6 5.6a1 1 0 0 0 1.4 0z"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M15 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
                     </svg>
                     <span class="tooltip">Code Editor</span>
                 </div>
                 
                 <div class="sidebar-btn" id="sidebar-output" aria-label="Output panel" role="button">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M3 3h18v6H3zm0 8h18v10H3z"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
                     </svg>
                     <span class="tooltip">Output</span>
                 </div>
                 
                 <div class="sidebar-btn" id="sidebar-console" aria-label="Console" role="button">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M2 3h20v14H2zm5 3l4 4-4 4m5 0h5"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M8 10l2 2-2 2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="12" y1="12" x2="16" y2="12" stroke-linecap="round"/>
                     </svg>
                     <span class="tooltip">Console</span>
                 </div>
                 
                 <div class="sidebar-btn" id="sidebar-settings" aria-label="Settings" role="button">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
-                        <path d="M12 2l2 5h5l-4 3 1.5 5L12 12l-4.5 3L9 10l-4-3h5z"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6m6.36-15.36l-4.24 4.24M18.36 18.36l-4.24-4.24M23 12h-6m-6 0H1m20.36 6.36l-4.24-4.24M7.88 7.88L3.64 3.64m16.72 16.72l-4.24-4.24M7.88 16.12l-4.24 4.24" stroke-linecap="round"/>
                     </svg>
                     <span class="tooltip">Settings</span>
                 </div>
@@ -896,8 +905,9 @@
                 <div style="flex: 1;"></div>
                 
                 <div class="sidebar-btn" id="sidebar-shortcuts" aria-label="Keyboard shortcuts" role="button">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M3 6h18v4H3zm0 8h12v4H3z"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="2" y="4" width="20" height="16" rx="2" ry="2"/>
+                        <path d="M6 8h4m2 0h2m2 0h4M6 12h2m2 0h4m2 0h2M6 16h4m2 0h2" stroke-linecap="round"/>
                     </svg>
                     <span class="tooltip">Shortcuts</span>
                 </div>
@@ -1160,6 +1170,9 @@
         </div>
     </div>
     
+    <!-- Load Wang Language first -->
+    <script src="https://cdn.jsdelivr.net/gh/artpar/wang@main/dist/browser/wang.min.js"></script>
+    
     <!-- Load Monaco Editor -->
     <script>
         var require = { paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } };
@@ -1168,11 +1181,19 @@
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.nls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.js"></script>
     
-    <!-- Load Wang Language -->
-    <script src="https://cdn.jsdelivr.net/gh/artpar/wang@main/dist/browser/wang.min.js"></script>
-    
     <!-- Application Code -->
     <script>
+        // Wait for both Wang and Monaco to load
+        function initializeWhenReady() {
+            // Check if both Wang and Monaco are loaded
+            if (typeof Wang !== 'undefined' && typeof monaco !== 'undefined') {
+                window.ide = new WangIDE();
+            } else {
+                // Retry after a short delay
+                setTimeout(initializeWhenReady, 100);
+            }
+        }
+        
         // Initialize the IDE
         class WangIDE {
             constructor() {
@@ -1975,13 +1996,11 @@ log("Result:", result)
             }
         }
         
-        // Initialize IDE when DOM is ready
+        // Initialize IDE when DOM and libraries are ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                window.ide = new WangIDE();
-            });
+            document.addEventListener('DOMContentLoaded', initializeWhenReady);
         } else {
-            window.ide = new WangIDE();
+            initializeWhenReady();
         }
     </script>
 </body>
