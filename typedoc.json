@@ -1,0 +1,19 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "readme": "README.md",
+  "name": "Wang Language",
+  "navigationLinks": {
+    "GitHub": "https://github.com/artpar/wang",
+    "NPM": "https://www.npmjs.com/package/wang-lang",
+    "🎮 Playground": "https://artpar.github.io/wang/playground.html"
+  },
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "default",
+  "customCss": "./docs/custom.css"
+}
