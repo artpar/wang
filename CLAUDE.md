@@ -110,6 +110,11 @@ const interpreter = new WangInterpreter({
   }
 })
 
+// Set JavaScript objects as variables (v0.11.1+)
+interpreter.setVariable('Math', Math)
+interpreter.setVariable('JSON', JSON)
+interpreter.setVariable('customAPI', myAPIObject)
+
 // Execute Wang code
 await interpreter.execute(`
   import { processData } from "myModule"
@@ -206,6 +211,7 @@ Wang achieves **167/167 tests passing** with comprehensive coverage of:
 - **Method Chaining**: Cross-line method chaining with proper continuation
 - **Class Inheritance**: Full OOP support with `extends` and `super()`
 - **Module Resolution**: Pluggable resolvers (Memory, IndexedDB, HTTP, Composite)
+- **JavaScript Interop**: Direct object injection via `setVariable()` for Math, JSON, and custom objects (v0.11.1+)
 - **Error Recovery**: Comprehensive error messages with suggestions
 - **CSP Safety**: No `eval()` or `new Function()` usage
 

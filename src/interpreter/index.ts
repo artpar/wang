@@ -319,6 +319,10 @@ export class WangInterpreter {
     this.globalContext.functions.set(name, fn);
   }
 
+  setVariable(name: string, value: any) {
+    this.globalContext.variables.set(name, value);
+  }
+
   async execute(code: string, context?: ExecutionContext): Promise<any> {
     // Create parser using bundled nearley runtime
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));

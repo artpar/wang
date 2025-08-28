@@ -1,8 +1,9 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 0.9.0  
-**Test Coverage:** 497/499 tests (99.6%)  
+**Version:** 0.11.1  
+**Test Coverage:** 507/509 tests (99.6%)  
 **CSP Safe:** ✅ No eval(), new Function()  
+**New in 0.11.1:** 🔧 Direct JavaScript object injection via setVariable()  
 **New in 0.9.0:** 🔍 Full Regular Expression Support  
 
 ## Overview
@@ -1003,6 +1004,44 @@ const result = await interpreter.execute(`
   data |> map(_, x => x * 2) |> reduce(_, (sum, x) => sum + x, 0)
 `);
 console.log(result); // 12
+```
+
+### JavaScript Interoperability
+
+#### Variable Injection (v0.11.1+)
+```javascript
+const interpreter = new WangInterpreter();
+
+// Inject JavaScript built-in objects
+interpreter.setVariable('Math', Math);
+interpreter.setVariable('JSON', JSON);
+interpreter.setVariable('Object', Object);
+interpreter.setVariable('Array', Array);
+interpreter.setVariable('Date', Date);
+interpreter.setVariable('RegExp', RegExp);
+interpreter.setVariable('console', console);
+
+// Inject custom objects and values
+interpreter.setVariable('config', {
+  apiURL: 'https://api.example.com',
+  timeout: 5000,
+  debug: true
+});
+
+interpreter.setVariable('myAPI', {
+  getUser: (id) => fetch(`/users/${id}`),
+  saveData: (data) => localStorage.setItem('data', JSON.stringify(data))
+});
+
+// Use in Wang code
+await interpreter.execute(`
+  let x = Math.sqrt(16)
+  let now = Date.now()
+  let keys = Object.keys(config)
+  console.log("Debug mode:", config.debug)
+  
+  let userData = myAPI.getUser(123)
+`);
 ```
 
 ### Function Binding

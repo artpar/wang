@@ -65,6 +65,11 @@ const interpreter = new WangInterpreter({
   }
 });
 
+// Set JavaScript objects as variables (v0.11.1+)
+interpreter.setVariable('Math', Math);
+interpreter.setVariable('JSON', JSON);
+interpreter.setVariable('customObject', { value: 42 });
+
 // Execute Wang code - returns the last expression value
 const result = await interpreter.execute(`
   import { processData } from "utils";
@@ -831,7 +836,38 @@ class WangInterpreter {
   
   execute(code: string, context?: ExecutionContext): Promise<any>;
   bindFunction(name: string, fn: Function): void;
+  setVariable(name: string, value: any): void;  // v0.11.1+
 }
+```
+
+#### Setting Variables
+
+The `setVariable()` method (v0.11.1+) allows you to inject JavaScript objects and values directly into Wang's global scope:
+
+```javascript
+const interpreter = new WangInterpreter();
+
+// Set JavaScript built-in objects
+interpreter.setVariable('Math', Math);
+interpreter.setVariable('JSON', JSON);
+interpreter.setVariable('Object', Object);
+interpreter.setVariable('Array', Array);
+interpreter.setVariable('console', console);
+
+// Set custom objects
+interpreter.setVariable('myAPI', {
+  baseURL: 'https://api.example.com',
+  getUser: (id) => fetch(`/users/${id}`),
+  data: [1, 2, 3]
+});
+
+// Now accessible in Wang code
+await interpreter.execute(`
+  let x = Math.abs(-10)
+  let data = JSON.stringify({ value: 42 })
+  let keys = Object.keys(myAPI)
+  console.log("API URL:", myAPI.baseURL)
+`);
 ```
 
 ### ModuleResolver
