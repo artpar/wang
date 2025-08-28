@@ -341,8 +341,8 @@ log(message)
         </footer>
     </div>
 
-    <script type="module">
-        import { WangInterpreter, InMemoryModuleResolver, WangValidator } from './wang.min.js';
+    <script src="./wang.min.js"></script>
+    <script>
 
         // Example code snippets
         const examples = {
@@ -664,6 +664,9 @@ let numbers = [1, 2, 3]
 log("Processed:", processData(numbers))`
         };
 
+        // Access Wang from the global UMD bundle
+        const { WangInterpreter, InMemoryModuleResolver, WangValidator } = Wang;
+        
         // Create globals for easy access
         window.interpreter = null;
         window.validator = new WangValidator();
