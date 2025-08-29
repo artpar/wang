@@ -48,6 +48,9 @@ jobs:
           # Copy playground to existing docs directory  
           cp playground.html docs/playground.html
           
+          # Copy playground as index.html for GitHub Pages homepage
+          cp playground.html docs/index.html
+          
           # Copy browser bundle to docs
           mkdir -p docs/dist/browser
           cp -r dist/browser/* docs/dist/browser/ || echo "Browser bundle not found"
