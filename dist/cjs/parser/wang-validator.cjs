@@ -106,13 +106,11 @@ class WangValidator {
             suggestion =
                 'Check for missing commas between object properties, or a missing closing brace/bracket earlier in the code.';
         }
-        else if (errorMessage.includes('Unexpected NL token') &&
-            errorMessage.includes('=>')) {
+        else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('=>')) {
             suggestion =
                 'Arrow functions with newlines require braces. Change "=> \\n expression" to either "=> expression" (single line) or "=> { return expression }" (with braces).';
         }
-        else if (errorMessage.includes('Unexpected NL token') &&
-            errorMessage.includes('ArrowBody')) {
+        else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('ArrowBody')) {
             suggestion =
                 'Multi-line arrow function bodies must use braces. Wrap your expression in { return ... }';
         }

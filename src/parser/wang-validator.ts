@@ -73,29 +73,26 @@ export class WangValidator {
     // Check if this is a Nearley parse error with location info
     if (match && line > 0) {
       formattedMessage = `Parse error: Syntax error at line ${line} col ${column}:\n\n`;
-      
       // Add context lines (show 2 lines before the error if possible)
       const startLine = Math.max(0, line - 3);
       const endLine = Math.min(lines.length, line);
-      
       for (let i = startLine; i < endLine; i++) {
         const lineNum = i + 1;
         const lineContent = lines[i];
         const lineNumStr = String(lineNum).padStart(String(line).length, ' ');
         formattedMessage += `${lineNumStr} ${lineContent}\n`;
       }
-      
       // Add the error pointer
       formattedMessage += ' '.repeat(String(line).length + column) + '^\n';
-      
       // Add the token info from the error message
       const unexpectedMatch = errorMessage.match(/Unexpected (.+?) token: "(.+?)"/);
       if (unexpectedMatch) {
         formattedMessage += `Unexpected ${unexpectedMatch[1]} token: "${unexpectedMatch[2]}". `;
       }
-      
       // Add expectations
-      const expectationsMatch = errorMessage.match(/Instead, I was expecting to see one of the following:([\s\S]*)/);
+      const expectationsMatch = errorMessage.match(
+        /Instead, I was expecting to see one of the following:([\s\S]*)/,
+      );
       if (expectationsMatch) {
         formattedMessage += 'Instead, I was expecting to see one of the following:\n';
         // Extract and format the expectations
@@ -134,16 +131,10 @@ export class WangValidator {
     ) {
       suggestion =
         'Check for missing commas between object properties, or a missing closing brace/bracket earlier in the code.';
-    } else if (
-      errorMessage.includes('Unexpected NL token') &&
-      errorMessage.includes('=>')
-    ) {
+    } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('=>')) {
       suggestion =
         'Arrow functions with newlines require braces. Change "=> \\n expression" to either "=> expression" (single line) or "=> { return expression }" (with braces).';
-    } else if (
-      errorMessage.includes('Unexpected NL token') &&
-      errorMessage.includes('ArrowBody')
-    ) {
+    } else if (errorMessage.includes('Unexpected NL token') && errorMessage.includes('ArrowBody')) {
       suggestion =
         'Multi-line arrow function bodies must use braces. Wrap your expression in { return ... }';
     } else if (errorMessage.includes('Unexpected identifier')) {

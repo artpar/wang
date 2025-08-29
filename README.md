@@ -928,6 +928,106 @@ await interpreter.execute(`
 `);
 ```
 
+### WangValidator
+
+A lightweight parser and syntax validator that validates Wang code without executing it. Perfect for IDE integrations, linting, and syntax checking.
+
+```typescript
+class WangValidator {
+  validate(code: string, options?: ParserOptions): ValidationResult;
+  checkSyntaxPatterns(code: string): SyntaxPatterns;
+  suggestFixes(code: string): string[];
+}
+
+interface ValidationResult {
+  valid: boolean;
+  error?: {
+    message: string;
+    line: number;
+    column: number;
+    suggestion?: string;
+  };
+  ast?: any;  // Optional AST when includeAST: true
+}
+
+interface ParserOptions {
+  includeAST?: boolean;  // Include the parsed AST in result
+}
+```
+
+#### Usage Examples
+
+```javascript
+import { WangValidator } from 'wang-lang';
+
+const validator = new WangValidator();
+
+// Simple validation
+const result = validator.validate(`
+  let x = 10
+  x |> double |> log
+`);
+
+if (result.valid) {
+  console.log("Code is valid!");
+} else {
+  console.error(`Error at line ${result.error.line}, col ${result.error.column}:`);
+  console.error(result.error.message);
+  if (result.error.suggestion) {
+    console.log("Suggestion:", result.error.suggestion);
+  }
+}
+
+// Get AST for further analysis
+const resultWithAST = validator.validate(code, { includeAST: true });
+if (resultWithAST.valid) {
+  console.log("AST:", resultWithAST.ast);
+}
+
+// Check for specific syntax patterns
+const patterns = validator.checkSyntaxPatterns(code);
+console.log("Has pipelines:", patterns.hasPipelines);
+console.log("Has async/await:", patterns.hasAsyncAwait);
+console.log("Has classes:", patterns.hasClasses);
+
+// Get suggestions for common issues
+const suggestions = validator.suggestFixes(code);
+suggestions.forEach(suggestion => console.log("Tip:", suggestion));
+```
+
+#### Error Messages with Context
+
+The validator provides detailed error messages with visual context:
+
+```javascript
+const result = validator.validate(`
+  let x = 10
+  x |> 
+`);
+
+// Output:
+// Parse error: Syntax error at line 3 col 6:
+//
+// 1 
+// 2   let x = 10
+// 3   x |> 
+//        ^
+// Unexpected NL token. Instead, I was expecting to see one of the following:
+// 
+// A function name token based on:
+//     PipelineOperator → _ "|>" ● FunctionName
+// ... and more
+```
+
+#### Common Error Detection
+
+The validator automatically detects and suggests fixes for common issues:
+
+- **Regex in HTML contexts**: Suggests escaping forward slashes in patterns like `</a>`
+- **Multiline arrow functions**: Detects missing braces in multiline arrow function bodies
+- **Missing operators**: Identifies missing commas, semicolons, or operators between statements
+- **Pipeline operator issues**: Ensures pipeline operators are followed by valid expressions
+
 ### ModuleResolver
 
 Base class for implementing module resolution.

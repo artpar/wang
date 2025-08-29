@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **WangValidator**: New syntax validation API for checking Wang code without execution
+  - `validate()` method for syntax checking with optional AST extraction
+  - `checkSyntaxPatterns()` for detecting specific language features in code
+  - `suggestFixes()` for identifying common issues and providing recommendations
+  - Detailed error messages with line/column information and visual context
+  - Context-aware suggestions for common syntax errors (regex patterns, arrow functions, etc.)
+  - Perfect for IDE integrations, linting tools, and pre-execution validation
+  - Exported as both `WangValidator` class and `validator` singleton instance
+
 ## [0.12.0] - 2025-01-01
 
 ### Added

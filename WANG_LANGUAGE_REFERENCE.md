@@ -1270,6 +1270,51 @@ Suggestion: Check if 'notAFunction' is defined as a function
 
 ## Debugging & Development
 
+### Syntax Validation
+Wang provides a dedicated validator for checking syntax without execution:
+
+```javascript
+import { WangValidator } from 'wang-lang';
+
+const validator = new WangValidator();
+
+// Validate syntax
+const result = validator.validate(`
+  let x = 10
+  x |> processData |> log
+`);
+
+if (!result.valid) {
+  console.error(`Syntax error at line ${result.error.line}:${result.error.column}`);
+  console.error(result.error.message);
+  
+  // Get helpful suggestions
+  if (result.error.suggestion) {
+    console.log("Suggestion:", result.error.suggestion);
+  }
+}
+
+// Check for specific patterns
+const patterns = validator.checkSyntaxPatterns(code);
+if (patterns.hasMultilineArrows) {
+  console.warn("Code contains multiline arrow functions without braces");
+}
+
+// Get the AST for tooling
+const { valid, ast } = validator.validate(code, { includeAST: true });
+if (valid) {
+  // Use AST for analysis, transformations, etc.
+  analyzeAST(ast);
+}
+```
+
+The validator provides:
+- **Fast syntax checking** without execution overhead
+- **Detailed error messages** with line/column information
+- **Context-aware suggestions** for common mistakes
+- **Pattern detection** for code style analysis
+- **AST extraction** for tooling and IDE integrations
+
 ### Error Context
 Wang provides rich error context:
 ```javascript
