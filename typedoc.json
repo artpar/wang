@@ -13,6 +13,5 @@
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeExternals": true,
-  "plugin": ["typedoc-plugin-markdown"],
   "theme": "default"
 }
