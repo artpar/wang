@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wang Language + jQuery Integration Test</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-area {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .dynamic-content {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wang Language + jQuery Integration Test</h1>
+    
+    <div class="test-area">
+        <h2>Test Controls</h2>
+        <button id="runBasicTest">Run Basic jQuery Test</button>
+        <button id="runEventTest">Run Event Handler Test</button>
+        <button id="runAjaxTest">Run AJAX Simulation Test</button>
+        <button id="runPipelineTest">Run Pipeline Test</button>
+        <button id="clearOutput">Clear Output</button>
+    </div>
+
+    <div class="test-area">
+        <h2>Interactive Elements</h2>
+        <div id="interactive">
+            <input type="text" id="userInput" placeholder="Enter some text">
+            <button class="action-btn" data-action="uppercase">Uppercase</button>
+            <button class="action-btn" data-action="lowercase">Lowercase</button>
+            <button class="action-btn" data-action="reverse">Reverse</button>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <div class="test-area">
+        <h2>Dynamic Content Area</h2>
+        <div id="dynamicArea"></div>
+    </div>
+
+    <div class="test-area">
+        <h2>Output Console</h2>
+        <div id="output" class="output"></div>
+    </div>
+
+    <script type="module">
+        import { WangInterpreter } from '../dist/esm/index.js';
+        
+        // Custom console for output
+        const outputConsole = {
+            log: (...args) => {
+                const output = document.getElementById('output');
+                output.textContent += args.map(a => 
+                    typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)
+                ).join(' ') + '\n';
+                console.log(...args);
+            },
+            clear: () => {
+                document.getElementById('output').textContent = '';
+            }
+        };
+
+        // Wait for jQuery to load
+        $(document).ready(async function() {
+            outputConsole.log('✅ jQuery loaded, version: ' + $.fn.jquery);
+            outputConsole.log('✅ Wang interpreter loading...');
+            
+            // Create Wang interpreter
+            const interpreter = new WangInterpreter();
+            
+            // Inject jQuery and browser objects
+            interpreter.setVariable('$', $);
+            interpreter.setVariable('jQuery', jQuery);
+            interpreter.setVariable('window', window);
+            interpreter.setVariable('document', document);
+            interpreter.setVariable('console', outputConsole);
+            
+            outputConsole.log('✅ Wang interpreter ready with jQuery injection\n');
+            
+            // Test 1: Basic jQuery operations
+            $('#runBasicTest').click(async () => {
+                outputConsole.log('🧪 Running Basic jQuery Test...');
+                
+                const result = await interpreter.execute(`
+                    console.log("Creating elements with jQuery...")
+                    
+                    // Clear the dynamic area
+                    $("#dynamicArea").empty()
+                    
+                    // Create and append elements
+                    $("#dynamicArea").append("<h3>jQuery-created content</h3>")
+                    $("#dynamicArea").append("<p class='test-para'>This paragraph was created by jQuery in Wang!</p>")
+                    
+                    // Add multiple items
+                    let items = ["Apple", "Banana", "Orange"]
+                    let $list = $("<ul>").addClass("fruit-list")
+                    
+                    items.forEach(item => {
+                        $("<li>").text(item).appendTo($list)
+                    })
+                    
+                    $list.appendTo("#dynamicArea")
+                    
+                    // Style the elements
+                    $(".test-para").css({
+                        "color": "blue",
+                        "font-style": "italic"
+                    })
+                    
+                    // Count elements
+                    let count = $("#dynamicArea li").length
+                    console.log("Created " + count + " list items")
+                    
+                    // Return summary
+                    {
+                        elementsCreated: $("#dynamicArea").children().length,
+                        listItems: count,
+                        paraText: $(".test-para").text()
+                    }
+                `);
+                
+                outputConsole.log('Result:', result);
+                outputConsole.log('✅ Basic jQuery test completed\n');
+            });
+            
+            // Test 2: Event handlers
+            $('#runEventTest').click(async () => {
+                outputConsole.log('🧪 Running Event Handler Test...');
+                
+                await interpreter.execute(`
+                    console.log("Setting up event handlers...")
+                    
+                    // Remove existing handlers to avoid duplicates
+                    $(".action-btn").off("click")
+                    
+                    // Set up click handlers for action buttons
+                    $(".action-btn").on("click", function() {
+                        let action = $(this).data("action")
+                        let text = $("#userInput").val()
+                        let result = ""
+                        
+                        if (action === "uppercase") {
+                            result = text.toUpperCase()
+                        } else if (action === "lowercase") {
+                            result = text.toLowerCase()
+                        } else if (action === "reverse") {
+                            result = text.split("").reverse().join("")
+                        }
+                        
+                        $("#result").html("<strong>Result:</strong> " + result)
+                        console.log("Action: " + action + ", Result: " + result)
+                    })
+                    
+                    // Add hover effect
+                    $(".action-btn").hover(
+                        function() { $(this).addClass("highlight") },
+                        function() { $(this).removeClass("highlight") }
+                    )
+                    
+                    console.log("Event handlers attached to " + $(".action-btn").length + " buttons")
+                `);
+                
+                outputConsole.log('✅ Event handlers set up. Try the action buttons!\n');
+            });
+            
+            // Test 3: AJAX simulation
+            $('#runAjaxTest').click(async () => {
+                outputConsole.log('🧪 Running AJAX Simulation Test...');
+                
+                // Mock AJAX for demonstration
+                interpreter.setVariable('mockAjax', {
+                    get: () => Promise.resolve({
+                        users: [
+                            { id: 1, name: 'Alice', role: 'Developer' },
+                            { id: 2, name: 'Bob', role: 'Designer' },
+                            { id: 3, name: 'Charlie', role: 'Manager' }
+                        ]
+                    })
+                });
+                
+                await interpreter.execute(`
+                    console.log("Fetching data via mock AJAX...")
+                    
+                    async function loadUsers() {
+                        // Simulate AJAX call
+                        let data = await mockAjax.get()
+                        
+                        // Clear and populate dynamic area
+                        $("#dynamicArea").empty()
+                        $("#dynamicArea").append("<h3>User List (from AJAX)</h3>")
+                        
+                        let $table = $("<table>").addClass("user-table")
+                        $table.append("<tr><th>ID</th><th>Name</th><th>Role</th></tr>")
+                        
+                        data.users.forEach(user => {
+                            let $row = $("<tr>")
+                            $row.append($("<td>").text(user.id))
+                            $row.append($("<td>").text(user.name))
+                            $row.append($("<td>").text(user.role))
+                            $table.append($row)
+                        })
+                        
+                        $("#dynamicArea").append($table)
+                        
+                        // Style the table
+                        $table.css({
+                            "width": "100%",
+                            "border-collapse": "collapse"
+                        })
+                        $table.find("th, td").css({
+                            "border": "1px solid #ddd",
+                            "padding": "8px",
+                            "text-align": "left"
+                        })
+                        $table.find("th").css({
+                            "background-color": "#f2f2f2"
+                        })
+                        
+                        console.log("Loaded " + data.users.length + " users")
+                        return data.users.length
+                    }
+                    
+                    await loadUsers()
+                `);
+                
+                outputConsole.log('✅ AJAX simulation completed\n');
+            });
+            
+            // Test 4: Pipeline operations
+            $('#runPipelineTest').click(async () => {
+                outputConsole.log('🧪 Running Pipeline Test...');
+                
+                await interpreter.execute(`
+                    console.log("Testing jQuery with Wang pipelines...")
+                    
+                    // Create test elements
+                    $("#dynamicArea").html(\`
+                        <div class="item" data-price="10">Item A</div>
+                        <div class="item" data-price="25">Item B</div>
+                        <div class="item" data-price="15">Item C</div>
+                        <div class="item" data-price="30">Item D</div>
+                        <div class="item" data-price="5">Item E</div>
+                    \`)
+                    
+                    // Use jQuery to get elements and extract data
+                    let items = []
+                    $(".item").each(function() {
+                        items.push({
+                            name: $(this).text(),
+                            price: parseInt($(this).data("price"))
+                        })
+                    })
+                    
+                    // Process with Wang operations
+                    let expensiveItems = items
+                        |> filter(_, item => item.price > 15)
+                        |> sort_by(_, "price")
+                    
+                    console.log("Expensive items (price > 15):")
+                    expensiveItems.forEach(item => {
+                        console.log("  - " + item.name + ": $" + item.price)
+                    })
+                    
+                    // Highlight expensive items in DOM
+                    $(".item").each(function() {
+                        let price = parseInt($(this).data("price"))
+                        if (price > 15) {
+                            $(this).css("background-color", "#ffffcc")
+                            $(this).append(" 💰")
+                        }
+                    })
+                    
+                    // Calculate total
+                    let total = items
+                        |> map(_, item => item.price)
+                        |> reduce(_, (sum, price) => sum + price, 0)
+                    
+                    $("#dynamicArea").append("<p><strong>Total value: $" + total + "</strong></p>")
+                    console.log("Total value: $" + total)
+                `);
+                
+                outputConsole.log('✅ Pipeline test completed\n');
+            });
+            
+            // Clear output button
+            $('#clearOutput').click(() => {
+                outputConsole.clear();
+                outputConsole.log('Output cleared\n');
+            });
+            
+            // Initial test
+            outputConsole.log('🎉 All systems ready! Click the test buttons to run jQuery + Wang tests.');
+        });
+    </script>
+</body>
+</html>

@@ -215,17 +215,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
-      - name: Update documentation
-        run: |
-          npm run docs || echo "No docs script"
-          
-      - name: Deploy docs to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          enable_jekyll: false
-        continue-on-error: true
+      # Documentation deployment is handled by the dedicated docs.yml workflow
+      # to avoid conflicts between multiple deployments to GitHub Pages
       
       - name: Release Summary
         run: |

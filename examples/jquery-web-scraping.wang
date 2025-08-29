@@ -1,0 +1,328 @@
+// jQuery Web Scraping Example with Wang
+// This example shows how to use jQuery with Wang for web scraping tasks
+
+// Assuming jQuery ($) and document are already injected by the host environment
+
+class WebScraper {
+  constructor() {
+    this.data = []
+  }
+  
+  // Extract profile cards from a LinkedIn-style page
+  scrapeProfiles() {
+    let profiles = []
+    
+    // Use jQuery to find all profile cards
+    let $cards = $(".profile-card, .person-card, .user-item")
+    
+    // Process each card - using for loop instead of .each() for better Wang compatibility
+    for (let i = 0; i < $cards.length; i++) {
+      let $card = $($cards[i])
+      
+      // Extract data from the card
+      let profile = {
+        name: this.extractText($card, ".name, .user-name, h3"),
+        title: this.extractText($card, ".title, .job-title, .position"),
+        company: this.extractText($card, ".company, .organization"),
+        location: this.extractText($card, ".location, .city"),
+        link: $card.find("a").first().attr("href") || "",
+        imageUrl: $card.find("img").first().attr("src") || ""
+      }
+      
+      // Only add if we found a name
+      if (profile.name) {
+        profiles.push(profile)
+      }
+    }
+    
+    this.data = profiles
+    return profiles
+  }
+  
+  // Helper to safely extract text
+  extractText($element, selector) {
+    let $found = $element.find(selector).first()
+    return $found.length > 0 ? $found.text().trim() : ""
+  }
+  
+  // Scrape product listings
+  scrapeProducts() {
+    let products = []
+    
+    let $items = $(".product, .item-card, .listing")
+    
+    for (let i = 0; i < $items.length; i++) {
+      let $item = $($items[i])
+      
+      let product = {
+        name: this.extractText($item, ".product-name, .title, h2, h3"),
+        price: this.extractPrice($item),
+        description: this.extractText($item, ".description, .summary, p"),
+        rating: this.extractRating($item),
+        availability: this.checkAvailability($item),
+        link: $item.find("a").first().attr("href") || ""
+      }
+      
+      if (product.name && product.price > 0) {
+        products.push(product)
+      }
+    }
+    
+    return products
+  }
+  
+  // Extract price as a number
+  extractPrice($element) {
+    let priceText = this.extractText($element, ".price, .cost, .amount")
+    // Remove currency symbols and parse
+    let price = priceText.replace(/[^0-9.]/g, "")
+    return parseFloat(price) || 0
+  }
+  
+  // Extract rating
+  extractRating($element) {
+    // Look for star ratings or numeric ratings
+    let ratingText = this.extractText($element, ".rating, .stars, .review-score")
+    let rating = parseFloat(ratingText) || 0
+    
+    // Check for star icons
+    if (rating === 0) {
+      let starCount = $element.find(".star.filled, .fa-star").length
+      if (starCount > 0) {
+        rating = starCount
+      }
+    }
+    
+    return rating
+  }
+  
+  // Check availability
+  checkAvailability($element) {
+    let availText = this.extractText($element, ".availability, .stock, .in-stock")
+    if (availText.toLowerCase().includes("out") || availText.toLowerCase().includes("unavailable")) {
+      return false
+    }
+    return availText.length > 0
+  }
+  
+  // Click "Load More" button and wait
+  async loadMore() {
+    let $loadMore = $("button.load-more, .show-more, .pagination-next").first()
+    
+    if ($loadMore.length > 0 && $loadMore.is(":visible")) {
+      $loadMore.click()
+      // Wait for new content to load
+      await this.wait(2000)
+      return true
+    }
+    
+    return false
+  }
+  
+  // Scroll to bottom to trigger infinite scroll
+  async scrollToLoad() {
+    // Scroll to bottom
+    window.scrollTo(0, document.body.scrollHeight)
+    
+    // Wait for content
+    await this.wait(1500)
+    
+    // Check if new content appeared
+    let newHeight = document.body.scrollHeight
+    return newHeight > this.lastHeight
+  }
+  
+  // Wait helper
+  wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+  
+  // Filter profiles by criteria
+  filterProfiles(criteria) {
+    return this.data
+      |> filter(_, profile => {
+        if (criteria.company && !profile.company.toLowerCase().includes(criteria.company.toLowerCase())) {
+          return false
+        }
+        if (criteria.title && !profile.title.toLowerCase().includes(criteria.title.toLowerCase())) {
+          return false
+        }
+        if (criteria.location && !profile.location.toLowerCase().includes(criteria.location.toLowerCase())) {
+          return false
+        }
+        return true
+      })
+  }
+  
+  // Export data as CSV
+  exportAsCSV() {
+    if (this.data.length === 0) return ""
+    
+    // Get headers from first item
+    let headers = Object.keys(this.data[0])
+    let csv = headers.join(",") + "\n"
+    
+    // Add data rows
+    for (let item of this.data) {
+      let row = headers.map(header => {
+        let value = item[header] || ""
+        // Escape quotes and wrap in quotes if contains comma
+        if (value.includes(",") || value.includes('"')) {
+          value = '"' + value.replace(/"/g, '""') + '"'
+        }
+        return value
+      })
+      csv += row.join(",") + "\n"
+    }
+    
+    return csv
+  }
+  
+  // Save to browser storage
+  saveToStorage(key) {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(key, JSON.stringify(this.data))
+      return true
+    }
+    return false
+  }
+  
+  // Load from browser storage
+  loadFromStorage(key) {
+    if (typeof localStorage !== "undefined") {
+      let stored = localStorage.getItem(key)
+      if (stored) {
+        this.data = JSON.parse(stored)
+        return true
+      }
+    }
+    return false
+  }
+}
+
+// Example usage:
+async function scrapeLinkedInProfiles() {
+  let scraper = new WebScraper()
+  
+  // Initial scrape
+  let profiles = scraper.scrapeProfiles()
+  console.log("Found " + profiles.length + " profiles")
+  
+  // Load more pages
+  let pageCount = 1
+  while (pageCount < 5 && await scraper.loadMore()) {
+    let newProfiles = scraper.scrapeProfiles()
+    profiles = profiles.concat(newProfiles)
+    pageCount++
+    console.log("Loaded page " + pageCount + ", total profiles: " + profiles.length)
+  }
+  
+  // Filter for specific criteria
+  let filtered = scraper.filterProfiles({
+    title: "engineer",
+    location: "San Francisco"
+  })
+  
+  console.log("Filtered to " + filtered.length + " matching profiles")
+  
+  // Save results
+  scraper.data = filtered
+  scraper.saveToStorage("linkedin_profiles")
+  
+  // Export as CSV
+  let csv = scraper.exportAsCSV()
+  console.log("CSV export ready, " + csv.length + " characters")
+  
+  return filtered
+}
+
+// Product scraping example
+async function scrapeEcommerce() {
+  let scraper = new WebScraper()
+  
+  // Scrape products
+  let products = scraper.scrapeProducts()
+  
+  // Filter and sort using Wang pipelines
+  let topProducts = products
+    |> filter(_, p => p.price < 100 && p.rating >= 4)
+    |> sort_by(_, p => -p.rating)  // Sort by rating descending
+    |> take(_, 10)  // Top 10
+  
+  console.log("Top 10 affordable products:")
+  topProducts.forEach((p, i) => {
+    console.log((i + 1) + ". " + p.name + " - $" + p.price + " (★" + p.rating + ")")
+  })
+  
+  return topProducts
+}
+
+// Table data extraction
+function scrapeTable(tableSelector) {
+  let data = []
+  let $table = $(tableSelector).first()
+  
+  if ($table.length === 0) {
+    console.log("Table not found: " + tableSelector)
+    return data
+  }
+  
+  // Get headers
+  let headers = []
+  $table.find("thead th, thead td").each(function() {
+    headers.push($(this).text().trim())
+  })
+  
+  // If no thead, try first row
+  if (headers.length === 0) {
+    $table.find("tr:first td, tr:first th").each(function() {
+      headers.push($(this).text().trim())
+    })
+  }
+  
+  // Get data rows
+  $table.find("tbody tr, tr:not(:first)").each(function() {
+    let row = {}
+    $(this).find("td, th").each(function(index) {
+      let header = headers[index] || "column_" + index
+      row[header] = $(this).text().trim()
+    })
+    
+    // Only add non-empty rows
+    if (Object.keys(row).length > 0) {
+      data.push(row)
+    }
+  })
+  
+  return data
+}
+
+// Form data extraction
+function scrapeForm(formSelector) {
+  let $form = $(formSelector).first()
+  let formData = {}
+  
+  // Get all input fields
+  $form.find("input, select, textarea").each(function() {
+    let $field = $(this)
+    let name = $field.attr("name") || $field.attr("id") || ""
+    let type = $field.attr("type") || "text"
+    
+    if (name) {
+      if (type === "checkbox") {
+        formData[name] = $field.is(":checked")
+      } else if (type === "radio") {
+        if ($field.is(":checked")) {
+          formData[name] = $field.val()
+        }
+      } else {
+        formData[name] = $field.val()
+      }
+    }
+  })
+  
+  return formData
+}
+
+// Export functions for use
+export { WebScraper, scrapeLinkedInProfiles, scrapeEcommerce, scrapeTable, scrapeForm }
