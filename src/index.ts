@@ -15,6 +15,7 @@ export type {
   CallFrame,
   SerializedState,
   SerializedContext,
+  PausableInterpreterOptions,
 } from './interpreter/pausable-interpreter';
 
 // Resolver exports
