@@ -8,6 +8,74 @@ Wang is a modern workflow programming language designed for browser automation a
 npm install wang-lang
 ```
 
+## CLI Usage
+
+Wang provides command-line tools for executing and validating `.wang` files:
+
+### Execute Wang Files
+
+```bash
+# Execute a .wang file
+npx wang-run script.wang
+
+# Execute with verbose output
+npx wang-run script.wang --verbose
+
+# Execute from stdin
+echo 'console.log("Hello Wang!")' | npx wang-run -
+
+# Quiet mode (only show output)
+npx wang-run script.wang --quiet
+```
+
+### Validate Wang Syntax
+
+```bash
+# Validate syntax
+npx wang-validate script.wang
+
+# Show AST
+npx wang-validate script.wang --ast
+
+# Show syntax suggestions
+npx wang-validate script.wang --suggestions
+
+# Validate from stdin
+echo 'let x = 1' | npx wang-validate -
+```
+
+### Example .wang File
+
+Create a file called `hello.wang`:
+
+```wang
+// Simple Hello World example
+console.log("Hello, Wang!")
+
+// Test basic operations
+let x = 42
+let y = x * 2
+console.log(`x = ${x}, y = ${y}`)
+
+// Test functions
+function greet(name) {
+  return `Hello, ${name}!`
+}
+
+let message = greet("Wang Developer")
+console.log(message)
+```
+
+Then run it:
+
+```bash
+npx wang-run hello.wang
+# Output:
+# Hello, Wang!
+# x = 42, y = 84
+# Hello, Wang Developer!
+```
+
 ## Basic Usage
 
 ```javascript
