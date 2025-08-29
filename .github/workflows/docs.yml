@@ -279,13 +279,8 @@ const interpreter = new WangInterpreter({
 });
 
 // Execute Wang code
-await interpreter.execute(\`
-  let greeting = "Hello, Wang!"
-  log(greeting)
-  
-  let profiles = querySelectorAll(".profile")
-  profiles |> filter(_, active) |> log
-\`);</code></pre>
+const wangCode = 'let greeting = "Hello, Wang!"; log(greeting); let profiles = querySelectorAll(".profile"); profiles |> filter(_, active) |> log';
+await interpreter.execute(wangCode);</code></pre>
                 </section>
                 
                 <section class="section">
