@@ -305,9 +305,11 @@ console.log(result)"></textarea>
         </footer>
     </div>
 
-    <!-- Load Wang from CDN or local build -->
+    <!-- Load Wang from CDN -->
     <script type="module">
-        import { WangInterpreter, InMemoryModuleResolver, WangValidator } from './wang.min.js';
+        // Use unpkg CDN for the latest published version
+        // For local testing, you can change this to './dist/browser/wang.min.js'
+        import { WangInterpreter, InMemoryModuleResolver, WangValidator } from 'https://unpkg.com/wang-lang@latest/dist/browser/wang.min.js';
 
         // Make functions available globally
         window.WangInterpreter = WangInterpreter;
