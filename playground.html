@@ -373,8 +373,30 @@
         </div>
     </div>
     
-    <!-- Load Wang Language -->
-    <script src="https://cdn.jsdelivr.net/gh/artpar/wang@main/dist/browser/wang.min.js"></script>
+    <!-- Load Wang Language from CDN (always latest) -->
+    <script type="module">
+        // Always load from unpkg CDN to get the latest published version
+        import('https://unpkg.com/wang-lang@latest/dist/browser/wang.min.js')
+            .then(module => {
+                window.Wang = module;
+                console.log('Wang loaded successfully from CDN:', module);
+            })
+            .catch(error => {
+                console.error('Failed to load Wang from CDN:', error);
+                // Try jsdelivr as fallback
+                return import('https://cdn.jsdelivr.net/npm/wang-lang@latest/dist/browser/wang.min.js');
+            })
+            .then(module => {
+                if (module) {
+                    window.Wang = module;
+                    console.log('Wang loaded from jsdelivr CDN');
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load Wang from any CDN:', error);
+                document.body.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error: Failed to load Wang library from CDN. Please check your internet connection and refresh the page.</div>' + document.body.innerHTML;
+            });
+    </script>
     
     <!-- Load Monaco Editor -->
     <script>
@@ -388,10 +410,13 @@
     <script>
         // Initialize when everything is loaded
         function initializeApp() {
-            if (typeof Wang === 'undefined' || typeof monaco === 'undefined') {
+            if (typeof window.Wang === 'undefined' || typeof monaco === 'undefined') {
+                console.log('Waiting for dependencies...', { Wang: typeof window.Wang, monaco: typeof monaco });
                 setTimeout(initializeApp, 100);
                 return;
             }
+            
+            console.log('Initializing app with Wang:', window.Wang);
             
             // Theme management
             const theme = localStorage.getItem('theme') || 'dark';
@@ -479,8 +504,34 @@ log("Result:", result)
                 bracketPairColorization: { enabled: true }
             });
             
+            // Helper functions (define early for error messages)
+            function addOutput(type, message) {
+                const container = document.getElementById('output-container');
+                const entry = document.createElement('div');
+                entry.className = `mb-2 p-2 rounded ${
+                    type === 'error' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                    type === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+                    type === 'success' ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' :
+                    'bg-gray-100 dark:bg-gray-800'
+                }`;
+                
+                const timestamp = new Date().toLocaleTimeString();
+                entry.innerHTML = `
+                    <div class="text-xs opacity-75 mb-1">${timestamp}</div>
+                    <div class="whitespace-pre-wrap break-words">${message}</div>
+                `;
+                container.appendChild(entry);
+                container.scrollTop = container.scrollHeight;
+            }
+            
             // Initialize Wang interpreter
-            const { WangInterpreter, InMemoryModuleResolver, WangValidator } = Wang;
+            const { WangInterpreter, InMemoryModuleResolver, WangValidator } = window.Wang;
+            
+            if (!WangInterpreter || !InMemoryModuleResolver || !WangValidator) {
+                console.error('Wang components not found:', window.Wang);
+                addOutput('error', 'Failed to initialize Wang components. Please refresh the page.');
+                return;
+            }
             const resolver = new InMemoryModuleResolver();
             
             const interpreter = new WangInterpreter({
@@ -516,26 +567,6 @@ log("Result:", result)
             });
             
             const validator = new WangValidator();
-            
-            // Helper functions
-            function addOutput(type, message) {
-                const container = document.getElementById('output-container');
-                const entry = document.createElement('div');
-                entry.className = `mb-2 p-2 rounded ${
-                    type === 'error' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                    type === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
-                    type === 'success' ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' :
-                    'bg-gray-100 dark:bg-gray-800'
-                }`;
-                
-                const timestamp = new Date().toLocaleTimeString();
-                entry.innerHTML = `
-                    <div class="text-xs opacity-75 mb-1">${timestamp}</div>
-                    <div class="whitespace-pre-wrap break-words">${message}</div>
-                `;
-                container.appendChild(entry);
-                container.scrollTop = container.scrollHeight;
-            }
             
             function clearOutput() {
                 document.getElementById('output-container').innerHTML = '';
