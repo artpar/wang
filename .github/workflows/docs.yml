@@ -69,8 +69,13 @@ jobs:
           cp README.md docs/index.md
           cp CLAUDE.md docs/development.md || echo "No CLAUDE.md found"
           
-          # Create a simple index.html for GitHub Pages
-          cat > docs/index.html << 'EOF'
+          # Copy playground and browser bundle
+          cp playground.html docs/index.html
+          mkdir -p docs/dist/browser
+          cp -r dist/browser/* docs/dist/browser/ || echo "Browser bundle not found"
+          
+          # Create documentation index (renamed to docs.html)
+          cat > docs/docs.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>

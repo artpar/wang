@@ -307,26 +307,40 @@ console.log(result)"></textarea>
 
     <!-- Load Wang from CDN -->
     <script type="module">
-        // Use unpkg CDN for the latest published version
-        // For local testing, you can change this to './dist/browser/wang.min.js'
-        import { WangInterpreter, InMemoryModuleResolver, WangValidator } from 'https://unpkg.com/wang-lang@latest/dist/browser/wang.min.js';
-
-        // Make functions available globally
-        window.WangInterpreter = WangInterpreter;
-        window.InMemoryModuleResolver = InMemoryModuleResolver;
-        window.WangValidator = WangValidator;
-
-        // Initialize
-        window.validator = new WangValidator();
+        // Try local bundle first, fall back to CDN
+        const loadWang = async () => {
+            try {
+                // Try loading local bundle for development
+                const module = await import('./dist/browser/wang.min.js');
+                return module;
+            } catch (e) {
+                // Fall back to CDN for production/GitHub Pages
+                console.log('Loading from CDN...');
+                return await import('https://unpkg.com/wang-lang@latest/dist/browser/wang.min.js');
+            }
+        };
         
-        // Update character count
-        document.getElementById('code-input').addEventListener('input', (e) => {
-            document.getElementById('char-count').textContent = `${e.target.value.length} chars`;
-        });
+        loadWang().then(({ WangInterpreter, InMemoryModuleResolver, WangValidator }) => {
+            // Make functions available globally
+            window.WangInterpreter = WangInterpreter;
+            window.InMemoryModuleResolver = InMemoryModuleResolver;
+            window.WangValidator = WangValidator;
 
-        // Check for AST display toggle
-        document.getElementById('show-ast').addEventListener('change', (e) => {
-            document.querySelector('.panel').classList.toggle('show-ast', e.target.checked);
+            // Initialize
+            window.validator = new WangValidator();
+            
+            // Update character count
+            document.getElementById('code-input').addEventListener('input', (e) => {
+                document.getElementById('char-count').textContent = `${e.target.value.length} chars`;
+            });
+
+            // Check for AST display toggle
+            document.getElementById('show-ast').addEventListener('change', (e) => {
+                document.querySelector('.panel').classList.toggle('show-ast', e.target.checked);
+            });
+        }).catch(error => {
+            console.error('Failed to load Wang:', error);
+            document.getElementById('output').textContent = 'Error: Failed to load Wang library. ' + error.message;
         });
     </script>
 
