@@ -1,0 +1,45 @@
+// Test cases that FAIL at parse time (not runtime)
+// These should parse according to grammar but don't
+
+// Test 1: Arrow function with property access in body
+let stories = [{title: "Story 1", url: "url1"}, {title: "Story 2", url: "url2"}]
+let formattedStories = map(stories, (story, index) => {
+    return (index + 1) + ". [" + story.title + "](" + story.url + ")"
+})
+
+// Test 2: Object literal with property access in value
+let markdownContent = "test"
+let finalUrl = "http://example.com"
+let report = {
+    success: true,
+    workflow: "hackernews-to-gist",
+    storiesExtracted: stories.length,
+    markdownGenerated: markdownContent.length > 0,
+    finalUrl: finalUrl,
+    stories: stories.slice(0, 3)
+}
+
+// Test 3: Console.log with property access
+console.log("- Stories extracted: " + report.storiesExtracted)
+console.log("- Markdown generated: " + report.markdownGenerated)
+
+// Test 4: Function keyword in callback with property access
+let formatted2 = map(stories, function(story, index) {
+    return (index + 1) + ". [" + story.title + "](" + story.url + ")"
+})
+
+// Test 5: Multi-line boolean expression
+let apiTabId = 1
+let htmlTabId = 2
+let dataTabId = 3
+let allTabsDifferent = (apiTabId !== htmlTabId) &&
+                       (htmlTabId !== dataTabId) &&
+                       (apiTabId !== dataTabId)
+
+// Test 6: Method call in assignment
+let joined = formattedStories.join("\n")
+markdownContent = markdownContent + formattedStories.join("\n")
+
+// Test 7: Complex ternary with property access
+let tabInfo = {tabs: [{url: "test"}]}
+let currentUrl = tabInfo && tabInfo.tabs && tabInfo.tabs[0] ? tabInfo.tabs[0].url : ""

@@ -1,0 +1,396 @@
+// Wang Language Syntax Verification Tests
+// Testing what the grammar says SHOULD work vs what ACTUALLY works
+
+// ============================================
+// TEST 1: Arrow Functions (Grammar lines 519-540)
+// ============================================
+console.log("TEST 1: Arrow Functions")
+
+// 1a. Simple arrow function (should work per grammar)
+let add = (a, b) => a + b
+console.log("1a. Simple arrow: " + add(2, 3))
+
+// 1b. Arrow with block body (should work per grammar)
+let multiply = (a, b) => {
+    return a * b
+}
+console.log("1b. Block arrow: " + multiply(3, 4))
+
+// 1c. Arrow with single param no parens (should work per grammar)
+let double = x => x * 2
+console.log("1c. Single param: " + double(5))
+
+// 1d. Arrow in map with index (user reported failure)
+let numbers = [1, 2, 3]
+let mapped = map(numbers, (val, idx) => {
+    return idx + ": " + val
+})
+console.log("1d. Map with index: " + mapped)
+
+// 1e. Async arrow (grammar supports at line 526)
+let asyncFn = async () => {
+    return "async result"
+}
+console.log("1e. Async arrow defined")
+
+// ============================================
+// TEST 2: Object Literals (Grammar lines 766-793)
+// ============================================
+console.log("\nTEST 2: Object Literals")
+
+// 2a. Empty object (should work)
+let empty = {}
+console.log("2a. Empty object: " + typeof empty)
+
+// 2b. Simple object literal (should work per grammar)
+let simple = {
+    name: "test",
+    value: 42
+}
+console.log("2b. Simple object created")
+
+// 2c. Object with computed property (grammar line 792)
+let key = "dynamic"
+let computed = {
+    [key]: "value"
+}
+console.log("2c. Computed property object")
+
+// 2d. Object with spread (grammar line 784)
+let spread = {
+    ...simple,
+    extra: true
+}
+console.log("2d. Spread object")
+
+// 2e. Shorthand properties (grammar line 778-783)
+let name = "Wang"
+let age = 1
+let shorthand = {
+    name,
+    age
+}
+console.log("2e. Shorthand properties")
+
+// 2f. Complex nested object (user reported failure)
+let complex = {
+    success: true,
+    data: {
+        items: [1, 2, 3],
+        count: 3
+    },
+    computed: numbers.length
+}
+console.log("2f. Complex object")
+
+// ============================================
+// TEST 3: Try-Catch (Grammar lines 451-469)
+// ============================================
+console.log("\nTEST 3: Try-Catch")
+
+// 3a. Basic try-catch (should work per grammar)
+try {
+    console.log("3a. In try block")
+    throw new Error("test error")
+} catch (e) {
+    console.log("3a. Caught: " + e.message)
+}
+
+// 3b. Try-catch-finally (grammar line 459-467)
+try {
+    console.log("3b. Try block")
+} catch (e) {
+    console.log("3b. Catch block")
+} finally {
+    console.log("3b. Finally block")
+}
+
+// 3c. Try-finally without catch (grammar line 468)
+try {
+    console.log("3c. Try without catch")
+} finally {
+    console.log("3c. Finally only")
+}
+
+// ============================================
+// TEST 4: Function Expressions (Grammar lines 719-733)
+// ============================================
+console.log("\nTEST 4: Function Expressions")
+
+// 4a. Anonymous function expression (should work)
+let fn1 = function() {
+    return "anonymous"
+}
+console.log("4a. Anonymous function: " + fn1())
+
+// 4b. Function expression with params
+let fn2 = function(x, y) {
+    return x + y
+}
+console.log("4b. Function with params: " + fn2(10, 20))
+
+// 4c. Async function expression (grammar line 727)
+let fn3 = async function() {
+    return "async function"
+}
+console.log("4c. Async function defined")
+
+// 4d. Function in callback (user reported failure)
+let results = map(numbers, function(n) {
+    return n * 2
+})
+console.log("4d. Function in callback: " + results)
+
+// ============================================
+// TEST 5: Member Access Chains (Grammar lines 633-645)
+// ============================================
+console.log("\nTEST 5: Member Access")
+
+// 5a. Simple member access
+let obj = {}
+obj.prop = "value"
+console.log("5a. Simple access: " + obj.prop)
+
+// 5b. Chained access
+let nested = {}
+nested.level1 = {}
+nested.level1.level2 = "deep"
+console.log("5b. Chained: " + nested.level1.level2)
+
+// 5c. Optional chaining (grammar line 639-645)
+let maybe = {}
+let result = maybe?.missing?.value
+console.log("5c. Optional chain: " + result)
+
+// 5d. Computed member access (grammar line 635)
+let data = {}
+data["key"] = "computed"
+console.log("5d. Computed: " + data["key"])
+
+// ============================================
+// TEST 6: Template Literals (Grammar line 744-749)
+// ============================================
+console.log("\nTEST 6: Template Literals")
+
+// 6a. Basic template literal (should work)
+let template = `Hello World`
+console.log("6a. Basic template: " + template)
+
+// 6b. Multi-line template
+let multiline = `Line 1
+Line 2
+Line 3`
+console.log("6b. Multiline template")
+
+// Note: Grammar shows no embedded expressions support
+
+// ============================================
+// TEST 7: Class Syntax (Grammar lines 311-360)
+// ============================================
+console.log("\nTEST 7: Classes")
+
+// 7a. Basic class (should work per grammar)
+class MyClass {
+    constructor(value) {
+        this.value = value
+    }
+    
+    getValue() {
+        return this.value
+    }
+}
+console.log("7a. Class defined")
+
+// 7b. Class instantiation
+let instance = new MyClass(42)
+console.log("7b. Instance created")
+console.log("7b. Method call: " + instance.getValue())
+
+// 7c. Class with inheritance (grammar line 312)
+class Child extends MyClass {
+    constructor(value) {
+        super(value)
+        this.child = true
+    }
+}
+console.log("7c. Child class defined")
+
+// ============================================
+// TEST 8: Destructuring (Grammar lines 248-286)
+// ============================================
+console.log("\nTEST 8: Destructuring")
+
+// 8a. Array destructuring (grammar line 253)
+let [a, b, c] = [1, 2, 3]
+console.log("8a. Array destructure: " + a + ", " + b + ", " + c)
+
+// 8b. Object destructuring (grammar line 267)
+let {name: n, value: v} = {name: "test", value: 100}
+console.log("8b. Object destructure: " + n + ", " + v)
+
+// 8c. Rest in destructuring (grammar line 265)
+let [first, ...rest] = [1, 2, 3, 4]
+console.log("8c. Rest destructure: " + first + " and rest")
+
+// ============================================
+// TEST 9: Pipeline Operators (Grammar lines 505-509)
+// ============================================
+console.log("\nTEST 9: Pipeline Operators")
+
+// 9a. Basic pipeline (Wang-specific feature)
+let piped = 5 |> double
+console.log("9a. Pipeline: " + piped)
+
+// 9b. Arrow pipeline
+let arrowed = 10 -> (x => x * 3)
+console.log("9b. Arrow pipeline: " + arrowed)
+
+// ============================================
+// TEST 10: Control Flow (Grammar lines 415-485)
+// ============================================
+console.log("\nTEST 10: Control Flow")
+
+// 10a. If-else (should work)
+if (true) {
+    console.log("10a. If branch")
+} else {
+    console.log("10a. Else branch")
+}
+
+// 10b. Ternary operator (grammar line 542-549)
+let ternary = true ? "yes" : "no"
+console.log("10b. Ternary: " + ternary)
+
+// 10c. For-of loop (grammar line 441)
+for (let num of numbers) {
+    console.log("10c. For-of: " + num)
+}
+
+// 10d. While loop (grammar line 423)
+let i = 0
+while (i < 3) {
+    console.log("10d. While: " + i)
+    i = i + 1
+}
+
+// ============================================
+// TEST 11: Operators (Grammar lines 551-607)
+// ============================================
+console.log("\nTEST 11: Operators")
+
+// 11a. Nullish coalescing (grammar line 99)
+let nullish = null ?? "default"
+console.log("11a. Nullish: " + nullish)
+
+// 11b. Logical operators
+let logic = true && false || true
+console.log("11b. Logical: " + logic)
+
+// 11c. Comparison operators
+let compare = 5 === 5 && 10 !== 5
+console.log("11c. Comparison: " + compare)
+
+// 11d. Spread operator (grammar line 704)
+let arr1 = [1, 2]
+let arr2 = [...arr1, 3, 4]
+console.log("11d. Spread in array")
+
+// ============================================
+// TEST 12: Async/Await (Grammar lines 78, 590)
+// ============================================
+console.log("\nTEST 12: Async/Await")
+
+// 12a. Async function declaration
+async function asyncTest() {
+    return "async result"
+}
+console.log("12a. Async function declared")
+
+// 12b. Await expression (grammar line 590)
+async function testAwait() {
+    let result = await asyncTest()
+    console.log("12b. Awaited: " + result)
+}
+
+// ============================================
+// TEST 13: Import/Export (Grammar lines 363-400)
+// ============================================
+console.log("\nTEST 13: Import/Export")
+
+// Note: Grammar only supports named imports/exports, no default
+
+// 13a. Named export
+export { add, multiply }
+console.log("13a. Named export")
+
+// 13b. Export declaration
+export let exportedVar = "exported"
+console.log("13b. Export declaration")
+
+// ============================================
+// TEST 14: Regular Expressions (Grammar lines 49-57)
+// ============================================
+console.log("\nTEST 14: Regular Expressions")
+
+// 14a. Basic regex
+let regex1 = /test/gi
+console.log("14a. Basic regex: " + regex1)
+
+// 14b. Complex regex with escapes
+let regex2 = /\d+\.\d+/
+console.log("14b. Complex regex: " + regex2)
+
+// ============================================
+// TEST 15: Special Cases from User Reports
+// ============================================
+console.log("\nTEST 15: User Reported Failures")
+
+// 15a. new Promise (user reported failure)
+try {
+    let promise = new Promise(function(resolve) {
+        resolve("done")
+    })
+    console.log("15a. Promise created")
+} catch (e) {
+    console.log("15a. Promise failed: " + e)
+}
+
+// 15b. Array methods (user reported failures)
+let testArr = [1, 2, 3, 4, 5]
+
+// Test slice
+try {
+    let sliced = testArr.slice(0, 3)
+    console.log("15b. Slice worked: " + sliced)
+} catch (e) {
+    console.log("15b. Slice failed: " + e)
+}
+
+// Test join
+try {
+    let joined = testArr.join(", ")
+    console.log("15b. Join worked: " + joined)
+} catch (e) {
+    console.log("15b. Join failed: " + e)
+}
+
+// 15c. Property access in console.log (user reported failure)
+let report = {}
+report.status = "complete"
+report.count = 10
+
+try {
+    console.log("15c. Status: " + report.status + ", Count: " + report.count)
+} catch (e) {
+    console.log("15c. Property access in log failed: " + e)
+}
+
+// 15d. new Date (user reported failure)
+try {
+    let date = new Date()
+    console.log("15d. Date created: " + date)
+} catch (e) {
+    console.log("15d. Date failed: " + e)
+}
+
+console.log("\n=== Test Complete ===")

@@ -1,0 +1,39 @@
+// Object Literal Tests
+console.log("=== OBJECT LITERALS ===")
+
+// Test 1: Empty object
+let obj1 = {}
+console.log("1. Empty object: " + typeof obj1)
+
+// Test 2: Single property
+let obj2 = {
+    prop: "value"
+}
+console.log("2. Single prop object created")
+
+// Test 3: Multiple properties
+let obj3 = {
+    name: "test",
+    value: 42
+}
+console.log("3. Multi-prop object created")
+
+// Test 4: Access properties
+console.log("4. Access obj2.prop: " + obj2.prop)
+console.log("4. Access obj3.name: " + obj3.name)
+console.log("4. Access obj3.value: " + obj3.value)
+
+// Test 5: Nested object
+let obj5 = {
+    outer: {
+        inner: "nested"
+    }
+}
+console.log("5. Nested object created")
+
+// Test 6: Property with expression
+let x = 10
+let obj6 = {
+    computed: x + 5
+}
+console.log("6. Expression property: " + obj6.computed)
