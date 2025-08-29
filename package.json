@@ -121,7 +121,7 @@
     "husky": "^8.0.3",
     "jquery": "^3.7.1",
     "jsdom": "^26.1.0",
-    "lint-staged": "^15.2.0",
+    "lint-staged": "^16.1.5",
     "nearley": "^2.20.1",
     "prettier": "^3.1.1",
     "rimraf": "^5.0.5",
