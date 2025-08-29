@@ -43,13 +43,13 @@ jobs:
       - name: Build project
         run: npm run build
       
+      - name: Generate TypeDoc documentation
+        run: npm run docs
+      
       - name: Add playground and browser bundle to docs
         run: |
-          # Copy playground to existing docs directory  
+          # Copy playground to docs directory (alongside TypeDoc docs)
           cp playground.html docs/playground.html
-          
-          # Copy playground as index.html for GitHub Pages homepage
-          cp playground.html docs/index.html
           
           # Copy browser bundle to docs
           mkdir -p docs/dist/browser
