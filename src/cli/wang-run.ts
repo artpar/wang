@@ -82,24 +82,24 @@ async function main() {
         error: (...args: any[]) => console.error(...args),
         warn: (...args: any[]) => console.warn(...args),
         info: (...args: any[]) => console.info(...args),
-        
+
         // Array utilities for pipeline operations
         filter: (arr: any[], predicate: any) => {
           if (typeof predicate === 'function') {
             return arr.filter(predicate);
           }
           // Handle property-based filtering
-          return arr.filter(item => item[predicate]);
+          return arr.filter((item) => item[predicate]);
         },
-        
+
         map: (arr: any[], mapper: any) => {
           if (typeof mapper === 'function') {
             return arr.map(mapper);
           }
           // Handle property access
-          return arr.map(item => item[mapper]);
+          return arr.map((item) => item[mapper]);
         },
-        
+
         // Basic utilities
         setTimeout: (fn: Function, ms: number) => setTimeout(fn, ms),
         setInterval: (fn: Function, ms: number) => setInterval(fn, ms),
@@ -137,17 +137,17 @@ async function main() {
     if (!options.quiet) {
       console.error('❌ Execution failed');
       console.error(`Error: ${error.message}`);
-      
+
       if (error.line && error.column) {
         console.error(`At line ${error.line}, column ${error.column}`);
       }
-      
+
       if (error.stack && options.verbose) {
         console.error('\nStack trace:');
         console.error(error.stack);
       }
     }
-    
+
     process.exit(1);
   }
 }

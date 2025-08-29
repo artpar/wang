@@ -77,14 +77,14 @@ async function main() {
                         return arr.filter(predicate);
                     }
                     // Handle property-based filtering
-                    return arr.filter(item => item[predicate]);
+                    return arr.filter((item) => item[predicate]);
                 },
                 map: (arr, mapper) => {
                     if (typeof mapper === 'function') {
                         return arr.map(mapper);
                     }
                     // Handle property access
-                    return arr.map(item => item[mapper]);
+                    return arr.map((item) => item[mapper]);
                 },
                 // Basic utilities
                 setTimeout: (fn, ms) => setTimeout(fn, ms),
