@@ -1,4 +1,4 @@
-[**Wang Language v0.14.10**](../README.md)
+[**Wang Language v0.14.11**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: WangInterpreter
 
-Defined in: [interpreter/index.ts:32](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L32)
+Defined in: [interpreter/index.ts:32](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L32)
 
 ## Extended by
 
@@ -18,7 +18,7 @@ Defined in: [interpreter/index.ts:32](https://github.com/artpar/wang/blob/914dd1
 
 > **new WangInterpreter**(`options`): `WangInterpreter`
 
-Defined in: [interpreter/index.ts:41](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L41)
+Defined in: [interpreter/index.ts:41](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L41)
 
 #### Parameters
 
@@ -36,7 +36,7 @@ Defined in: [interpreter/index.ts:41](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **consoleLogs**: `object`[] = `[]`
 
-Defined in: [interpreter/index.ts:38](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L38)
+Defined in: [interpreter/index.ts:38](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L38)
 
 #### args
 
@@ -56,7 +56,7 @@ Defined in: [interpreter/index.ts:38](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **currentContext**: [`ExecutionContext`](../interfaces/ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:35](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L35)
+Defined in: [interpreter/index.ts:35](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L35)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [interpreter/index.ts:35](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **globalContext**: [`ExecutionContext`](../interfaces/ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:34](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L34)
+Defined in: [interpreter/index.ts:34](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L34)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [interpreter/index.ts:34](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **globalModuleCache**: `Map`\<`string`, `any`\>
 
-Defined in: [interpreter/index.ts:37](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L37)
+Defined in: [interpreter/index.ts:37](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L37)
 
 ***
 
@@ -80,7 +80,7 @@ Defined in: [interpreter/index.ts:37](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **lastPipelineValue**: `any` = `undefined`
 
-Defined in: [interpreter/index.ts:36](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L36)
+Defined in: [interpreter/index.ts:36](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L36)
 
 ***
 
@@ -88,7 +88,7 @@ Defined in: [interpreter/index.ts:36](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **moduleResolver**: [`ModuleResolver`](ModuleResolver.md)
 
-Defined in: [interpreter/index.ts:33](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L33)
+Defined in: [interpreter/index.ts:33](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L33)
 
 ## Methods
 
@@ -96,7 +96,7 @@ Defined in: [interpreter/index.ts:33](https://github.com/artpar/wang/blob/914dd1
 
 > **bindFunction**(`name`, `fn`): `void`
 
-Defined in: [interpreter/index.ts:329](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L329)
+Defined in: [interpreter/index.ts:329](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L329)
 
 #### Parameters
 
@@ -118,7 +118,7 @@ Defined in: [interpreter/index.ts:329](https://github.com/artpar/wang/blob/914dd
 
 > `protected` **createContext**(`parent?`): [`ExecutionContext`](../interfaces/ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:57](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L57)
+Defined in: [interpreter/index.ts:57](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L57)
 
 #### Parameters
 
@@ -136,7 +136,7 @@ Defined in: [interpreter/index.ts:57](https://github.com/artpar/wang/blob/914dd1
 
 > `protected` **evaluateNode**(`node`): `Promise`\<`any`\>
 
-Defined in: [interpreter/index.ts:729](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L729)
+Defined in: [interpreter/index.ts:729](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L729)
 
 #### Parameters
 
@@ -156,7 +156,7 @@ Defined in: [interpreter/index.ts:729](https://github.com/artpar/wang/blob/914dd
 
 > **execute**(`code`, `context?`): `Promise`\<`any`\>
 
-Defined in: [interpreter/index.ts:337](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L337)
+Defined in: [interpreter/index.ts:337](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L337)
 
 ##### Parameters
 
@@ -176,7 +176,7 @@ Defined in: [interpreter/index.ts:337](https://github.com/artpar/wang/blob/914dd
 
 > **execute**(`code`, `context`, `options`): `Promise`\<\{ `metadata`: \{ `logs`: `object`[]; \}; `result`: `any`; \}\>
 
-Defined in: [interpreter/index.ts:338](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L338)
+Defined in: [interpreter/index.ts:338](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L338)
 
 ##### Parameters
 
@@ -204,7 +204,7 @@ Defined in: [interpreter/index.ts:338](https://github.com/artpar/wang/blob/914dd
 
 > **setVariable**(`name`, `value`): `void`
 
-Defined in: [interpreter/index.ts:333](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L333)
+Defined in: [interpreter/index.ts:333](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L333)
 
 #### Parameters
 

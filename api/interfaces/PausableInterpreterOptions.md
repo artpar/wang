@@ -1,4 +1,4 @@
-[**Wang Language v0.14.10**](../README.md)
+[**Wang Language v0.14.11**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: PausableInterpreterOptions
 
-Defined in: [interpreter/pausable-interpreter.ts:51](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L51)
+Defined in: [interpreter/pausable-interpreter.ts:51](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/pausable-interpreter.ts#L51)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [interpreter/pausable-interpreter.ts:51](https://github.com/artpar/w
 
 > `optional` **functions**: `Record`\<`string`, `Function`\>
 
-Defined in: [interpreter/index.ts:28](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L28)
+Defined in: [interpreter/index.ts:28](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L28)
 
 #### Inherited from
 
@@ -30,7 +30,7 @@ Defined in: [interpreter/index.ts:28](https://github.com/artpar/wang/blob/914dd1
 
 > `optional` **globalContext**: [`ExecutionContext`](ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:29](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L29)
+Defined in: [interpreter/index.ts:29](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L29)
 
 #### Inherited from
 
@@ -42,7 +42,7 @@ Defined in: [interpreter/index.ts:29](https://github.com/artpar/wang/blob/914dd1
 
 > `optional` **moduleResolver**: [`ModuleResolver`](../classes/ModuleResolver.md)
 
-Defined in: [interpreter/index.ts:27](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/index.ts#L27)
+Defined in: [interpreter/index.ts:27](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/index.ts#L27)
 
 #### Inherited from
 
@@ -54,4 +54,4 @@ Defined in: [interpreter/index.ts:27](https://github.com/artpar/wang/blob/914dd1
 
 > `optional` **pauseCheckInterval**: `number`
 
-Defined in: [interpreter/pausable-interpreter.ts:52](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L52)
+Defined in: [interpreter/pausable-interpreter.ts:52](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/interpreter/pausable-interpreter.ts#L52)
