@@ -6,7 +6,7 @@
 
 # Interface: SerializedState
 
-Defined in: [interpreter/pausable-interpreter.ts:30](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L30)
+Defined in: [interpreter/pausable-interpreter.ts:30](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L30)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [interpreter/pausable-interpreter.ts:30](https://github.com/artpar/w
 
 > **currentContext**: [`SerializedContext`](SerializedContext.md)
 
-Defined in: [interpreter/pausable-interpreter.ts:33](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L33)
+Defined in: [interpreter/pausable-interpreter.ts:33](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L33)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [interpreter/pausable-interpreter.ts:33](https://github.com/artpar/w
 
 > `optional` **customFunctions**: `string`[]
 
-Defined in: [interpreter/pausable-interpreter.ts:37](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L37)
+Defined in: [interpreter/pausable-interpreter.ts:37](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L37)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [interpreter/pausable-interpreter.ts:37](https://github.com/artpar/w
 
 > **executionState**: [`ExecutionState`](ExecutionState.md)
 
-Defined in: [interpreter/pausable-interpreter.ts:34](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L34)
+Defined in: [interpreter/pausable-interpreter.ts:34](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L34)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [interpreter/pausable-interpreter.ts:34](https://github.com/artpar/w
 
 > **globalContext**: [`SerializedContext`](SerializedContext.md)
 
-Defined in: [interpreter/pausable-interpreter.ts:32](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L32)
+Defined in: [interpreter/pausable-interpreter.ts:32](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L32)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [interpreter/pausable-interpreter.ts:32](https://github.com/artpar/w
 
 > `optional` **lastPipelineValue**: `any`
 
-Defined in: [interpreter/pausable-interpreter.ts:36](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L36)
+Defined in: [interpreter/pausable-interpreter.ts:36](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L36)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [interpreter/pausable-interpreter.ts:36](https://github.com/artpar/w
 
 > **moduleCache**: \[`string`, `any`\][]
 
-Defined in: [interpreter/pausable-interpreter.ts:35](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L35)
+Defined in: [interpreter/pausable-interpreter.ts:35](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L35)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [interpreter/pausable-interpreter.ts:35](https://github.com/artpar/w
 
 > **version**: `string`
 
-Defined in: [interpreter/pausable-interpreter.ts:31](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/interpreter/pausable-interpreter.ts#L31)
+Defined in: [interpreter/pausable-interpreter.ts:31](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/interpreter/pausable-interpreter.ts#L31)

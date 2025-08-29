@@ -6,7 +6,7 @@
 
 # Interface: ModuleResolution
 
-Defined in: [resolvers/base.ts:4](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/resolvers/base.ts#L4)
+Defined in: [resolvers/base.ts:4](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/resolvers/base.ts#L4)
 
 Module resolution result
 
@@ -16,7 +16,7 @@ Module resolution result
 
 > **code**: `string`
 
-Defined in: [resolvers/base.ts:5](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/resolvers/base.ts#L5)
+Defined in: [resolvers/base.ts:5](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/resolvers/base.ts#L5)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [resolvers/base.ts:5](https://github.com/artpar/wang/blob/61b057ca90
 
 > `optional` **metadata**: `Record`\<`string`, `any`\>
 
-Defined in: [resolvers/base.ts:7](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/resolvers/base.ts#L7)
+Defined in: [resolvers/base.ts:7](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/resolvers/base.ts#L7)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [resolvers/base.ts:7](https://github.com/artpar/wang/blob/61b057ca90
 
 > **path**: `string`
 
-Defined in: [resolvers/base.ts:6](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/resolvers/base.ts#L6)
+Defined in: [resolvers/base.ts:6](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/resolvers/base.ts#L6)

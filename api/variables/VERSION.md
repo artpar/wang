@@ -8,4 +8,4 @@
 
 > `const` **VERSION**: `"0.1.0"` = `'0.1.0'`
 
-Defined in: [index.ts:49](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/index.ts#L49)
+Defined in: [index.ts:49](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/index.ts#L49)

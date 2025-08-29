@@ -6,7 +6,7 @@
 
 # Interface: ParserOptions
 
-Defined in: [parser/wang-validator.ts:21](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/parser/wang-validator.ts#L21)
+Defined in: [parser/wang-validator.ts:21](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/parser/wang-validator.ts#L21)
 
 ## Properties
 
@@ -14,4 +14,4 @@ Defined in: [parser/wang-validator.ts:21](https://github.com/artpar/wang/blob/61
 
 > `optional` **includeAST**: `boolean`
 
-Defined in: [parser/wang-validator.ts:22](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/parser/wang-validator.ts#L22)
+Defined in: [parser/wang-validator.ts:22](https://github.com/artpar/wang/blob/914dd143e8b6182e76382164a1f196c5d1006f9d/src/parser/wang-validator.ts#L22)
