@@ -42,6 +42,76 @@ A CSP-safe workflow programming language for browser automation, designed to run
 npm install wang-lang
 ```
 
+## CLI Usage
+
+Wang provides command-line tools for validating and executing `.wang` files:
+
+### Execute Wang Files
+
+```bash
+# Execute a .wang file
+npx wang-run script.wang
+
+# Execute with verbose output
+npx wang-run script.wang --verbose
+
+# Execute from stdin
+echo 'console.log("Hello Wang!")' | npx wang-run -
+
+# Quiet mode (only show output)
+npx wang-run script.wang --quiet
+```
+
+### Validate Wang Syntax
+
+```bash
+# Validate syntax
+npx wang-validate script.wang
+
+# Show AST
+npx wang-validate script.wang --ast
+
+# Show syntax suggestions
+npx wang-validate script.wang --suggestions
+
+# Validate from stdin
+echo 'let x = 1' | npx wang-validate -
+```
+
+### Example .wang File
+
+Create a file called `hello.wang`:
+
+```wang
+// Simple Hello World example
+console.log("Hello, Wang!")
+
+// Test basic operations
+let x = 42
+let y = x * 2
+console.log(`x = ${x}, y = ${y}`)
+
+// Test array operations
+let numbers = [1, 2, 3, 4, 5]
+let evenNumbers = filter(numbers, n => n % 2 === 0)
+let doubledNumbers = map(evenNumbers, n => n * 2)
+console.log("Even numbers doubled:", doubledNumbers)
+
+// Test functions
+function greet(name) {
+  return `Hello, ${name}!`
+}
+
+let message = greet("Wang Developer")
+console.log(message)
+```
+
+Then run it:
+
+```bash
+npx wang-run hello.wang
+```
+
 ## Quick Start
 
 ```javascript

@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **CLI Tools**: New command-line interface for executing and validating Wang files
+  - `wang-run`: Execute .wang files from command line with built-in functions and global objects
+    - Supports file execution (`wang-run script.wang`) and stdin input (`wang-run -`)
+    - Verbose mode (`--verbose`) for detailed execution information
+    - Quiet mode (`--quiet`) for output-only display
+    - Built-in console functions, array utilities (filter, map), Math, JSON, Date, and process objects
+    - Comprehensive error handling with formatted output
+  - `wang-validate`: Enhanced validation tool (existing functionality)
+    - Support for AST display, syntax suggestions, and stdin validation
+  - Both tools work seamlessly with `npx` for easy execution without global installation
+  - Comprehensive test suite with 15+ CLI-specific test scenarios
+  - Example `.wang` files included in `/examples` directory
+
 - **WangValidator**: New syntax validation API for checking Wang code without execution
   - `validate()` method for syntax checking with optional AST extraction
   - `checkSyntaxPatterns()` for detecting specific language features in code

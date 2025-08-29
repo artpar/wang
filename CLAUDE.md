@@ -149,9 +149,19 @@ class MyCustomResolver extends ModuleResolver {
 ## Development Commands
 
 ```bash
-# Run examples
+# Build the project (required before using CLI tools)
+npm run build
+
+# Run CLI tools (after building)
+npx wang-run examples/hello.wang
+npx wang-validate examples/hello.wang
+
+# Development examples
 node example-usage.js
 
+# Test CLI tools
+npm run build && npx wang-run examples/hello.wang --verbose
+npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
 ```
 
 ## Key Features

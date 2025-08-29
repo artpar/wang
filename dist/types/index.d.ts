@@ -6,7 +6,7 @@
 export { WangInterpreter } from './interpreter';
 export type { ExecutionContext, InterpreterOptions } from './interpreter';
 export { PausableWangInterpreter } from './interpreter/pausable-interpreter';
-export type { ExecutionState, CallFrame, SerializedState, SerializedContext, } from './interpreter/pausable-interpreter';
+export type { ExecutionState, CallFrame, SerializedState, SerializedContext, PausableInterpreterOptions, } from './interpreter/pausable-interpreter';
 export { ModuleResolver, type ModuleResolution } from './resolvers/base';
 export { InMemoryModuleResolver } from './resolvers/memory';
 export { WangError, ModuleNotFoundError, CircularDependencyError, TypeMismatchError, UndefinedVariableError, FunctionNotFoundError, type ErrorContext, } from './utils/errors';
