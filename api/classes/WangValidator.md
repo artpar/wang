@@ -1,4 +1,4 @@
-[**Wang Language v0.15.0**](../README.md)
+[**Wang Language v0.15.1**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: WangValidator
 
-Defined in: [parser/wang-validator.ts:25](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/parser/wang-validator.ts#L25)
+Defined in: [parser/wang-validator.ts:25](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/parser/wang-validator.ts#L25)
 
 ## Constructors
 
@@ -24,7 +24,7 @@ Defined in: [parser/wang-validator.ts:25](https://github.com/artpar/wang/blob/c0
 
 > **checkSyntaxPatterns**(`code`): `object`
 
-Defined in: [parser/wang-validator.ts:160](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/parser/wang-validator.ts#L160)
+Defined in: [parser/wang-validator.ts:160](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/parser/wang-validator.ts#L160)
 
 Check if code has specific syntax patterns
 
@@ -64,7 +64,7 @@ Check if code has specific syntax patterns
 
 > **suggestFixes**(`code`): `string`[]
 
-Defined in: [parser/wang-validator.ts:179](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/parser/wang-validator.ts#L179)
+Defined in: [parser/wang-validator.ts:179](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/parser/wang-validator.ts#L179)
 
 Suggest fixes for common issues
 
@@ -84,7 +84,7 @@ Suggest fixes for common issues
 
 > **validate**(`code`, `options`): [`ValidationResult`](../interfaces/ValidationResult.md)
 
-Defined in: [parser/wang-validator.ts:29](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/parser/wang-validator.ts#L29)
+Defined in: [parser/wang-validator.ts:29](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/parser/wang-validator.ts#L29)
 
 Validate Wang code without executing it
 

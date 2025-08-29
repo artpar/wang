@@ -1,4 +1,4 @@
-[**Wang Language v0.15.0**](../README.md)
+[**Wang Language v0.15.1**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ExecutionState
 
-Defined in: [interpreter/pausable-interpreter.ts:10](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L10)
+Defined in: [interpreter/pausable-interpreter.ts:10](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L10)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [interpreter/pausable-interpreter.ts:10](https://github.com/artpar/w
 
 > **callStack**: [`CallFrame`](CallFrame.md)[]
 
-Defined in: [interpreter/pausable-interpreter.ts:14](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L14)
+Defined in: [interpreter/pausable-interpreter.ts:14](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L14)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [interpreter/pausable-interpreter.ts:14](https://github.com/artpar/w
 
 > `optional` **currentNode**: `any`
 
-Defined in: [interpreter/pausable-interpreter.ts:13](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L13)
+Defined in: [interpreter/pausable-interpreter.ts:13](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L13)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [interpreter/pausable-interpreter.ts:13](https://github.com/artpar/w
 
 > `optional` **error**: `any`
 
-Defined in: [interpreter/pausable-interpreter.ts:16](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L16)
+Defined in: [interpreter/pausable-interpreter.ts:16](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L16)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [interpreter/pausable-interpreter.ts:16](https://github.com/artpar/w
 
 > `optional` **pauseRequested**: `boolean`
 
-Defined in: [interpreter/pausable-interpreter.ts:12](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L12)
+Defined in: [interpreter/pausable-interpreter.ts:12](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L12)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [interpreter/pausable-interpreter.ts:12](https://github.com/artpar/w
 
 > `optional` **result**: `any`
 
-Defined in: [interpreter/pausable-interpreter.ts:15](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L15)
+Defined in: [interpreter/pausable-interpreter.ts:15](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L15)
 
 ***
 
@@ -54,4 +54,4 @@ Defined in: [interpreter/pausable-interpreter.ts:15](https://github.com/artpar/w
 
 > **type**: `"error"` \| `"running"` \| `"paused"` \| `"completed"`
 
-Defined in: [interpreter/pausable-interpreter.ts:11](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L11)
+Defined in: [interpreter/pausable-interpreter.ts:11](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L11)

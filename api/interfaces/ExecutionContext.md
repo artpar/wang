@@ -1,4 +1,4 @@
-[**Wang Language v0.15.0**](../README.md)
+[**Wang Language v0.15.1**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ExecutionContext
 
-Defined in: [interpreter/index.ts:15](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L15)
+Defined in: [interpreter/index.ts:15](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L15)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [interpreter/index.ts:15](https://github.com/artpar/wang/blob/c0c905
 
 > **classes**: `Map`\<`string`, `any`\>
 
-Defined in: [interpreter/index.ts:19](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L19)
+Defined in: [interpreter/index.ts:19](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L19)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [interpreter/index.ts:19](https://github.com/artpar/wang/blob/c0c905
 
 > **exports**: `Map`\<`string`, `any`\>
 
-Defined in: [interpreter/index.ts:20](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L20)
+Defined in: [interpreter/index.ts:20](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L20)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [interpreter/index.ts:20](https://github.com/artpar/wang/blob/c0c905
 
 > **functions**: `Map`\<`string`, `Function`\>
 
-Defined in: [interpreter/index.ts:18](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L18)
+Defined in: [interpreter/index.ts:18](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L18)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [interpreter/index.ts:18](https://github.com/artpar/wang/blob/c0c905
 
 > **moduleCache**: `Map`\<`string`, `any`\>
 
-Defined in: [interpreter/index.ts:22](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L22)
+Defined in: [interpreter/index.ts:22](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L22)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [interpreter/index.ts:22](https://github.com/artpar/wang/blob/c0c905
 
 > `optional` **moduleExports**: `any`
 
-Defined in: [interpreter/index.ts:23](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L23)
+Defined in: [interpreter/index.ts:23](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L23)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [interpreter/index.ts:23](https://github.com/artpar/wang/blob/c0c905
 
 > `optional` **parent**: `ExecutionContext`
 
-Defined in: [interpreter/index.ts:21](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L21)
+Defined in: [interpreter/index.ts:21](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L21)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [interpreter/index.ts:21](https://github.com/artpar/wang/blob/c0c905
 
 > **variableKinds**: `Map`\<`string`, `"const"` \| `"let"` \| `"var"`\>
 
-Defined in: [interpreter/index.ts:17](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L17)
+Defined in: [interpreter/index.ts:17](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L17)
 
 ***
 
@@ -70,4 +70,4 @@ Defined in: [interpreter/index.ts:17](https://github.com/artpar/wang/blob/c0c905
 
 > **variables**: `Map`\<`string`, `any`\>
 
-Defined in: [interpreter/index.ts:16](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L16)
+Defined in: [interpreter/index.ts:16](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L16)

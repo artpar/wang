@@ -1,4 +1,4 @@
-[**Wang Language v0.15.0**](../README.md)
+[**Wang Language v0.15.1**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: PausableWangInterpreter
 
-Defined in: [interpreter/pausable-interpreter.ts:55](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L55)
+Defined in: [interpreter/pausable-interpreter.ts:55](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L55)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [interpreter/pausable-interpreter.ts:55](https://github.com/artpar/w
 
 > **new PausableWangInterpreter**(`options`): `PausableWangInterpreter`
 
-Defined in: [interpreter/pausable-interpreter.ts:63](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L63)
+Defined in: [interpreter/pausable-interpreter.ts:63](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L63)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [interpreter/pausable-interpreter.ts:63](https://github.com/artpar/w
 
 > `protected` **consoleLogs**: `object`[] = `[]`
 
-Defined in: [interpreter/index.ts:38](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L38)
+Defined in: [interpreter/index.ts:38](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L38)
 
 #### args
 
@@ -64,7 +64,7 @@ Defined in: [interpreter/index.ts:38](https://github.com/artpar/wang/blob/c0c905
 
 > `protected` **currentContext**: [`ExecutionContext`](../interfaces/ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:35](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L35)
+Defined in: [interpreter/index.ts:35](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L35)
 
 #### Inherited from
 
@@ -76,7 +76,7 @@ Defined in: [interpreter/index.ts:35](https://github.com/artpar/wang/blob/c0c905
 
 > `protected` **globalContext**: [`ExecutionContext`](../interfaces/ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:34](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L34)
+Defined in: [interpreter/index.ts:34](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L34)
 
 #### Inherited from
 
@@ -88,7 +88,7 @@ Defined in: [interpreter/index.ts:34](https://github.com/artpar/wang/blob/c0c905
 
 > `protected` **globalModuleCache**: `Map`\<`string`, `any`\>
 
-Defined in: [interpreter/index.ts:37](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L37)
+Defined in: [interpreter/index.ts:37](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L37)
 
 #### Inherited from
 
@@ -100,7 +100,7 @@ Defined in: [interpreter/index.ts:37](https://github.com/artpar/wang/blob/c0c905
 
 > `protected` **lastPipelineValue**: `any` = `undefined`
 
-Defined in: [interpreter/index.ts:36](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L36)
+Defined in: [interpreter/index.ts:36](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L36)
 
 #### Inherited from
 
@@ -112,7 +112,7 @@ Defined in: [interpreter/index.ts:36](https://github.com/artpar/wang/blob/c0c905
 
 > `protected` **moduleResolver**: [`ModuleResolver`](ModuleResolver.md)
 
-Defined in: [interpreter/index.ts:33](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L33)
+Defined in: [interpreter/index.ts:33](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L33)
 
 #### Inherited from
 
@@ -124,7 +124,7 @@ Defined in: [interpreter/index.ts:33](https://github.com/artpar/wang/blob/c0c905
 
 > **bindFunction**(`name`, `fn`): `void`
 
-Defined in: [interpreter/index.ts:329](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L329)
+Defined in: [interpreter/index.ts:329](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L329)
 
 #### Parameters
 
@@ -150,7 +150,7 @@ Defined in: [interpreter/index.ts:329](https://github.com/artpar/wang/blob/c0c90
 
 > `protected` **createContext**(`parent?`): [`ExecutionContext`](../interfaces/ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:57](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L57)
+Defined in: [interpreter/index.ts:57](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L57)
 
 #### Parameters
 
@@ -172,7 +172,7 @@ Defined in: [interpreter/index.ts:57](https://github.com/artpar/wang/blob/c0c905
 
 > **evaluateNode**(`node`): `Promise`\<`any`\>
 
-Defined in: [interpreter/pausable-interpreter.ts:117](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L117)
+Defined in: [interpreter/pausable-interpreter.ts:117](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L117)
 
 #### Parameters
 
@@ -194,7 +194,7 @@ Defined in: [interpreter/pausable-interpreter.ts:117](https://github.com/artpar/
 
 > **execute**(`code`, `context?`): `Promise`\<`any`\>
 
-Defined in: [interpreter/pausable-interpreter.ts:170](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L170)
+Defined in: [interpreter/pausable-interpreter.ts:170](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L170)
 
 #### Parameters
 
@@ -220,7 +220,7 @@ Defined in: [interpreter/pausable-interpreter.ts:170](https://github.com/artpar/
 
 > **getCallStackTrace**(): `string`[]
 
-Defined in: [interpreter/pausable-interpreter.ts:473](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L473)
+Defined in: [interpreter/pausable-interpreter.ts:473](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L473)
 
 #### Returns
 
@@ -232,7 +232,7 @@ Defined in: [interpreter/pausable-interpreter.ts:473](https://github.com/artpar/
 
 > **getCurrentVariables**(): `Record`\<`string`, `any`\>
 
-Defined in: [interpreter/pausable-interpreter.ts:480](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L480)
+Defined in: [interpreter/pausable-interpreter.ts:480](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L480)
 
 #### Returns
 
@@ -244,7 +244,7 @@ Defined in: [interpreter/pausable-interpreter.ts:480](https://github.com/artpar/
 
 > **getExecutionState**(): [`ExecutionState`](../interfaces/ExecutionState.md)
 
-Defined in: [interpreter/pausable-interpreter.ts:231](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L231)
+Defined in: [interpreter/pausable-interpreter.ts:231](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L231)
 
 #### Returns
 
@@ -256,7 +256,7 @@ Defined in: [interpreter/pausable-interpreter.ts:231](https://github.com/artpar/
 
 > **hasError**(): `boolean`
 
-Defined in: [interpreter/pausable-interpreter.ts:508](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L508)
+Defined in: [interpreter/pausable-interpreter.ts:508](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L508)
 
 #### Returns
 
@@ -268,7 +268,7 @@ Defined in: [interpreter/pausable-interpreter.ts:508](https://github.com/artpar/
 
 > **isCompleted**(): `boolean`
 
-Defined in: [interpreter/pausable-interpreter.ts:504](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L504)
+Defined in: [interpreter/pausable-interpreter.ts:504](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L504)
 
 #### Returns
 
@@ -280,7 +280,7 @@ Defined in: [interpreter/pausable-interpreter.ts:504](https://github.com/artpar/
 
 > **isPaused**(): `boolean`
 
-Defined in: [interpreter/pausable-interpreter.ts:496](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L496)
+Defined in: [interpreter/pausable-interpreter.ts:496](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L496)
 
 #### Returns
 
@@ -292,7 +292,7 @@ Defined in: [interpreter/pausable-interpreter.ts:496](https://github.com/artpar/
 
 > **isRunning**(): `boolean`
 
-Defined in: [interpreter/pausable-interpreter.ts:500](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L500)
+Defined in: [interpreter/pausable-interpreter.ts:500](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L500)
 
 #### Returns
 
@@ -304,7 +304,7 @@ Defined in: [interpreter/pausable-interpreter.ts:500](https://github.com/artpar/
 
 > **pause**(): `void`
 
-Defined in: [interpreter/pausable-interpreter.ts:73](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L73)
+Defined in: [interpreter/pausable-interpreter.ts:73](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L73)
 
 #### Returns
 
@@ -316,7 +316,7 @@ Defined in: [interpreter/pausable-interpreter.ts:73](https://github.com/artpar/w
 
 > **resume**(): `Promise`\<`any`\>
 
-Defined in: [interpreter/pausable-interpreter.ts:80](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L80)
+Defined in: [interpreter/pausable-interpreter.ts:80](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L80)
 
 #### Returns
 
@@ -328,7 +328,7 @@ Defined in: [interpreter/pausable-interpreter.ts:80](https://github.com/artpar/w
 
 > **serialize**(): [`SerializedState`](../interfaces/SerializedState.md)
 
-Defined in: [interpreter/pausable-interpreter.ts:236](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L236)
+Defined in: [interpreter/pausable-interpreter.ts:236](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L236)
 
 #### Returns
 
@@ -340,7 +340,7 @@ Defined in: [interpreter/pausable-interpreter.ts:236](https://github.com/artpar/
 
 > **setVariable**(`name`, `value`): `void`
 
-Defined in: [interpreter/index.ts:333](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L333)
+Defined in: [interpreter/index.ts:333](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/index.ts#L333)
 
 #### Parameters
 
@@ -366,7 +366,7 @@ Defined in: [interpreter/index.ts:333](https://github.com/artpar/wang/blob/c0c90
 
 > `static` **deserialize**(`state`, `options`): `Promise`\<`PausableWangInterpreter`\>
 
-Defined in: [interpreter/pausable-interpreter.ts:252](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L252)
+Defined in: [interpreter/pausable-interpreter.ts:252](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/interpreter/pausable-interpreter.ts#L252)
 
 #### Parameters
 

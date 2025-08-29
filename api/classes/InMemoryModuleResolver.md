@@ -1,4 +1,4 @@
-[**Wang Language v0.15.0**](../README.md)
+[**Wang Language v0.15.1**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: InMemoryModuleResolver
 
-Defined in: [resolvers/memory.ts:7](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L7)
+Defined in: [resolvers/memory.ts:7](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L7)
 
 In-memory module resolver for testing and temporary modules
 
@@ -20,7 +20,7 @@ In-memory module resolver for testing and temporary modules
 
 > **new InMemoryModuleResolver**(): `InMemoryModuleResolver`
 
-Defined in: [resolvers/memory.ts:11](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L11)
+Defined in: [resolvers/memory.ts:11](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L11)
 
 #### Returns
 
@@ -38,7 +38,7 @@ Defined in: [resolvers/memory.ts:11](https://github.com/artpar/wang/blob/c0c9058
 
 > **get** **isEmpty**(): `boolean`
 
-Defined in: [resolvers/memory.ts:128](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L128)
+Defined in: [resolvers/memory.ts:128](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L128)
 
 Check if resolver has any modules
 
@@ -54,7 +54,7 @@ Check if resolver has any modules
 
 > **get** **size**(): `number`
 
-Defined in: [resolvers/memory.ts:121](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L121)
+Defined in: [resolvers/memory.ts:121](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L121)
 
 Get the number of modules
 
@@ -68,7 +68,7 @@ Get the number of modules
 
 > **addModule**(`path`, `code`, `metadata?`): `this`
 
-Defined in: [resolvers/memory.ts:20](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L20)
+Defined in: [resolvers/memory.ts:20](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L20)
 
 Add a module to the resolver
 
@@ -96,7 +96,7 @@ Add a module to the resolver
 
 > **addModules**(`modules`): `this`
 
-Defined in: [resolvers/memory.ts:34](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L34)
+Defined in: [resolvers/memory.ts:34](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L34)
 
 Add multiple modules at once
 
@@ -116,7 +116,7 @@ Add multiple modules at once
 
 > **clearCache**(): `void`
 
-Defined in: [resolvers/memory.ts:107](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L107)
+Defined in: [resolvers/memory.ts:107](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L107)
 
 Clear any caches (optional)
 
@@ -134,7 +134,7 @@ Clear any caches (optional)
 
 > **exists**(`modulePath`, `fromPath?`): `Promise`\<`boolean`\>
 
-Defined in: [resolvers/memory.ts:88](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L88)
+Defined in: [resolvers/memory.ts:88](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L88)
 
 Check if a module exists
 
@@ -168,7 +168,7 @@ Promise resolving to true if module exists
 
 > **exportModules**(): `Record`\<`string`, \{ `code`: `string`; `metadata?`: `Record`\<`string`, `any`\>; \}\>
 
-Defined in: [resolvers/memory.ts:135](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L135)
+Defined in: [resolvers/memory.ts:135](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L135)
 
 Export all modules (useful for serialization)
 
@@ -182,7 +182,7 @@ Export all modules (useful for serialization)
 
 > **getMetadata**(`modulePath`): `Promise`\<`null` \| `Record`\<`string`, `any`\>\>
 
-Defined in: [resolvers/memory.ts:113](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L113)
+Defined in: [resolvers/memory.ts:113](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L113)
 
 Get module metadata (optional)
 
@@ -210,7 +210,7 @@ Promise resolving to module metadata
 
 > **importModules**(`modules`): `this`
 
-Defined in: [resolvers/memory.ts:151](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L151)
+Defined in: [resolvers/memory.ts:151](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L151)
 
 Import modules (useful for deserialization)
 
@@ -230,7 +230,7 @@ Import modules (useful for deserialization)
 
 > **list**(`prefix?`): `Promise`\<`string`[]\>
 
-Defined in: [resolvers/memory.ts:97](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L97)
+Defined in: [resolvers/memory.ts:97](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L97)
 
 List available modules (for autocomplete/suggestions)
 
@@ -258,7 +258,7 @@ Promise resolving to array of available module paths
 
 > **removeModule**(`path`): `boolean`
 
-Defined in: [resolvers/memory.ts:44](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L44)
+Defined in: [resolvers/memory.ts:44](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L44)
 
 Remove a module
 
@@ -278,7 +278,7 @@ Remove a module
 
 > **resolve**(`modulePath`, `fromPath?`): `Promise`\<[`ModuleResolution`](../interfaces/ModuleResolution.md)\>
 
-Defined in: [resolvers/memory.ts:50](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/memory.ts#L50)
+Defined in: [resolvers/memory.ts:50](https://github.com/artpar/wang/blob/6fd47f3c686112dedb036605c4793069ac5c3882/src/resolvers/memory.ts#L50)
 
 Resolve a module path to its source code
 
