@@ -1,4 +1,4 @@
-[**Wang Language v0.14.7**](../README.md)
+[**Wang Language v0.14.10**](../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **createInterpreter**(`options?`): [`WangInterpreter`](../classes/WangInterpreter.md)
 
-Defined in: [index.ts:54](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/index.ts#L54)
+Defined in: [index.ts:54](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/index.ts#L54)
 
 Quick start helper to create an interpreter
 

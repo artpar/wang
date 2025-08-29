@@ -1,4 +1,4 @@
-[**Wang Language v0.14.7**](../README.md)
+[**Wang Language v0.14.10**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ParserOptions
 
-Defined in: [parser/wang-validator.ts:21](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/parser/wang-validator.ts#L21)
+Defined in: [parser/wang-validator.ts:21](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/parser/wang-validator.ts#L21)
 
 ## Properties
 
@@ -14,4 +14,4 @@ Defined in: [parser/wang-validator.ts:21](https://github.com/artpar/wang/blob/01
 
 > `optional` **includeAST**: `boolean`
 
-Defined in: [parser/wang-validator.ts:22](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/parser/wang-validator.ts#L22)
+Defined in: [parser/wang-validator.ts:22](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/parser/wang-validator.ts#L22)

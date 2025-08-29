@@ -1,4 +1,4 @@
-**Wang Language v0.14.7**
+**Wang Language v0.14.10**
 
 ***
 

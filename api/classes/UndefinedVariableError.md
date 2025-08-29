@@ -1,4 +1,4 @@
-[**Wang Language v0.14.7**](../README.md)
+[**Wang Language v0.14.10**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: UndefinedVariableError
 
-Defined in: [utils/errors.ts:149](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/utils/errors.ts#L149)
+Defined in: [utils/errors.ts:149](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/utils/errors.ts#L149)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [utils/errors.ts:149](https://github.com/artpar/wang/blob/01335fe567
 
 > **new UndefinedVariableError**(`varName`, `availableVars`): `UndefinedVariableError`
 
-Defined in: [utils/errors.ts:150](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/utils/errors.ts#L150)
+Defined in: [utils/errors.ts:150](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/utils/errors.ts#L150)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: [utils/errors.ts:150](https://github.com/artpar/wang/blob/01335fe567
 
 > **context**: [`ErrorContext`](../interfaces/ErrorContext.md)
 
-Defined in: [utils/errors.ts:14](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/utils/errors.ts#L14)
+Defined in: [utils/errors.ts:14](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/utils/errors.ts#L14)
 
 #### Inherited from
 
@@ -56,7 +56,7 @@ Defined in: [utils/errors.ts:14](https://github.com/artpar/wang/blob/01335fe567f
 
 > `optional` **originalError**: `Error`
 
-Defined in: [utils/errors.ts:15](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/utils/errors.ts#L15)
+Defined in: [utils/errors.ts:15](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/utils/errors.ts#L15)
 
 #### Inherited from
 
@@ -68,7 +68,7 @@ Defined in: [utils/errors.ts:15](https://github.com/artpar/wang/blob/01335fe567f
 
 > **getFormattedMessage**(`_sourceCode?`): `string`
 
-Defined in: [utils/errors.ts:40](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/utils/errors.ts#L40)
+Defined in: [utils/errors.ts:40](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/utils/errors.ts#L40)
 
 Get a formatted error message with suggestions
 
@@ -92,7 +92,7 @@ Get a formatted error message with suggestions
 
 > **toString**(): `string`
 
-Defined in: [utils/errors.ts:33](https://github.com/artpar/wang/blob/01335fe567f9c6e76135c61a1659d6d5a1b99bd1/src/utils/errors.ts#L33)
+Defined in: [utils/errors.ts:33](https://github.com/artpar/wang/blob/61b057ca9085041eb45870b6832c37fc9af1ff26/src/utils/errors.ts#L33)
 
 Returns a string representation of an object.
 

@@ -1,8 +1,8 @@
-[**Wang Language v0.14.7**](README.md)
+[**Wang Language v0.14.10**](README.md)
 
 ***
 
-# Wang Language v0.14.7
+# Wang Language v0.14.10
 
 Wang Language - A CSP-safe workflow programming language
 Uses Nearley to generate a standalone parser with no runtime dependencies
