@@ -7,6 +7,8 @@ on:
       - '**.md'
       - 'src/**'
       - 'docs/**'
+      - 'playground.html'
+      - 'dist/browser/**'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
