@@ -142,7 +142,7 @@ jobs:
           </html>
           EOF
           
-          # Create documentation site
+          # Create a simple documentation page
           cat > docs/docs.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -150,57 +150,221 @@ jobs:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Wang Language Documentation</title>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify/themes/vue.css">
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background: #f5f5f5;
+              }
+              .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 2rem;
+                text-align: center;
+              }
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 2rem;
+              }
+              .content {
+                background: white;
+                border-radius: 8px;
+                padding: 2rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              }
+              h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+              h2 { color: #667eea; margin: 2rem 0 1rem; }
+              h3 { color: #764ba2; margin: 1.5rem 0 0.5rem; }
+              pre {
+                background: #f8f8f8;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 1rem;
+                overflow-x: auto;
+                margin: 1rem 0;
+              }
+              code {
+                background: #f0f0f0;
+                padding: 0.2rem 0.4rem;
+                border-radius: 3px;
+                font-family: 'Monaco', 'Menlo', monospace;
+              }
+              .section { margin: 2rem 0; }
+              .feature-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                margin: 2rem 0;
+              }
+              .feature {
+                padding: 1.5rem;
+                background: #f9f9f9;
+                border-radius: 8px;
+                border-left: 4px solid #667eea;
+              }
+              .links {
+                display: flex;
+                gap: 2rem;
+                margin: 2rem 0;
+              }
+              .links a {
+                color: #667eea;
+                text-decoration: none;
+                font-weight: bold;
+              }
+              .links a:hover { text-decoration: underline; }
+            </style>
           </head>
           <body>
-            <div id="app"></div>
-            <script>
-              window.$docsify = {
-                name: 'Wang Language',
-                repo: 'artpar/wang',
-                loadSidebar: true,
-                loadNavbar: true,
-                subMaxLevel: 3,
-                auto2top: true,
-                coverpage: true,
-                executeScript: true,
-                search: {
-                  maxAge: 86400000,
-                  paths: 'auto',
-                  placeholder: 'Search',
-                  noData: 'No Results',
-                  depth: 3
-                }
-              }
-            </script>
-            <script src="https://cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-typescript.min.js"></script>
+            <div class="header">
+              <h1>🚀 Wang Language</h1>
+              <p>CSP-Safe Workflow Programming Language for Browser Automation</p>
+            </div>
+            
+            <div class="container">
+              <div class="content">
+                <div class="links">
+                  <a href="playground.html">Try Playground</a>
+                  <a href="https://github.com/artpar/wang">GitHub</a>
+                  <a href="https://www.npmjs.com/package/wang-lang">NPM</a>
+                  <a href="index.html">Home</a>
+                </div>
+                
+                <section class="section">
+                  <h2>Overview</h2>
+                  <p>Wang is a modern workflow programming language that runs inside JavaScript, designed for browser automation and data transformation. It's CSP-safe (no eval/new Function) and can run in restricted environments like Chrome service workers.</p>
+                </section>
+                
+                <section class="section">
+                  <h2>Key Features</h2>
+                  <div class="feature-grid">
+                    <div class="feature">
+                      <h3>🔒 CSP-Safe</h3>
+                      <p>No eval() or new Function() usage. Safe for Chrome service workers and restricted browser contexts.</p>
+                    </div>
+                    <div class="feature">
+                      <h3>🚀 Modern Syntax</h3>
+                      <p>JavaScript-like syntax with pipeline operators (|> and ->), async/await, classes, and modules.</p>
+                    </div>
+                    <div class="feature">
+                      <h3>📦 Module System</h3>
+                      <p>Full ES6-style module system with named imports/exports and pluggable resolvers.</p>
+                    </div>
+                    <div class="feature">
+                      <h3>🎯 Browser Automation</h3>
+                      <p>Designed for web scraping, LinkedIn automation, and browser workflow automation.</p>
+                    </div>
+                  </div>
+                </section>
+                
+                <section class="section">
+                  <h2>Quick Start</h2>
+                  <h3>Installation</h3>
+                  <pre><code>npm install wang-lang</code></pre>
+                  
+                  <h3>Basic Usage</h3>
+                  <pre><code>import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang';
+
+// Create interpreter
+const resolver = new InMemoryModuleResolver();
+const interpreter = new WangInterpreter({
+  moduleResolver: resolver,
+  functions: {
+    log: console.log,
+    querySelector: (s) => document.querySelector(s)
+  }
+});
+
+// Execute Wang code
+await interpreter.execute(\`
+  let greeting = "Hello, Wang!"
+  log(greeting)
+  
+  let profiles = querySelectorAll(".profile")
+  profiles |> filter(_, active) |> log
+\`);</code></pre>
+                </section>
+                
+                <section class="section">
+                  <h2>Language Syntax</h2>
+                  
+                  <h3>Variables</h3>
+                  <pre><code>let name = "Wang"
+const version = "0.14"
+var count = 0</code></pre>
+                  
+                  <h3>Pipeline Operators</h3>
+                  <pre><code>// Pipe operator |>
+let result = data 
+  |> filter(_, x => x > 5)
+  |> map(_, x => x * 2)
+  
+// Arrow operator ->
+data -> forEach(_, log)</code></pre>
+                  
+                  <h3>Classes</h3>
+                  <pre><code>class Workflow {
+  constructor(name) {
+    this.name = name
+  }
+  
+  async process(data) {
+    return data |> transform |> save
+  }
+}</code></pre>
+                  
+                  <h3>Modules</h3>
+                  <pre><code>// Import
+import { processData } from "./processor.wang"
+
+// Export
+export function transform(data) {
+  return data |> normalize |> validate
+}</code></pre>
+                </section>
+                
+                <section class="section">
+                  <h2>API Reference</h2>
+                  <h3>WangInterpreter</h3>
+                  <p>Main interpreter class for executing Wang code.</p>
+                  <pre><code>const interpreter = new WangInterpreter({
+  moduleResolver: resolver,  // Module resolver instance
+  functions: {},             // JavaScript functions to expose
+  variables: {}              // Initial variables
+});</code></pre>
+                  
+                  <h3>InMemoryModuleResolver</h3>
+                  <p>Module resolver that stores modules in memory.</p>
+                  <pre><code>const resolver = new InMemoryModuleResolver();
+resolver.addModule("myModule", moduleCode);</code></pre>
+                  
+                  <h3>WangValidator</h3>
+                  <p>Validates Wang code without executing it.</p>
+                  <pre><code>const validator = new WangValidator();
+const result = validator.validate(code);
+if (result.valid) {
+  console.log("Valid Wang code!");
+}</code></pre>
+                </section>
+                
+                <section class="section">
+                  <h2>Resources</h2>
+                  <ul>
+                    <li><a href="https://github.com/artpar/wang">GitHub Repository</a></li>
+                    <li><a href="https://www.npmjs.com/package/wang-lang">NPM Package</a></li>
+                    <li><a href="playground.html">Interactive Playground</a></li>
+                    <li><a href="https://github.com/artpar/wang/issues">Report Issues</a></li>
+                  </ul>
+                </section>
+              </div>
+            </div>
           </body>
           </html>
           EOF
       
-      - name: Create sidebar
-        run: |
-          cat > docs/_sidebar.md << 'EOF'
-          * [Home](/)
-          * [Quick Start](/quickstart)
-          * **Language Reference**
-            * [Variables](/reference/variables)
-            * [Functions](/reference/functions)
-            * [Classes](/reference/classes)
-            * [Modules](/reference/modules)
-            * [Control Flow](/reference/control-flow)
-            * [Pipeline Operators](/reference/pipelines)
-          * **API Documentation**
-            * [Interpreter](/api/interpreter)
-            * [Module Resolvers](/api/resolvers)
-            * [Errors](/api/errors)
-          * **Development**
-            * [Contributing](/development)
-            * [Architecture](/architecture)
-          EOF
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
