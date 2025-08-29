@@ -1,4 +1,4 @@
-[**Wang Language v0.14.11**](../README.md)
+[**Wang Language v0.15.0**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ModuleResolution
 
-Defined in: [resolvers/base.ts:4](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/resolvers/base.ts#L4)
+Defined in: [resolvers/base.ts:4](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L4)
 
 Module resolution result
 
@@ -16,7 +16,7 @@ Module resolution result
 
 > **code**: `string`
 
-Defined in: [resolvers/base.ts:5](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/resolvers/base.ts#L5)
+Defined in: [resolvers/base.ts:5](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L5)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [resolvers/base.ts:5](https://github.com/artpar/wang/blob/9737d96551
 
 > `optional` **metadata**: `Record`\<`string`, `any`\>
 
-Defined in: [resolvers/base.ts:7](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/resolvers/base.ts#L7)
+Defined in: [resolvers/base.ts:7](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L7)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [resolvers/base.ts:7](https://github.com/artpar/wang/blob/9737d96551
 
 > **path**: `string`
 
-Defined in: [resolvers/base.ts:6](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/resolvers/base.ts#L6)
+Defined in: [resolvers/base.ts:6](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L6)

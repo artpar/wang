@@ -1,4 +1,4 @@
-[**Wang Language v0.14.11**](../README.md)
+[**Wang Language v0.15.0**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ValidationResult
 
-Defined in: [parser/wang-validator.ts:10](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/parser/wang-validator.ts#L10)
+Defined in: [parser/wang-validator.ts:10](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/parser/wang-validator.ts#L10)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [parser/wang-validator.ts:10](https://github.com/artpar/wang/blob/97
 
 > `optional` **ast**: `any`
 
-Defined in: [parser/wang-validator.ts:18](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/parser/wang-validator.ts#L18)
+Defined in: [parser/wang-validator.ts:18](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/parser/wang-validator.ts#L18)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [parser/wang-validator.ts:18](https://github.com/artpar/wang/blob/97
 
 > `optional` **error**: `object`
 
-Defined in: [parser/wang-validator.ts:12](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/parser/wang-validator.ts#L12)
+Defined in: [parser/wang-validator.ts:12](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/parser/wang-validator.ts#L12)
 
 #### column
 
@@ -46,4 +46,4 @@ Defined in: [parser/wang-validator.ts:12](https://github.com/artpar/wang/blob/97
 
 > **valid**: `boolean`
 
-Defined in: [parser/wang-validator.ts:11](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/parser/wang-validator.ts#L11)
+Defined in: [parser/wang-validator.ts:11](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/parser/wang-validator.ts#L11)

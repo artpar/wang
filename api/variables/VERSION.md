@@ -1,4 +1,4 @@
-[**Wang Language v0.14.11**](../README.md)
+[**Wang Language v0.15.0**](../README.md)
 
 ***
 
@@ -8,4 +8,4 @@
 
 > `const` **VERSION**: `"0.1.0"` = `'0.1.0'`
 
-Defined in: [index.ts:49](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/index.ts#L49)
+Defined in: [index.ts:49](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/index.ts#L49)

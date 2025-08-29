@@ -1,4 +1,4 @@
-[**Wang Language v0.14.11**](../README.md)
+[**Wang Language v0.15.0**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ErrorContext
 
-Defined in: [utils/errors.ts:1](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L1)
+Defined in: [utils/errors.ts:1](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L1)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [utils/errors.ts:1](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **column**: `number`
 
-Defined in: [utils/errors.ts:4](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L4)
+Defined in: [utils/errors.ts:4](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L4)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [utils/errors.ts:4](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **expected**: `string`[]
 
-Defined in: [utils/errors.ts:7](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L7)
+Defined in: [utils/errors.ts:7](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L7)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [utils/errors.ts:7](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **length**: `number`
 
-Defined in: [utils/errors.ts:5](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L5)
+Defined in: [utils/errors.ts:5](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L5)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [utils/errors.ts:5](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **line**: `number`
 
-Defined in: [utils/errors.ts:3](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L3)
+Defined in: [utils/errors.ts:3](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L3)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [utils/errors.ts:3](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **stackTrace**: `string`[]
 
-Defined in: [utils/errors.ts:8](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L8)
+Defined in: [utils/errors.ts:8](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L8)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [utils/errors.ts:8](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **suggestions**: `string`[]
 
-Defined in: [utils/errors.ts:9](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L9)
+Defined in: [utils/errors.ts:9](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L9)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [utils/errors.ts:9](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **token**: `string`
 
-Defined in: [utils/errors.ts:6](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L6)
+Defined in: [utils/errors.ts:6](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L6)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [utils/errors.ts:6](https://github.com/artpar/wang/blob/9737d965513f
 
 > **type**: `"LexError"` \| `"ParseError"` \| `"RuntimeError"` \| `"ModuleError"`
 
-Defined in: [utils/errors.ts:2](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L2)
+Defined in: [utils/errors.ts:2](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L2)
 
 ***
 
@@ -78,4 +78,4 @@ Defined in: [utils/errors.ts:2](https://github.com/artpar/wang/blob/9737d965513f
 
 > `optional` **variables**: `Record`\<`string`, `any`\>
 
-Defined in: [utils/errors.ts:10](https://github.com/artpar/wang/blob/9737d965513f58f6cbb8f8bc12f670e6d28ee0ae/src/utils/errors.ts#L10)
+Defined in: [utils/errors.ts:10](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/utils/errors.ts#L10)
