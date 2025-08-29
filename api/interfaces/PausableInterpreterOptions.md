@@ -6,7 +6,7 @@
 
 # Interface: PausableInterpreterOptions
 
-Defined in: [interpreter/pausable-interpreter.ts:51](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/interpreter/pausable-interpreter.ts#L51)
+Defined in: [interpreter/pausable-interpreter.ts:51](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L51)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [interpreter/pausable-interpreter.ts:51](https://github.com/artpar/w
 
 > `optional` **functions**: `Record`\<`string`, `Function`\>
 
-Defined in: [interpreter/index.ts:28](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/interpreter/index.ts#L28)
+Defined in: [interpreter/index.ts:28](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L28)
 
 #### Inherited from
 
@@ -30,7 +30,7 @@ Defined in: [interpreter/index.ts:28](https://github.com/artpar/wang/blob/be5e93
 
 > `optional` **globalContext**: [`ExecutionContext`](ExecutionContext.md)
 
-Defined in: [interpreter/index.ts:29](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/interpreter/index.ts#L29)
+Defined in: [interpreter/index.ts:29](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L29)
 
 #### Inherited from
 
@@ -42,7 +42,7 @@ Defined in: [interpreter/index.ts:29](https://github.com/artpar/wang/blob/be5e93
 
 > `optional` **moduleResolver**: [`ModuleResolver`](../classes/ModuleResolver.md)
 
-Defined in: [interpreter/index.ts:27](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/interpreter/index.ts#L27)
+Defined in: [interpreter/index.ts:27](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/index.ts#L27)
 
 #### Inherited from
 
@@ -54,4 +54,4 @@ Defined in: [interpreter/index.ts:27](https://github.com/artpar/wang/blob/be5e93
 
 > `optional` **pauseCheckInterval**: `number`
 
-Defined in: [interpreter/pausable-interpreter.ts:52](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/interpreter/pausable-interpreter.ts#L52)
+Defined in: [interpreter/pausable-interpreter.ts:52](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/interpreter/pausable-interpreter.ts#L52)

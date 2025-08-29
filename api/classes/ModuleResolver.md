@@ -6,7 +6,7 @@
 
 # Abstract Class: ModuleResolver
 
-Defined in: [resolvers/base.ts:14](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L14)
+Defined in: [resolvers/base.ts:14](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/base.ts#L14)
 
 Base interface for module resolvers
 Implement this interface to provide custom module resolution
@@ -31,7 +31,7 @@ Implement this interface to provide custom module resolution
 
 > `optional` **clearCache**(): `void`
 
-Defined in: [resolvers/base.ts:41](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L41)
+Defined in: [resolvers/base.ts:41](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/base.ts#L41)
 
 Clear any caches (optional)
 
@@ -45,7 +45,7 @@ Clear any caches (optional)
 
 > `abstract` **exists**(`modulePath`, `fromPath?`): `Promise`\<`boolean`\>
 
-Defined in: [resolvers/base.ts:29](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L29)
+Defined in: [resolvers/base.ts:29](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/base.ts#L29)
 
 Check if a module exists
 
@@ -75,7 +75,7 @@ Promise resolving to true if module exists
 
 > `optional` **getMetadata**(`modulePath`): `Promise`\<`null` \| `Record`\<`string`, `any`\>\>
 
-Defined in: [resolvers/base.ts:48](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L48)
+Defined in: [resolvers/base.ts:48](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/base.ts#L48)
 
 Get module metadata (optional)
 
@@ -99,7 +99,7 @@ Promise resolving to module metadata
 
 > `abstract` **list**(`prefix?`): `Promise`\<`string`[]\>
 
-Defined in: [resolvers/base.ts:36](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L36)
+Defined in: [resolvers/base.ts:36](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/base.ts#L36)
 
 List available modules (for autocomplete/suggestions)
 
@@ -123,7 +123,7 @@ Promise resolving to array of available module paths
 
 > `abstract` **resolve**(`modulePath`, `fromPath?`): `Promise`\<[`ModuleResolution`](../interfaces/ModuleResolution.md)\>
 
-Defined in: [resolvers/base.ts:21](https://github.com/artpar/wang/blob/be5e9375a9f33023cbd7982dd204f865161200fb/src/resolvers/base.ts#L21)
+Defined in: [resolvers/base.ts:21](https://github.com/artpar/wang/blob/c0c9058eb55a8574eab48a6952f87de0585181cb/src/resolvers/base.ts#L21)
 
 Resolve a module path to its source code
 
