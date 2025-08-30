@@ -612,6 +612,8 @@ LeftHandSideExpression ->
 
 CallExpression ->
     MemberExpression Arguments {% d => createNode('CallExpression', { callee: d[0], arguments: d[1] }) %}
+  | "new" MemberExpression Arguments
+    {% d => createNode('NewExpression', { callee: d[1], arguments: d[2] }) %}
   | CallExpression Arguments {% d => createNode('CallExpression', { callee: d[0], arguments: d[1] }) %}
   | CallExpression "[" Expression "]"
     {% d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true }) %}
@@ -626,8 +628,8 @@ CallExpression ->
     }) %}
 
 NewExpression ->
-    "new" MemberExpression Arguments:?
-    {% d => createNode('NewExpression', { callee: d[1], arguments: d[2] || [] }) %}
+    "new" MemberExpression
+    {% d => createNode('NewExpression', { callee: d[1], arguments: [] }) %}
   | MemberExpression {% id %}
 
 MemberExpression ->

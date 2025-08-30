@@ -143,6 +143,24 @@ class Animal {
 }
 ```
 
+#### Object Instantiation
+```javascript
+// Creating instances with new operator
+let dog = new Animal("Buddy", "dog")
+
+// Method chaining on new instances (v0.15.10+)
+let timestamp = new Date().toISOString()
+let year = new Date("2024-01-01").getFullYear()
+let size = new Map().size
+
+// Property access on new instances
+let length = new Array(5).length
+
+// Computed property access
+let method = "toISOString"
+let result = new Date()[method]()
+```
+
 #### Inheritance
 ```javascript
 class Dog extends Animal {

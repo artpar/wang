@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Grammar**: Fixed method chaining on `new` expressions (e.g., `new Date().toISOString()`)
+  - Previously required parentheses: `(new Date()).toISOString()`
+  - Now works without parentheses as expected in JavaScript
+  - Supports property access, method calls, and computed member access on newly created instances
+  - Added comprehensive test coverage for various chaining scenarios
+
 ### Added
 - **CLI Tools**: New command-line interface for executing and validating Wang files
   - `wang-run`: Execute .wang files from command line with built-in functions and global objects

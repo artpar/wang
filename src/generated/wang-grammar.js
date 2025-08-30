@@ -1712,6 +1712,7 @@ var grammar = {
     {"name": "LeftHandSideExpression", "symbols": ["CallExpression"], "postprocess": id},
     {"name": "LeftHandSideExpression", "symbols": ["NewExpression"], "postprocess": id},
     {"name": "CallExpression", "symbols": ["MemberExpression", "Arguments"], "postprocess": d => createNode('CallExpression', { callee: d[0], arguments: d[1] })},
+    {"name": "CallExpression", "symbols": [{"literal":"new"}, "MemberExpression", "Arguments"], "postprocess": d => createNode('NewExpression', { callee: d[1], arguments: d[2] })},
     {"name": "CallExpression", "symbols": ["CallExpression", "Arguments"], "postprocess": d => createNode('CallExpression', { callee: d[0], arguments: d[1] })},
     {"name": "CallExpression", "symbols": ["CallExpression", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess": d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true })},
     {"name": "CallExpression$ebnf$1", "symbols": []},
@@ -1725,9 +1726,7 @@ var grammar = {
           computed: d[3].computed, 
           optional: true 
         }) },
-    {"name": "NewExpression$ebnf$1", "symbols": ["Arguments"], "postprocess": id},
-    {"name": "NewExpression$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "NewExpression", "symbols": [{"literal":"new"}, "MemberExpression", "NewExpression$ebnf$1"], "postprocess": d => createNode('NewExpression', { callee: d[1], arguments: d[2] || [] })},
+    {"name": "NewExpression", "symbols": [{"literal":"new"}, "MemberExpression"], "postprocess": d => createNode('NewExpression', { callee: d[1], arguments: [] })},
     {"name": "NewExpression", "symbols": ["MemberExpression"], "postprocess": id},
     {"name": "MemberExpression", "symbols": ["PrimaryExpression"], "postprocess": id},
     {"name": "MemberExpression", "symbols": ["MemberExpression", {"literal":"["}, "Expression", {"literal":"]"}], "postprocess": d => createNode('MemberExpression', { object: d[0], property: d[2], computed: true })},
