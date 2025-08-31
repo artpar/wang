@@ -109,6 +109,71 @@
         .resize-handle:hover::after {
             opacity: 0.6;
         }
+        
+        /* Mobile and Tablet Responsive Styles */
+        @media (max-width: 768px) {
+            .resize-handle {
+                display: none;
+            }
+            
+            #editor-panel,
+            #output-panel {
+                flex: 1 !important;
+            }
+            
+            .mobile-tab-active {
+                display: block !important;
+            }
+            
+            .mobile-tab-inactive {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            /* Hide desktop-only elements */
+            .desktop-only {
+                display: none !important;
+            }
+            
+            /* Stack layout for mobile */
+            .mobile-stack {
+                flex-direction: column !important;
+            }
+            
+            /* Touch-friendly sizes */
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .tooltip:hover::after {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans overflow-hidden">
@@ -120,8 +185,9 @@
                 <div class="text-emerald-500 dark:text-emerald-400">
                     <i class="fas fa-code text-xl"></i>
                 </div>
-                <h1 class="text-lg font-semibold">Wang Playground</h1>
-                <span class="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-full">v0.14</span>
+                <h1 class="text-lg font-semibold hidden sm:block">Wang Playground</h1>
+                <h1 class="text-lg font-semibold sm:hidden">Wang</h1>
+                <span class="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-full hidden sm:inline">v0.14</span>
             </div>
             
             <div class="flex items-center gap-2">
@@ -145,12 +211,19 @@
                         <span class="hidden sm:inline">Examples</span>
                         <i class="fas fa-chevron-down text-xs"></i>
                     </button>
-                    <div id="examples-menu" class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden z-50">
-                        <div class="p-2">
+                    <div id="examples-menu" class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden z-50 max-h-96 overflow-y-auto">
+                        <div class="p-2 space-y-1">
+                            <div class="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Basics</div>
                             <button data-example="hello" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
                                 <div class="font-medium text-sm">Hello World</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">Basic Wang syntax</div>
                             </button>
+                            <button data-example="variables" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                                <div class="font-medium text-sm">Variables & Types</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">let, const, var declarations</div>
+                            </button>
+                            
+                            <div class="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-2">Advanced</div>
                             <button data-example="pipeline" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
                                 <div class="font-medium text-sm">Pipeline Operations</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">Using |> and -> operators</div>
@@ -163,6 +236,24 @@
                                 <div class="font-medium text-sm">Classes</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">OOP with inheritance</div>
                             </button>
+                            <button data-example="modules" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                                <div class="font-medium text-sm">Modules</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Import/export system</div>
+                            </button>
+                            
+                            <div class="px-3 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-2">Patterns</div>
+                            <button data-example="chaining" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                                <div class="font-medium text-sm">Method Chaining</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Optional chaining & nullish coalescing</div>
+                            </button>
+                            <button data-example="destructuring" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                                <div class="font-medium text-sm">Destructuring</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Array & object destructuring</div>
+                            </button>
+                            <button data-example="errorhandling" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                                <div class="font-medium text-sm">Error Handling</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Try/catch patterns</div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -170,8 +261,17 @@
                 <!-- Separator -->
                 <div class="w-px h-8 bg-gray-300 dark:bg-gray-600"></div>
                 
+                <!-- Import/Export Buttons -->
+                <button id="import-btn" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors" title="Import code">
+                    <i class="fas fa-file-import"></i>
+                </button>
+                
+                <button id="export-btn" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors" title="Export code">
+                    <i class="fas fa-file-export"></i>
+                </button>
+                
                 <!-- Share Button -->
-                <button id="share-btn" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <button id="share-btn" class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors" title="Share URL">
                     <i class="fas fa-share-nodes"></i>
                 </button>
                 
@@ -193,8 +293,16 @@
             </div>
         </header>
         
+        <!-- Mobile Tab Switcher (hidden on desktop) -->
+        <div class="hidden mobile-tabs bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 py-1 sm:hidden">
+            <div class="flex gap-2">
+                <button class="mobile-tab-btn px-3 py-1 rounded text-sm font-medium bg-emerald-500 text-white" data-panel="editor">Editor</button>
+                <button class="mobile-tab-btn px-3 py-1 rounded text-sm font-medium bg-gray-200 dark:bg-gray-700" data-panel="output">Output</button>
+            </div>
+        </div>
+        
         <!-- Main Content Area -->
-        <div class="flex-1 flex overflow-hidden">
+        <div class="flex-1 flex overflow-hidden mobile-stack">
             <!-- Sidebar -->
             <aside id="sidebar" class="w-12 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col items-center py-2 gap-1 flex-shrink-0">
                 <button class="sidebar-btn p-2.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-emerald-500" title="Editor">
@@ -218,9 +326,9 @@
             </aside>
             
             <!-- Editor and Output Panels -->
-            <div class="flex-1 flex overflow-hidden">
+            <div class="flex-1 flex overflow-hidden mobile-stack">
                 <!-- Editor Panel -->
-                <div id="editor-panel" class="flex flex-col bg-white dark:bg-gray-900" style="flex: 2;">
+                <div id="editor-panel" class="flex flex-col bg-white dark:bg-gray-900 mobile-tab-active" style="flex: 2;">
                     <!-- Editor Header -->
                     <div class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-1 flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -244,22 +352,73 @@
                 <div id="resizer" class="resize-handle w-1 bg-gray-200 dark:bg-gray-700 hover:bg-emerald-500 transition-colors"></div>
                 
                 <!-- Output Panel -->
-                <div id="output-panel" class="flex flex-col bg-white dark:bg-gray-900" style="flex: 1;">
+                <div id="output-panel" class="flex flex-col bg-white dark:bg-gray-900 mobile-tab-inactive" style="flex: 1;">
                     <!-- Output Header -->
                     <div class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 py-1 flex items-center justify-between">
                         <div class="flex gap-4">
                             <button class="tab-btn text-sm font-medium text-emerald-500 border-b-2 border-emerald-500 pb-1" data-tab="output">Output</button>
                             <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1" data-tab="ast">AST</button>
                             <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1" data-tab="console">Console</button>
+                            <button class="tab-btn text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 pb-1" data-tab="debug">Debug</button>
                         </div>
-                        <button id="clear-output" class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors">
-                            <i class="fas fa-trash text-xs"></i>
-                        </button>
+                        <div class="flex gap-2">
+                            <button id="export-output" class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors" title="Export output">
+                                <i class="fas fa-download text-xs"></i>
+                            </button>
+                            <button id="clear-output" class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors" title="Clear output">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
                     </div>
                     <!-- Output Container -->
                     <div id="output-container" class="flex-1 overflow-y-auto p-4 font-mono text-sm">
                         <div class="text-gray-500 dark:text-gray-400">
                             <i class="fas fa-info-circle"></i> Ready. Press <kbd class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl+Enter</kbd> to run your code.
+                        </div>
+                    </div>
+                    
+                    <!-- Debug Panel (hidden by default) -->
+                    <div id="debug-container" class="hidden flex-1 overflow-y-auto p-4">
+                        <div class="space-y-4">
+                            <!-- Debug Controls -->
+                            <div class="flex gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                                <button id="debug-run" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm" title="Run with debugger">
+                                    <i class="fas fa-bug"></i> Debug
+                                </button>
+                                <button id="debug-step" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-sm disabled:opacity-50" disabled>
+                                    <i class="fas fa-step-forward"></i> Step
+                                </button>
+                                <button id="debug-continue" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-sm disabled:opacity-50" disabled>
+                                    <i class="fas fa-play"></i> Continue
+                                </button>
+                                <button id="debug-stop" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-sm disabled:opacity-50" disabled>
+                                    <i class="fas fa-stop"></i> Stop
+                                </button>
+                            </div>
+                            
+                            <!-- Variables -->
+                            <div>
+                                <h3 class="text-sm font-semibold mb-2">Variables</h3>
+                                <div id="debug-variables" class="bg-gray-50 dark:bg-gray-800 rounded p-2 font-mono text-xs">
+                                    <div class="text-gray-500 dark:text-gray-400">No variables to display</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Call Stack -->
+                            <div>
+                                <h3 class="text-sm font-semibold mb-2">Call Stack</h3>
+                                <div id="debug-callstack" class="bg-gray-50 dark:bg-gray-800 rounded p-2 font-mono text-xs">
+                                    <div class="text-gray-500 dark:text-gray-400">No call stack</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Breakpoints -->
+                            <div>
+                                <h3 class="text-sm font-semibold mb-2">Breakpoints</h3>
+                                <div id="debug-breakpoints" class="bg-gray-50 dark:bg-gray-800 rounded p-2 text-xs">
+                                    <div class="text-gray-500 dark:text-gray-400">Click in the gutter to add breakpoints</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -333,6 +492,19 @@
         </div>
     </div>
     
+    <!-- Floating Action Button (Mobile) -->
+    <button id="fab-run" class="fixed bottom-6 right-6 w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center z-40 sm:hidden transition-all transform hover:scale-110">
+        <i class="fas fa-play"></i>
+    </button>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-3">
+            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-sm font-medium">Compiling...</span>
+        </div>
+    </div>
+    
     <!-- Shortcuts Modal -->
     <div id="shortcuts-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
@@ -395,6 +567,20 @@
     
     <!-- Application Script -->
     <script>
+        // Web Worker for non-blocking compilation
+        let validationWorker = null;
+        let compilationCache = new Map();
+        let outputHistory = [];
+        let currentHistoryIndex = -1;
+        let breakpoints = new Set();
+        let debuggerState = {
+            enabled: false,
+            stepping: false,
+            currentLine: null,
+            variables: {},
+            callStack: []
+        };
+        
         // Initialize when everything is loaded
         function initializeApp() {
             if (typeof Wang === 'undefined' || typeof monaco === 'undefined') {
@@ -461,8 +647,9 @@
                 }
             });
             
-            // Create Monaco editor
+            // Create Monaco editor with debugging features
             const editor = monaco.editor.create(document.getElementById('editor-container'), {
+                glyphMargin: true,  // Enable glyph margin for breakpoints
                 value: localStorage.getItem('wang-code') || `// Welcome to Wang Playground!
 // Wang is a modern workflow language with pipeline operators
 
@@ -491,6 +678,51 @@ log("Result:", result)
                 bracketPairColorization: { enabled: true }
             });
             
+            // Breakpoint handling
+            editor.onMouseDown((e) => {
+                if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
+                    const lineNumber = e.target.position.lineNumber;
+                    toggleBreakpoint(lineNumber);
+                }
+            });
+            
+            function toggleBreakpoint(lineNumber) {
+                const model = editor.getModel();
+                const decorations = [];
+                
+                if (breakpoints.has(lineNumber)) {
+                    breakpoints.delete(lineNumber);
+                } else {
+                    breakpoints.add(lineNumber);
+                    decorations.push({
+                        range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                        options: {
+                            isWholeLine: true,
+                            glyphMarginClassName: 'fa fa-circle text-red-500',
+                            glyphMarginHoverMessage: { value: 'Breakpoint' }
+                        }
+                    });
+                }
+                
+                // Update decorations
+                updateBreakpointDecorations();
+            }
+            
+            function updateBreakpointDecorations() {
+                const decorations = [];
+                breakpoints.forEach(lineNumber => {
+                    decorations.push({
+                        range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                        options: {
+                            isWholeLine: true,
+                            glyphMarginClassName: 'fa fa-circle text-red-500',
+                            glyphMarginHoverMessage: { value: 'Breakpoint' }
+                        }
+                    });
+                });
+                editor.deltaDecorations([], decorations);
+            }
+            
             // Helper functions (define early for error messages)
             function addOutput(type, message) {
                 const container = document.getElementById('output-container');
@@ -509,6 +741,10 @@ log("Result:", result)
                 `;
                 container.appendChild(entry);
                 container.scrollTop = container.scrollHeight;
+                
+                // Add to history
+                outputHistory.push({ type, message, timestamp });
+                if (outputHistory.length > 100) outputHistory.shift(); // Keep last 100 entries
             }
             
             // Initialize Wang interpreter
@@ -558,11 +794,52 @@ log("Result:", result)
             
             function clearOutput() {
                 document.getElementById('output-container').innerHTML = '';
+                currentHistoryIndex = outputHistory.length - 1;
+            }
+            
+            // Export output functionality
+            function exportOutput() {
+                const content = outputHistory.map(h => `[${h.timestamp}] ${h.type.toUpperCase()}: ${h.message}`).join('\n');
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `wang-output-${Date.now()}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+            
+            // Import/Export code functionality
+            function exportCode() {
+                const code = editor.getValue();
+                const blob = new Blob([code], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'wang-code.wang';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+            
+            function importCode() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.wang,.txt,.js';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const text = await file.text();
+                        editor.setValue(text);
+                        addOutput('success', `Imported ${file.name}`);
+                    }
+                };
+                input.click();
             }
             
             function updateStatus(state, text) {
                 const indicator = document.getElementById('status-indicator');
                 const statusText = document.getElementById('status-text');
+                const loadingOverlay = document.getElementById('loading-overlay');
                 
                 indicator.className = `w-2 h-2 rounded-full ${
                     state === 'running' ? 'bg-yellow-500 animate-pulse' :
@@ -571,11 +848,23 @@ log("Result:", result)
                     'bg-gray-400'
                 }`;
                 statusText.textContent = text;
+                
+                // Show/hide loading overlay on mobile
+                if (window.innerWidth < 640) {
+                    if (state === 'running') {
+                        loadingOverlay.classList.remove('hidden');
+                        loadingOverlay.classList.add('flex');
+                    } else {
+                        loadingOverlay.classList.add('hidden');
+                        loadingOverlay.classList.remove('flex');
+                    }
+                }
             }
             
-            // Run code
+            // Run code with caching
             async function runCode() {
                 const code = editor.getValue();
+                const cacheKey = btoa(code);
                 
                 if (document.getElementById('clear-on-run').classList.contains('bg-emerald-500')) {
                     clearOutput();
@@ -585,14 +874,32 @@ log("Result:", result)
                 updateStatus('running', 'Running...');
                 document.getElementById('exec-time').classList.remove('hidden');
                 
+                // Check cache for previously compiled code
+                let cached = compilationCache.get(cacheKey);
+                
                 try {
                     const result = await interpreter.execute(code);
                     
                     const executionTime = Math.round(performance.now() - startTime);
                     document.getElementById('exec-time-value').textContent = `${executionTime}ms`;
                     
+                    // Update memory usage
+                    if (performance.memory) {
+                        const mb = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+                        document.getElementById('memory-usage').textContent = `Memory: ${mb}MB`;
+                    }
+                    
                     if (result !== undefined && result !== null) {
                         addOutput('success', `Result: ${typeof result === 'object' ? JSON.stringify(result, null, 2) : result}`);
+                    }
+                    
+                    // Cache successful compilation
+                    compilationCache.set(cacheKey, { code, timestamp: Date.now() });
+                    
+                    // Clean old cache entries (keep last 50)
+                    if (compilationCache.size > 50) {
+                        const firstKey = compilationCache.keys().next().value;
+                        compilationCache.delete(firstKey);
                     }
                     
                     updateStatus('success', 'Success');
@@ -620,8 +927,133 @@ log("Result:", result)
                 }
             }
             
-            // Examples
+            // Expanded examples
             const examples = {
+                variables: `// Variables and Types in Wang
+let mutable = "can be changed"
+const immutable = "cannot be changed"
+var hoisted = "old style variable"
+
+// Data types
+let string = "Hello"
+let number = 42
+let float = 3.14
+let boolean = true
+let array = [1, 2, 3]
+let object = { name: "Wang", version: "0.14" }
+
+log("String:", string)
+log("Number:", number)
+log("Array:", array)
+log("Object:", object)`,
+
+                modules: `// Module system in Wang
+// Note: In playground, modules are simulated
+
+// Export syntax
+export function greet(name) {
+    return \`Hello, \${name}!\`
+}
+
+export const PI = 3.14159
+
+export class Calculator {
+    add(a, b) { return a + b }
+    subtract(a, b) { return a - b }
+}
+
+// Import syntax (simulated)
+// import { greet, PI } from "./module"
+
+log(greet("Wang"))
+log("PI =", PI)`,
+
+                chaining: `// Method Chaining and Optional Chaining
+let data = {
+    users: [
+        { name: "Alice", profile: { age: 30, city: "NYC" } },
+        { name: "Bob" },
+        { name: "Charlie", profile: { age: 25 } }
+    ]
+}
+
+// Optional chaining with ?.
+let firstAge = data.users?.[0]?.profile?.age
+log("First user age:", firstAge)
+
+// Nullish coalescing with ??
+let secondAge = data.users?.[1]?.profile?.age ?? "Unknown"
+log("Second user age:", secondAge)
+
+// Method chaining
+let result = [1, 2, 3, 4, 5]
+    |> filter(_, x => x > 2)
+    |> map(_, x => x * 2)
+log("Chained result:", result)`,
+
+                destructuring: `// Destructuring in Wang
+
+// Array destructuring
+let [first, second, ...rest] = [1, 2, 3, 4, 5]
+log("First:", first)
+log("Second:", second)
+log("Rest:", rest)
+
+// Object destructuring
+let user = {
+    name: "Alice",
+    age: 30,
+    city: "NYC",
+    skills: ["JS", "Wang", "Python"]
+}
+
+let { name, age, city } = user
+log(\`\${name} is \${age} years old from \${city}\`)
+
+// Nested destructuring
+let { skills: [primary, ...others] } = user
+log("Primary skill:", primary)
+log("Other skills:", others)`,
+
+                errorhandling: `// Error Handling in Wang
+
+function riskyOperation(value) {
+    if (value < 0) {
+        throw new Error("Value cannot be negative")
+    }
+    return value * 2
+}
+
+// Try-catch-finally
+try {
+    log("Trying safe operation...")
+    let result = riskyOperation(5)
+    log("Success:", result)
+    
+    log("\nTrying risky operation...")
+    result = riskyOperation(-1)
+    log("This won't execute")
+} catch (error) {
+    log("Caught error:", error.message)
+} finally {
+    log("Cleanup: This always runs")
+}
+
+// Async error handling
+async function fetchData() {
+    try {
+        await new Promise((resolve, reject) => {
+            setTimeout(() => reject(new Error("Network error")), 1000)
+        })
+    } catch (error) {
+        log("Async error:", error.message)
+        return { fallback: true }
+    }
+}
+
+await fetchData()`,
+
+                
                 hello: `// Hello World in Wang
 let greeting = "Hello, Wang Language!"
 log(greeting)
@@ -682,8 +1114,12 @@ pet.speak()`
             
             // Event listeners
             document.getElementById('run-btn').addEventListener('click', runCode);
+            document.getElementById('fab-run')?.addEventListener('click', runCode);
             document.getElementById('validate-btn').addEventListener('click', validateCode);
             document.getElementById('clear-output').addEventListener('click', clearOutput);
+            document.getElementById('export-output').addEventListener('click', exportOutput);
+            document.getElementById('import-btn').addEventListener('click', importCode);
+            document.getElementById('export-btn').addEventListener('click', exportCode);
             
             // Examples
             document.getElementById('examples-btn').addEventListener('click', () => {
@@ -729,6 +1165,58 @@ pet.speak()`
                 document.getElementById('shortcuts-modal').classList.add('hidden');
                 document.getElementById('shortcuts-modal').classList.remove('flex');
             });
+            
+            // Tab switching for output panel
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    
+                    // Update tab styles
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('text-emerald-500', 'border-b-2', 'border-emerald-500');
+                        b.classList.add('text-gray-500');
+                    });
+                    btn.classList.add('text-emerald-500', 'border-b-2', 'border-emerald-500');
+                    btn.classList.remove('text-gray-500');
+                    
+                    // Show/hide containers
+                    document.getElementById('output-container').classList.toggle('hidden', tab !== 'output');
+                    document.getElementById('debug-container').classList.toggle('hidden', tab !== 'debug');
+                    
+                    // Handle AST and Console tabs
+                    if (tab === 'ast') {
+                        document.getElementById('output-container').classList.remove('hidden');
+                        addOutput('log', 'AST view: Run validation to see the Abstract Syntax Tree');
+                    } else if (tab === 'console') {
+                        document.getElementById('output-container').classList.remove('hidden');
+                        addOutput('log', 'Console: All log outputs will appear here');
+                    }
+                });
+            });
+            
+            // Debug functionality
+            document.getElementById('debug-run')?.addEventListener('click', () => {
+                debuggerState.enabled = true;
+                addOutput('log', '🐛 Debugger started. Set breakpoints by clicking in the gutter.');
+                runCode();
+            });
+            
+            // Update breakpoints display
+            function updateBreakpointsDisplay() {
+                const container = document.getElementById('debug-breakpoints');
+                if (breakpoints.size === 0) {
+                    container.innerHTML = '<div class="text-gray-500 dark:text-gray-400">Click in the gutter to add breakpoints</div>';
+                } else {
+                    container.innerHTML = Array.from(breakpoints).map(line => 
+                        `<div class="flex items-center justify-between py-1">
+                            <span>Line ${line}</span>
+                            <button onclick="breakpoints.delete(${line}); updateBreakpointDecorations(); updateBreakpointsDisplay();" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>`
+                    ).join('');
+                }
+            }
             
             // Toggle switches
             document.querySelectorAll('#word-wrap, #auto-save, #clear-on-run').forEach(toggle => {
@@ -814,7 +1302,8 @@ pet.speak()`
                 }
             });
             
-            // Auto-save
+            // Auto-save and real-time validation
+            let validationTimeout = null;
             editor.onDidChangeModelContent(() => {
                 document.getElementById('modified-indicator').classList.remove('hidden');
                 if (document.getElementById('auto-save').classList.contains('bg-emerald-500')) {
@@ -823,6 +1312,30 @@ pet.speak()`
                         document.getElementById('modified-indicator').classList.add('hidden');
                     }, 1000);
                 }
+                
+                // Debounced validation for real-time error checking
+                clearTimeout(validationTimeout);
+                validationTimeout = setTimeout(() => {
+                    const code = editor.getValue();
+                    const result = validator.validate(code);
+                    
+                    // Clear previous error decorations
+                    monaco.editor.setModelMarkers(editor.getModel(), 'wang', []);
+                    
+                    if (!result.valid && result.error) {
+                        // Add error decoration
+                        const line = result.error.line || 1;
+                        const column = result.error.column || 1;
+                        monaco.editor.setModelMarkers(editor.getModel(), 'wang', [{
+                            startLineNumber: line,
+                            startColumn: column,
+                            endLineNumber: line,
+                            endColumn: column + 1,
+                            message: result.error.message,
+                            severity: monaco.MarkerSeverity.Error
+                        }]);
+                    }
+                }, 500); // Validate after 500ms of no typing
             });
             
             // Update cursor position
@@ -859,6 +1372,103 @@ pet.speak()`
                 if (!e.target.closest('#examples-btn') && !e.target.closest('#examples-menu')) {
                     document.getElementById('examples-menu').classList.add('hidden');
                 }
+            });
+            
+            // Mobile responsive handling
+            function setupMobileUI() {
+                const isMobile = window.innerWidth < 768;
+                const mobileTabsContainer = document.querySelector('.mobile-tabs');
+                const sidebar = document.getElementById('sidebar');
+                
+                if (isMobile) {
+                    // Show mobile tabs
+                    if (mobileTabsContainer) {
+                        mobileTabsContainer.classList.remove('hidden');
+                    }
+                    
+                    // Hide sidebar on mobile
+                    if (sidebar) {
+                        sidebar.classList.add('hidden');
+                    }
+                    
+                    // Setup mobile tab switching
+                    document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const panel = btn.dataset.panel;
+                            
+                            // Update button styles
+                            document.querySelectorAll('.mobile-tab-btn').forEach(b => {
+                                b.classList.remove('bg-emerald-500', 'text-white');
+                                b.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                            });
+                            btn.classList.add('bg-emerald-500', 'text-white');
+                            btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                            
+                            // Show/hide panels
+                            if (panel === 'editor') {
+                                document.getElementById('editor-panel').classList.remove('mobile-tab-inactive');
+                                document.getElementById('editor-panel').classList.add('mobile-tab-active');
+                                document.getElementById('output-panel').classList.add('mobile-tab-inactive');
+                                document.getElementById('output-panel').classList.remove('mobile-tab-active');
+                            } else {
+                                document.getElementById('output-panel').classList.remove('mobile-tab-inactive');
+                                document.getElementById('output-panel').classList.add('mobile-tab-active');
+                                document.getElementById('editor-panel').classList.add('mobile-tab-inactive');
+                                document.getElementById('editor-panel').classList.remove('mobile-tab-active');
+                            }
+                        });
+                    });
+                    
+                    // Disable panel resizing on mobile
+                    document.getElementById('resizer').style.display = 'none';
+                } else {
+                    // Desktop mode
+                    if (mobileTabsContainer) {
+                        mobileTabsContainer.classList.add('hidden');
+                    }
+                    if (sidebar) {
+                        sidebar.classList.remove('hidden');
+                    }
+                    
+                    // Reset panel visibility
+                    document.getElementById('editor-panel').classList.remove('mobile-tab-inactive', 'mobile-tab-active');
+                    document.getElementById('output-panel').classList.remove('mobile-tab-inactive', 'mobile-tab-active');
+                    document.getElementById('resizer').style.display = '';
+                }
+            }
+            
+            // Setup on load and resize
+            setupMobileUI();
+            window.addEventListener('resize', setupMobileUI);
+            
+            // Touch gesture support for swipe between panels on mobile
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchEndX - touchStartX;
+                
+                if (Math.abs(diff) > swipeThreshold && window.innerWidth < 768) {
+                    const editorActive = !document.getElementById('editor-panel').classList.contains('mobile-tab-inactive');
+                    
+                    if (diff > 0 && !editorActive) {
+                        // Swipe right - show editor
+                        document.querySelector('.mobile-tab-btn[data-panel="editor"]').click();
+                    } else if (diff < 0 && editorActive) {
+                        // Swipe left - show output
+                        document.querySelector('.mobile-tab-btn[data-panel="output"]').click();
+                    }
+                }
+            }
+            
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
             });
         }
         
