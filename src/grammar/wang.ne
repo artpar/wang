@@ -125,28 +125,60 @@ lexer.next = (next => () => {
 })(lexer.next);
 
 // AST helper functions
-function createNode(type, props = {}) {
-  return { type, ...props };
+function createNode(type, props = {}, data) {
+  const node = { type, ...props };
+  
+  // Try to extract location info from data (nearley provides this)
+  if (data) {
+    // Find the first token with location info
+    const findLocation = (item) => {
+      if (!item) return null;
+      if (item.line !== undefined) {
+        return { line: item.line, col: item.col, offset: item.offset };
+      }
+      if (Array.isArray(item)) {
+        for (const sub of item) {
+          const loc = findLocation(sub);
+          if (loc) return loc;
+        }
+      }
+      if (item.type && item.value !== undefined && item.line !== undefined) {
+        // This is a moo token
+        return { line: item.line, col: item.col, offset: item.offset };
+      }
+      return null;
+    };
+    
+    const loc = findLocation(data);
+    if (loc) {
+      node.loc = {
+        start: { line: loc.line, column: loc.col },
+        offset: loc.offset
+      };
+    }
+  }
+  
+  return node;
 }
 
-function createBinaryOp(left, operator, right) {
-  return createNode('BinaryExpression', { operator, left, right });
+function createBinaryOp(left, operator, right, data) {
+  return createNode('BinaryExpression', { operator, left, right }, data);
 }
 
-function createUnaryOp(operator, argument, prefix = true) {
-  return createNode('UnaryExpression', { operator, argument, prefix });
+function createUnaryOp(operator, argument, prefix = true, data) {
+  return createNode('UnaryExpression', { operator, argument, prefix }, data);
 }
 
-function createPipeline(left, operator, right) {
-  return createNode('PipelineExpression', { operator, left, right });
+function createPipeline(left, operator, right, data) {
+  return createNode('PipelineExpression', { operator, left, right }, data);
 }
 
-function createIdentifier(name) {
-  return createNode('Identifier', { name });
+function createIdentifier(name, data) {
+  return createNode('Identifier', { name }, data);
 }
 
-function createLiteral(value, raw) {
-  return createNode('Literal', { value, raw });
+function createLiteral(value, raw, data) {
+  return createNode('Literal', { value, raw }, data);
 }
 
 function createRegexLiteral(pattern, flags) {
@@ -246,7 +278,7 @@ VariableDeclarator ->
 
 # Binding patterns (simplified destructuring)
 BindingPattern ->
-    %identifier {% d => createIdentifier(d[0].value) %}
+    %identifier {% d => createIdentifier(d[0].value, d[0]) %}
   | ArrayPattern {% id %}
   | ObjectPattern {% id %}
 
@@ -531,7 +563,7 @@ ArrowFunction ->
     }) %}
 
 ArrowParameters ->
-    %identifier {% d => [createIdentifier(d[0].value)] %}
+    %identifier {% d => [createIdentifier(d[0].value, d[0])] %}
   | "(" %NL:* ParameterList %NL:* ")" {% d => d[2] %}
 
 ArrowBody ->
@@ -709,7 +741,7 @@ ArgumentList ->
 PrimaryExpression ->
     "this" {% () => createNode('ThisExpression') %}
   | "super" {% () => createNode('Super') %}
-  | %identifier {% d => createIdentifier(d[0].value) %}
+  | %identifier {% d => createIdentifier(d[0].value, d[0]) %}
   | Literal {% id %}
   | ArrayLiteral {% id %}
   | ObjectLiteral {% id %}
@@ -794,8 +826,8 @@ ObjectPropertyKey ->
   | "[" Expression "]" {% d => d[1] %}
 
 PropertyKey ->
-    %identifier {% d => createIdentifier(d[0].value) %}
-  | %string {% d => createLiteral(d[0].value, d[0].text) %}
+    %identifier {% d => createIdentifier(d[0].value, d[0]) %}
+  | %string {% d => createLiteral(d[0].value, d[0].text, d[0]) %}
   | %number {% d => createLiteral(d[0].value, d[0].text) %}
   | "[" Expression "]" {% d => d[1] %}
 

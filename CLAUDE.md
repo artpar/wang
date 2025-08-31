@@ -187,16 +187,54 @@ npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
    - JSON-like object literals with newlines
 
 4. **Comprehensive Error Handling**:
-   - Detailed error messages with line/column info
-   - Suggestions for fixing common mistakes
-   - Stack traces and variable state
-   - Recovery suggestions
+   - **Enhanced error messages with full context** (v0.16.1+):
+     - Line numbers and column positions from source
+     - Module names for imported code
+     - Complete call stack traces
+     - Variables in scope at error point
+     - Intelligent suggestions for fixes
+   - **TypeMismatchError** for type-related issues with expected vs received values
+   - **UndefinedVariableError** with similar variable name suggestions
+   - **Division by zero** detection with operand values
+   - **Null/undefined access** protection with descriptive context
 
 5. **Browser Automation Focus**:
    - Bind any DOM manipulation functions
    - Support for async operations and waiting
    - Perfect for LinkedIn/web scraping workflows
    - LLM integration for intelligent decisions
+
+## Enhanced Error Reporting (v0.16.1+)
+
+Wang now provides comprehensive error reporting with full context to help developers quickly identify and fix issues:
+
+### Example Error Output
+
+```
+Error: Type mismatch in accessing property 'name' of 'user':
+   Expected: object
+   Received: object (null)
+Location: Line 3, Column 16
+Stack Trace:
+  - processUser (myModule:5:12)
+  - main (<main>:10:8)
+Variables in scope:
+  - user: null
+  - firstName: "John"
+  - age: 30
+Suggestions:
+  - Check that the value is of type object
+  - Use type conversion if necessary
+  - Verify the data source
+```
+
+### Error Types
+
+- **TypeMismatchError**: When a value doesn't match expected type
+- **UndefinedVariableError**: Variable not found (with similar name suggestions)
+- **WangError**: General runtime errors with context
+- **Division by zero**: Shows both operands for debugging
+- **Null/undefined access**: Shows what property/method was being accessed
 
 ## Language Features Implemented (100% Test Coverage)
 

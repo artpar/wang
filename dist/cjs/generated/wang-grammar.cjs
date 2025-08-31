@@ -1340,28 +1340,60 @@ lexer.next = (next => () => {
 })(lexer.next);
 
 // AST helper functions
-function createNode(type, props = {}) {
-  return { type, ...props };
+function createNode(type, props = {}, data) {
+  const node = { type, ...props };
+  
+  // Try to extract location info from data (nearley provides this)
+  if (data) {
+    // Find the first token with location info
+    const findLocation = (item) => {
+      if (!item) return null;
+      if (item.line !== undefined) {
+        return { line: item.line, col: item.col, offset: item.offset };
+      }
+      if (Array.isArray(item)) {
+        for (const sub of item) {
+          const loc = findLocation(sub);
+          if (loc) return loc;
+        }
+      }
+      if (item.type && item.value !== undefined && item.line !== undefined) {
+        // This is a moo token
+        return { line: item.line, col: item.col, offset: item.offset };
+      }
+      return null;
+    };
+    
+    const loc = findLocation(data);
+    if (loc) {
+      node.loc = {
+        start: { line: loc.line, column: loc.col },
+        offset: loc.offset
+      };
+    }
+  }
+  
+  return node;
 }
 
-function createBinaryOp(left, operator, right) {
-  return createNode('BinaryExpression', { operator, left, right });
+function createBinaryOp(left, operator, right, data) {
+  return createNode('BinaryExpression', { operator, left, right }, data);
 }
 
-function createUnaryOp(operator, argument, prefix = true) {
-  return createNode('UnaryExpression', { operator, argument, prefix });
+function createUnaryOp(operator, argument, prefix = true, data) {
+  return createNode('UnaryExpression', { operator, argument, prefix }, data);
 }
 
-function createPipeline(left, operator, right) {
-  return createNode('PipelineExpression', { operator, left, right });
+function createPipeline(left, operator, right, data) {
+  return createNode('PipelineExpression', { operator, left, right }, data);
 }
 
-function createIdentifier(name) {
-  return createNode('Identifier', { name });
+function createIdentifier(name, data) {
+  return createNode('Identifier', { name }, data);
 }
 
-function createLiteral(value, raw) {
-  return createNode('Literal', { value, raw });
+function createLiteral(value, raw, data) {
+  return createNode('Literal', { value, raw }, data);
 }
 
 function createRegexLiteral(pattern, flags) {
@@ -1436,7 +1468,7 @@ var grammar = {
           id: d[0], 
           init: d[1] ? d[1][1] : null 
         }) },
-    {"name": "BindingPattern", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value)},
+    {"name": "BindingPattern", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value, d[0])},
     {"name": "BindingPattern", "symbols": ["ArrayPattern"], "postprocess": id},
     {"name": "BindingPattern", "symbols": ["ObjectPattern"], "postprocess": id},
     {"name": "ArrayPattern", "symbols": [{"literal":"["}, "ArrayPatternElementList", {"literal":"]"}], "postprocess": d => createNode('ArrayPattern', { elements: d[1] })},
@@ -1660,7 +1692,7 @@ var grammar = {
           params: d[1],
           body: d[3]
         }) },
-    {"name": "ArrowParameters", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => [createIdentifier(d[0].value)]},
+    {"name": "ArrowParameters", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => [createIdentifier(d[0].value, d[0])]},
     {"name": "ArrowParameters$ebnf$1", "symbols": []},
     {"name": "ArrowParameters$ebnf$1", "symbols": ["ArrowParameters$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "ArrowParameters$ebnf$2", "symbols": []},
@@ -1821,7 +1853,7 @@ var grammar = {
     {"name": "ArgumentList", "symbols": ["ArgumentList", "ArgumentList$ebnf$3", {"literal":","}, "ArgumentList$ebnf$4", {"literal":"..."}, "AssignmentExpression"], "postprocess": d => [...d[0], createNode('SpreadElement', { argument: d[5] })]},
     {"name": "PrimaryExpression", "symbols": [{"literal":"this"}], "postprocess": () => createNode('ThisExpression')},
     {"name": "PrimaryExpression", "symbols": [{"literal":"super"}], "postprocess": () => createNode('Super')},
-    {"name": "PrimaryExpression", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value)},
+    {"name": "PrimaryExpression", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value, d[0])},
     {"name": "PrimaryExpression", "symbols": ["Literal"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["ArrayLiteral"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["ObjectLiteral"], "postprocess": id},
@@ -1908,8 +1940,8 @@ var grammar = {
     {"name": "ObjectPropertyKey", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
     {"name": "ObjectPropertyKey", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
     {"name": "ObjectPropertyKey", "symbols": [{"literal":"["}, "Expression", {"literal":"]"}], "postprocess": d => d[1]},
-    {"name": "PropertyKey", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value)},
-    {"name": "PropertyKey", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
+    {"name": "PropertyKey", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value, d[0])},
+    {"name": "PropertyKey", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => createLiteral(d[0].value, d[0].text, d[0])},
     {"name": "PropertyKey", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
     {"name": "PropertyKey", "symbols": [{"literal":"["}, "Expression", {"literal":"]"}], "postprocess": d => d[1]},
     {"name": "Block", "symbols": [{"literal":"{"}, "StatementList", {"literal":"}"}], "postprocess": d => createNode('BlockStatement', { body: d[1] })}

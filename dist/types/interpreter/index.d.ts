@@ -12,6 +12,15 @@ export interface ExecutionContext {
     parent?: ExecutionContext;
     moduleCache: Map<string, any>;
     moduleExports?: any;
+    modulePath?: string;
+    currentNode?: any;
+}
+export interface CallStackFrame {
+    functionName: string;
+    modulePath?: string;
+    line?: number;
+    column?: number;
+    nodeType?: string;
 }
 export interface InterpreterOptions {
     moduleResolver?: ModuleResolver;
@@ -29,8 +38,14 @@ export declare class WangInterpreter {
         args: any[];
         timestamp: number;
     }>;
+    protected callStack: CallStackFrame[];
+    protected currentModulePath: string;
+    protected nodeStack: any[];
     constructor(options?: InterpreterOptions);
     protected createContext(parent?: ExecutionContext): ExecutionContext;
+    private getStackTrace;
+    private getNodeLocation;
+    private enhanceErrorWithContext;
     private bindBuiltins;
     bindFunction(name: string, fn: Function): void;
     setVariable(name: string, value: any): void;

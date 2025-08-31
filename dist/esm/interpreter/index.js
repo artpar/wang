@@ -13,6 +13,9 @@ export class WangInterpreter {
         this.lastPipelineValue = undefined;
         this.globalModuleCache = new Map();
         this.consoleLogs = [];
+        this.callStack = [];
+        this.currentModulePath = '<main>';
+        this.nodeStack = [];
         this.moduleResolver = options.moduleResolver || new InMemoryModuleResolver();
         this.globalContext = options.globalContext || this.createContext();
         this.currentContext = this.globalContext;
@@ -34,7 +37,80 @@ export class WangInterpreter {
             exports: new Map(),
             parent,
             moduleCache: new Map(),
+            modulePath: this.currentModulePath,
         };
+    }
+    getStackTrace() {
+        return this.callStack.map(frame => {
+            let trace = frame.functionName;
+            if (frame.modulePath && frame.modulePath !== '<main>') {
+                trace += ` (${frame.modulePath}`;
+                if (frame.line) {
+                    trace += `:${frame.line}`;
+                    if (frame.column) {
+                        trace += `:${frame.column}`;
+                    }
+                }
+                trace += ')';
+            }
+            else if (frame.line) {
+                trace += ` (line ${frame.line})`;
+            }
+            return trace;
+        });
+    }
+    getNodeLocation(node) {
+        // Check for location info from the parser
+        if (node?.loc) {
+            return { line: node.loc.start.line, column: node.loc.start.column };
+        }
+        if (node?.line !== undefined) {
+            return { line: node.line, column: node.column || 0 };
+        }
+        if (node?.start) {
+            return { line: node.start.line, column: node.start.column };
+        }
+        // Try to get from lexer token if available
+        if (node?.token) {
+            return { line: node.token.line, column: node.token.col };
+        }
+        return {};
+    }
+    enhanceErrorWithContext(error, node) {
+        // Add location information
+        if (node) {
+            const loc = this.getNodeLocation(node);
+            if (loc.line) {
+                error.context.line = loc.line;
+                error.context.column = loc.column;
+            }
+        }
+        // Add stack trace
+        error.context.stackTrace = this.getStackTrace();
+        // Add module information
+        if (this.currentModulePath && this.currentModulePath !== '<main>') {
+            if (!error.message.includes(this.currentModulePath)) {
+                error.message = `[${this.currentModulePath}] ${error.message}`;
+            }
+        }
+        // Add current variables in scope (limit to avoid huge dumps)
+        const variables = {};
+        let count = 0;
+        for (const [key, value] of this.currentContext.variables) {
+            if (count++ >= 10)
+                break;
+            try {
+                variables[key] = value === undefined ? 'undefined' :
+                    value === null ? 'null' :
+                        typeof value === 'function' ? '[Function]' :
+                            typeof value === 'object' ? '[Object]' :
+                                String(value).substring(0, 50);
+            }
+            catch {
+                variables[key] = '[Error getting value]';
+            }
+        }
+        error.context.variables = variables;
     }
     bindBuiltins() {
         // Console functions with capture
@@ -391,7 +467,11 @@ export class WangInterpreter {
                 }
                 // Throw error when accessing property on null/undefined (non-optional)
                 if (!node.optional && obj == null) {
-                    throw new Error(`Cannot read properties of ${obj} (reading '${node.computed ? 'computed property' : node.property.name}')`);
+                    const objName = node.object.type === 'Identifier' ? node.object.name : 'expression';
+                    const propName = node.computed ? '<computed>' : (node.property.name || '<unknown>');
+                    const error = new TypeMismatchError('object', obj, `accessing property '${propName}' of '${objName}'`);
+                    this.enhanceErrorWithContext(error, node);
+                    throw error;
                 }
                 const prop = node.computed ? this.evaluateNodeSync(node.property) : node.property.name;
                 return obj[prop];
@@ -406,6 +486,16 @@ export class WangInterpreter {
                     case '*':
                         return left * right;
                     case '/':
+                        if (right === 0) {
+                            throw new WangError('Division by zero', {
+                                type: 'RuntimeError',
+                                suggestions: [
+                                    'Check that the divisor is not zero',
+                                    'Add a guard condition before division',
+                                    `Left operand: ${left}, Right operand: ${right}`
+                                ]
+                            });
+                        }
                         return left / right;
                     case '%':
                         return left % right;
@@ -430,7 +520,13 @@ export class WangInterpreter {
                     case '||':
                         return left || right;
                     default:
-                        throw new Error(`Unknown operator: ${node.operator}`);
+                        throw new WangError(`Unknown binary operator: ${node.operator}`, {
+                            type: 'RuntimeError',
+                            suggestions: [
+                                'Valid operators: +, -, *, /, %, ==, !=, ===, !==, <, <=, >, >=, &&, ||, ??, in, instanceof',
+                                'Check for typos in the operator'
+                            ]
+                        });
                 }
             case 'UnaryExpression':
                 const arg = this.evaluateNodeSync(node.argument);
@@ -444,7 +540,13 @@ export class WangInterpreter {
                     case 'typeof':
                         return typeof arg;
                     default:
-                        throw new Error(`Unknown unary operator: ${node.operator}`);
+                        throw new WangError(`Unknown unary operator: ${node.operator}`, {
+                            type: 'RuntimeError',
+                            suggestions: [
+                                'Valid unary operators: !, -, +, ~, typeof, void, delete',
+                                'Check for typos in the operator'
+                            ]
+                        });
                 }
             case 'AssignmentExpression':
                 const value = this.evaluateNodeSync(node.right);
@@ -502,7 +604,10 @@ export class WangInterpreter {
                     callee = this.evaluateNodeSync(node.callee);
                 }
                 if (typeof callee !== 'function') {
-                    throw new Error(`Not a function: ${node.callee.name || 'expression'}`);
+                    const calleeName = node.callee.name || (node.callee.type === 'MemberExpression' ? 'member expression' : 'expression');
+                    const error = new TypeMismatchError('function', callee, `calling '${calleeName}'`);
+                    this.enhanceErrorWithContext(error, node);
+                    throw error;
                 }
                 const args = node.arguments.map((arg) => {
                     if (arg.type === 'SpreadElement') {
@@ -582,7 +687,14 @@ export class WangInterpreter {
                     this.lastPipelineValue = prevPipelineValue;
                 }
             default:
-                throw new Error(`Cannot evaluate node type synchronously: ${node.type}`);
+                throw new WangError(`Cannot evaluate node type synchronously: ${node.type}`, {
+                    type: 'RuntimeError',
+                    suggestions: [
+                        'This node type may require async evaluation',
+                        'Use await or the async version of this method',
+                        `Node type '${node.type}' is not supported in synchronous context`
+                    ]
+                });
         }
     }
     async evaluateNode(node) {
@@ -679,7 +791,9 @@ export class WangInterpreter {
             case 'SpreadElement':
                 const arr = await this.evaluateNode(node.argument);
                 if (!Array.isArray(arr)) {
-                    throw new TypeMismatchError('array', arr, 'spread operator');
+                    const error = new TypeMismatchError('array', arr, 'spread operator');
+                    this.enhanceErrorWithContext(error, node);
+                    throw error;
                 }
                 return arr;
             default:
@@ -811,7 +925,14 @@ export class WangInterpreter {
                     }
                 }
                 // If we can't merge, it's an error
-                throw new Error(`Unexpected continuation operator at statement ${i + 1}`);
+                throw new WangError(`Unexpected continuation operator at statement ${i + 1}`, {
+                    type: 'RuntimeError',
+                    suggestions: [
+                        'Pipeline operators (|> and ->) must follow an expression',
+                        'Check that the previous statement produces a value',
+                        'Ensure proper syntax before the continuation operator'
+                    ]
+                });
             }
             result.push(stmt);
         }
@@ -914,7 +1035,10 @@ export class WangInterpreter {
         else if (pattern.type === 'ObjectPattern') {
             // Throw error if trying to destructure null or undefined
             if (value == null) {
-                throw new TypeError(`Cannot destructure 'null' or 'undefined'`);
+                const patternType = pattern.type === 'ObjectPattern' ? 'object' : 'array';
+                const error = new TypeMismatchError(patternType, value, `destructuring assignment`);
+                this.enhanceErrorWithContext(error, pattern);
+                throw error;
             }
             for (const prop of pattern.properties) {
                 if (prop.type === 'Property') {
@@ -953,7 +1077,10 @@ export class WangInterpreter {
         else if (pattern.type === 'ArrayPattern') {
             // Throw error if trying to destructure null or undefined
             if (value == null) {
-                throw new TypeError(`Cannot destructure 'null' or 'undefined'`);
+                const patternType = pattern.type === 'ObjectPattern' ? 'object' : 'array';
+                const error = new TypeMismatchError(patternType, value, `destructuring assignment`);
+                this.enhanceErrorWithContext(error, pattern);
+                throw error;
             }
             const arr = Array.isArray(value) ? value : [];
             let index = 0;
@@ -1342,6 +1469,16 @@ export class WangInterpreter {
     async evaluateForStatement(node) {
         if (node.type === 'ForOfStatement') {
             const iterable = await this.evaluateNode(node.right);
+            if (iterable == null) {
+                const error = new TypeMismatchError('iterable', iterable, `for...of loop`);
+                this.enhanceErrorWithContext(error, node);
+                throw error;
+            }
+            if (typeof iterable[Symbol.iterator] !== 'function' && !Array.isArray(iterable)) {
+                const error = new TypeMismatchError('iterable (Array, Set, Map, String, etc.)', iterable, `for...of loop`);
+                this.enhanceErrorWithContext(error, node);
+                throw error;
+            }
             for (const item of iterable) {
                 if (node.left.type === 'VariableDeclaration') {
                     this.assignPattern(node.left.declarations[0].id, item);
@@ -1362,6 +1499,11 @@ export class WangInterpreter {
         }
         else if (node.type === 'ForInStatement') {
             const obj = await this.evaluateNode(node.right);
+            if (obj == null) {
+                const error = new TypeMismatchError('object', obj, `for...in loop`);
+                this.enhanceErrorWithContext(error, node);
+                throw error;
+            }
             for (const key in obj) {
                 if (node.left.type === 'VariableDeclaration') {
                     this.assignPattern(node.left.declarations[0].id, key);
@@ -1555,16 +1697,20 @@ export class WangInterpreter {
         if (this.currentContext.classes.has(name)) {
             return this.currentContext.classes.get(name);
         }
-        throw new UndefinedVariableError(name, [...this.currentContext.variables.keys()]);
+        const error = new UndefinedVariableError(name, [...this.currentContext.variables.keys()]);
+        this.enhanceErrorWithContext(error, node);
+        throw error;
     }
     async evaluateCallExpression(node) {
         // Handle super() calls
         if (node.callee.type === 'Super') {
             const superConstructor = this.currentContext.variables.get('__super__');
             if (!superConstructor) {
-                throw new WangError('super() can only be called in a derived class constructor', {
+                const error = new WangError('super() can only be called in a derived class constructor', {
                     type: 'RuntimeError',
                 });
+                this.enhanceErrorWithContext(error, node);
+                throw error;
             }
             const args = [];
             for (const arg of node.arguments) {
@@ -1593,7 +1739,12 @@ export class WangInterpreter {
             callee = await this.evaluateNode(node.callee);
         }
         if (typeof callee !== 'function') {
-            throw new TypeMismatchError('function', callee, 'call expression');
+            const calleeName = node.callee.type === 'Identifier' ?
+                node.callee.name :
+                (node.callee.type === 'MemberExpression' ? 'member expression' : 'expression');
+            const error = new TypeMismatchError('function', callee, `calling '${calleeName}'`);
+            this.enhanceErrorWithContext(error, node);
+            throw error;
         }
         const args = [];
         for (const arg of node.arguments) {
@@ -1607,7 +1758,25 @@ export class WangInterpreter {
         }
         // Replace underscore with pipeline value
         const processedArgs = args.map((arg) => arg === undefined && this.lastPipelineValue !== undefined ? this.lastPipelineValue : arg);
-        return callee.apply(thisContext, processedArgs);
+        // Add to call stack
+        const calleeName = node.callee.type === 'Identifier' ? node.callee.name :
+            node.callee.type === 'MemberExpression' ?
+                (node.callee.property.name || '<computed>') : '<anonymous>';
+        const loc = this.getNodeLocation(node);
+        const stackFrame = {
+            functionName: calleeName,
+            modulePath: this.currentModulePath,
+            line: loc.line,
+            column: loc.column,
+            nodeType: 'CallExpression'
+        };
+        this.callStack.push(stackFrame);
+        try {
+            return await callee.apply(thisContext, processedArgs);
+        }
+        finally {
+            this.callStack.pop();
+        }
     }
     async evaluatePipelineExpression(node) {
         let result = await this.evaluateNode(node.left);
@@ -1634,6 +1803,16 @@ export class WangInterpreter {
             case '*':
                 return left * right;
             case '/':
+                if (right === 0) {
+                    throw new WangError('Division by zero', {
+                        type: 'RuntimeError',
+                        suggestions: [
+                            'Check that the divisor is not zero',
+                            'Add a guard condition before division',
+                            `Left operand: ${left}, Right operand: ${right}`
+                        ]
+                    });
+                }
                 return left / right;
             case '%':
                 return left % right;
@@ -1916,9 +2095,9 @@ export class WangInterpreter {
                 ? await this.evaluateNode(node.argument.property)
                 : node.argument.property.name;
             if (object == null) {
-                throw new WangError(`Cannot update property '${property}' on null or undefined`, {
-                    type: 'RuntimeError',
-                });
+                const objName = node.argument.object.type === 'Identifier' ?
+                    node.argument.object.name : 'expression';
+                throw new TypeMismatchError('object', object, `updating property '${property}' of '${objName}'`);
             }
             const oldValue = object[property] || 0;
             const newValue = node.operator === '++' ? oldValue + 1 : oldValue - 1;
@@ -1942,8 +2121,11 @@ export class WangInterpreter {
         }
         // Throw error when accessing property on null/undefined (non-optional)
         if (!node.optional && object == null) {
-            const propName = node.computed ? 'computed property' : node.property.name;
-            throw new Error(`Cannot read properties of ${object} (reading '${propName}')`);
+            const objName = node.object.type === 'Identifier' ? node.object.name : 'expression';
+            const propName = node.computed ? '<computed>' : (node.property.name || '<unknown>');
+            const error = new TypeMismatchError('object', object, `accessing property '${propName}' of '${objName}'`);
+            this.enhanceErrorWithContext(error, node);
+            throw error;
         }
         const property = node.computed ? await this.evaluateNode(node.property) : node.property.name;
         return object[property];
@@ -1951,7 +2133,9 @@ export class WangInterpreter {
     async evaluateNewExpression(node) {
         const constructor = await this.evaluateNode(node.callee);
         if (typeof constructor !== 'function') {
-            throw new TypeMismatchError('constructor', constructor, 'new expression');
+            const error = new TypeMismatchError('constructor', constructor, 'new expression');
+            this.enhanceErrorWithContext(error, node);
+            throw error;
         }
         const args = [];
         for (const arg of node.arguments) {
@@ -2085,6 +2269,16 @@ export class WangInterpreter {
                 case '*':
                     return left * right;
                 case '/':
+                    if (right === 0) {
+                        throw new WangError('Division by zero in template expression', {
+                            type: 'RuntimeError',
+                            suggestions: [
+                                'Check that the divisor is not zero',
+                                'Add a guard condition before division',
+                                `Expression: ${expression}`
+                            ]
+                        });
+                    }
                     return left / right;
                 default:
                     return expression;
@@ -2185,16 +2379,26 @@ export class WangInterpreter {
         this.globalModuleCache.set(modulePath, exports);
         // Resolve and load module
         const { code } = await this.moduleResolver.resolve(modulePath);
+        // Save current module path and set new one
+        const previousModulePath = this.currentModulePath;
+        this.currentModulePath = modulePath;
         // Create new context for module
         const moduleContext = this.createContext(this.globalContext);
+        moduleContext.modulePath = modulePath;
         // Store reference to exports object so we can update it during evaluation
         moduleContext.moduleExports = exports;
-        // Execute module (use default behavior - no metadata)
-        await this.execute(code, moduleContext);
-        // Get exports and copy to the cached object
-        moduleContext.exports.forEach((value, key) => {
-            exports[key] = value;
-        });
+        try {
+            // Execute module (use default behavior - no metadata)
+            await this.execute(code, moduleContext);
+            // Get exports and copy to the cached object
+            moduleContext.exports.forEach((value, key) => {
+                exports[key] = value;
+            });
+        }
+        finally {
+            // Restore previous module path
+            this.currentModulePath = previousModulePath;
+        }
         return exports;
     }
 }

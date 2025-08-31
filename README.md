@@ -18,7 +18,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🎯 **Zero Ambiguity Grammar** - Deterministic parsing with exactly one parse tree for valid syntax
 - 📦 **Modern JavaScript-like Syntax** - Full support for classes, modules, async/await, destructuring
 - 🔌 **Pluggable Module System** - Implement your own module resolution (memory, IndexedDB, HTTP, etc.)
-- 📍 **Comprehensive Error Reporting** - Detailed error messages with line numbers and recovery suggestions
+- 📍 **Enhanced Error Reporting (v0.16.1+)** - Full context with line numbers, stack traces, module names, and intelligent suggestions
 - 🌐 **Browser Automation Focus** - Built for DOM manipulation and web workflows
 - 🚀 **Advanced Pipeline Operators** - Chained pipelines (`data |> filter() |> map()`), nested pipelines, and multiline support
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
