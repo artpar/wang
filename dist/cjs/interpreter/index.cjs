@@ -489,16 +489,6 @@ class WangInterpreter {
                     case '*':
                         return left * right;
                     case '/':
-                        if (right === 0) {
-                            throw new errors_1.WangError('Division by zero', {
-                                type: 'RuntimeError',
-                                suggestions: [
-                                    'Check that the divisor is not zero',
-                                    'Add a guard condition before division',
-                                    `Left operand: ${left}, Right operand: ${right}`
-                                ]
-                            });
-                        }
                         return left / right;
                     case '%':
                         return left % right;
@@ -1806,16 +1796,6 @@ class WangInterpreter {
             case '*':
                 return left * right;
             case '/':
-                if (right === 0) {
-                    throw new errors_1.WangError('Division by zero', {
-                        type: 'RuntimeError',
-                        suggestions: [
-                            'Check that the divisor is not zero',
-                            'Add a guard condition before division',
-                            `Left operand: ${left}, Right operand: ${right}`
-                        ]
-                    });
-                }
                 return left / right;
             case '%':
                 return left % right;
@@ -2002,9 +1982,6 @@ class WangInterpreter {
                     return newMulVal;
                 case '/=':
                     const oldDivVal = this.evaluateIdentifier(node.left) || 0;
-                    if (value === 0) {
-                        throw new errors_1.WangError(`Division by zero in /= operation`);
-                    }
                     const newDivVal = oldDivVal / value;
                     let divCtx = this.currentContext;
                     while (divCtx) {
@@ -2053,9 +2030,6 @@ class WangInterpreter {
                     object[property] = (object[property] || 0) * value;
                     return object[property];
                 case '/=':
-                    if (value === 0) {
-                        throw new errors_1.WangError(`Division by zero in /= operation`);
-                    }
                     object[property] = (object[property] || 0) / value;
                     return object[property];
                 default:
@@ -2272,16 +2246,6 @@ class WangInterpreter {
                 case '*':
                     return left * right;
                 case '/':
-                    if (right === 0) {
-                        throw new errors_1.WangError('Division by zero in template expression', {
-                            type: 'RuntimeError',
-                            suggestions: [
-                                'Check that the divisor is not zero',
-                                'Add a guard condition before division',
-                                `Expression: ${expression}`
-                            ]
-                        });
-                    }
                     return left / right;
                 default:
                     return expression;

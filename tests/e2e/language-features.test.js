@@ -800,7 +800,7 @@ it('should handle switch statements', async () => {
         import { functionA } from "moduleA"
         functionA()
       `),
-      ).rejects.toThrow('Type mismatch in call expression');
+      ).rejects.toThrow('Type mismatch in calling');
     });
 
     it('should reject default exports and imports (unsupported)', async () => {

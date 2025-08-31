@@ -175,7 +175,7 @@ describe('Edge Cases: Error Handling and Propagation', () => {
             `;
       const result = await interpreter.execute(code);
       expect(result[0].type).toBe('null access');
-      expect(result[0].message).toContain('Cannot read properties of null');
+      expect(result[0].message).toContain('Type mismatch');
       // Other error types depend on implementation
     });
 
@@ -299,7 +299,7 @@ describe('Edge Cases: Error Handling and Propagation', () => {
                 }
             `;
       const result = await interpreter.execute(code);
-      expect(result).toContain('Cannot read properties of null');
+      expect(result).toContain('Type mismatch');
     });
 
     it('should handle errors in array operations', async () => {

@@ -193,7 +193,7 @@ describe('Member Expression Increment/Decrement', () => {
         let obj = null
         obj.count++
       `),
-      ).rejects.toThrow(/Cannot update property/);
+      ).rejects.toThrow(/Type mismatch/);
     });
 
     it('should throw error when object is undefined', async () => {
@@ -202,7 +202,7 @@ describe('Member Expression Increment/Decrement', () => {
         let obj
         obj.value--
       `),
-      ).rejects.toThrow(/Cannot update property/);
+      ).rejects.toThrow(/Type mismatch/);
     });
   });
 

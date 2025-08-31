@@ -226,12 +226,12 @@ describe('Compound Assignment Operators E2E', () => {
     });
 
     it('should handle division by zero', async () => {
-      await expect(
-        interpreter.execute(`
-          let x = 10
-          x /= 0
-        `),
-      ).rejects.toThrow(/Division by zero/);
+      const result = await interpreter.execute(`
+        let x = 10
+        x /= 0
+        x
+      `);
+      expect(result).toBe(Infinity);
     });
 
     it('should work with floating point arithmetic', async () => {

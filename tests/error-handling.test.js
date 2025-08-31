@@ -138,31 +138,22 @@ let arr = [...x]
   });
 
   describe('Division by Zero', () => {
-    it('should detect division by zero with context', async () => {
-      const code = `let x = 10 / 0`;
+    it('should handle division by zero as JavaScript does (Infinity)', async () => {
+      const code = `10 / 0`;
       
-      try {
-        await interpreter.execute(code);
-        expect.fail('Should have thrown an error');
-      } catch (error) {
-        expect(error.message).toContain('Division by zero');
-        expect(error.context.suggestions).toContain('Check that the divisor is not zero');
-        expect(error.context.suggestions.some(s => s.includes('10'))).toBeTruthy();
-      }
+      const result = await interpreter.execute(code);
+      expect(result).toBe(Infinity);
     });
 
-    it('should detect division by zero in compound assignment', async () => {
+    it('should handle division by zero in compound assignment', async () => {
       const code = `
 let x = 10
 x /= 0
+x
       `;
       
-      try {
-        await interpreter.execute(code);
-        expect.fail('Should have thrown an error');
-      } catch (error) {
-        expect(error.message).toContain('Division by zero');
-      }
+      const result = await interpreter.execute(code);
+      expect(result).toBe(Infinity);
     });
   });
 
