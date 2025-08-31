@@ -81,7 +81,7 @@ export class WangInterpreter {
   }
 
   private getStackTrace(): string[] {
-    return this.callStack.map(frame => {
+    return this.callStack.map((frame) => {
       let trace = frame.functionName;
       if (frame.modulePath && frame.modulePath !== '<main>') {
         trace += ` (${frame.modulePath}`;
@@ -143,11 +143,16 @@ export class WangInterpreter {
     for (const [key, value] of this.currentContext.variables) {
       if (count++ >= 10) break;
       try {
-        variables[key] = value === undefined ? 'undefined' : 
-                        value === null ? 'null' : 
-                        typeof value === 'function' ? '[Function]' :
-                        typeof value === 'object' ? '[Object]' : 
-                        String(value).substring(0, 50);
+        variables[key] =
+          value === undefined
+            ? 'undefined'
+            : value === null
+              ? 'null'
+              : typeof value === 'function'
+                ? '[Function]'
+                : typeof value === 'object'
+                  ? '[Object]'
+                  : String(value).substring(0, 50);
       } catch {
         variables[key] = '[Error getting value]';
       }
@@ -602,11 +607,11 @@ export class WangInterpreter {
         // Throw error when accessing property on null/undefined (non-optional)
         if (!node.optional && obj == null) {
           const objName = node.object.type === 'Identifier' ? node.object.name : 'expression';
-          const propName = node.computed ? '<computed>' : (node.property.name || '<unknown>');
+          const propName = node.computed ? '<computed>' : node.property.name || '<unknown>';
           const error = new TypeMismatchError(
             'object',
             obj,
-            `accessing property '${propName}' of '${objName}'`
+            `accessing property '${propName}' of '${objName}'`,
           );
           this.enhanceErrorWithContext(error, node);
           throw error;
@@ -654,8 +659,8 @@ export class WangInterpreter {
               type: 'RuntimeError',
               suggestions: [
                 'Valid operators: +, -, *, /, %, ==, !=, ===, !==, <, <=, >, >=, &&, ||, ??, in, instanceof',
-                'Check for typos in the operator'
-              ]
+                'Check for typos in the operator',
+              ],
             });
         }
 
@@ -675,8 +680,8 @@ export class WangInterpreter {
               type: 'RuntimeError',
               suggestions: [
                 'Valid unary operators: !, -, +, ~, typeof, void, delete',
-                'Check for typos in the operator'
-              ]
+                'Check for typos in the operator',
+              ],
             });
         }
 
@@ -741,12 +746,10 @@ export class WangInterpreter {
         }
 
         if (typeof callee !== 'function') {
-          const calleeName = node.callee.name || (node.callee.type === 'MemberExpression' ? 'member expression' : 'expression');
-          const error = new TypeMismatchError(
-            'function',
-            callee,
-            `calling '${calleeName}'`
-          );
+          const calleeName =
+            node.callee.name ||
+            (node.callee.type === 'MemberExpression' ? 'member expression' : 'expression');
+          const error = new TypeMismatchError('function', callee, `calling '${calleeName}'`);
           this.enhanceErrorWithContext(error, node);
           throw error;
         }
@@ -841,8 +844,8 @@ export class WangInterpreter {
           suggestions: [
             'This node type may require async evaluation',
             'Use await or the async version of this method',
-            `Node type '${node.type}' is not supported in synchronous context`
-          ]
+            `Node type '${node.type}' is not supported in synchronous context`,
+          ],
         });
     }
   }
@@ -979,8 +982,8 @@ export class WangInterpreter {
         const arr = await this.evaluateNode(node.argument);
         if (!Array.isArray(arr)) {
           const error = new TypeMismatchError('array', arr, 'spread operator');
-        this.enhanceErrorWithContext(error, node);
-        throw error;
+          this.enhanceErrorWithContext(error, node);
+          throw error;
         }
         return arr;
 
@@ -1129,8 +1132,8 @@ export class WangInterpreter {
           suggestions: [
             'Pipeline operators (|> and ->) must follow an expression',
             'Check that the previous statement produces a value',
-            'Ensure proper syntax before the continuation operator'
-          ]
+            'Ensure proper syntax before the continuation operator',
+          ],
         });
       }
 
@@ -1234,11 +1237,7 @@ export class WangInterpreter {
       // Throw error if trying to destructure null or undefined
       if (value == null) {
         const patternType = pattern.type === 'ObjectPattern' ? 'object' : 'array';
-        const error = new TypeMismatchError(
-          patternType,
-          value,
-          `destructuring assignment`
-        );
+        const error = new TypeMismatchError(patternType, value, `destructuring assignment`);
         this.enhanceErrorWithContext(error, pattern);
         throw error;
       }
@@ -1280,11 +1279,7 @@ export class WangInterpreter {
       // Throw error if trying to destructure null or undefined
       if (value == null) {
         const patternType = pattern.type === 'ObjectPattern' ? 'object' : 'array';
-        const error = new TypeMismatchError(
-          patternType,
-          value,
-          `destructuring assignment`
-        );
+        const error = new TypeMismatchError(patternType, value, `destructuring assignment`);
         this.enhanceErrorWithContext(error, pattern);
         throw error;
       }
@@ -1710,11 +1705,7 @@ export class WangInterpreter {
     if (node.type === 'ForOfStatement') {
       const iterable = await this.evaluateNode(node.right);
       if (iterable == null) {
-        const error = new TypeMismatchError(
-          'iterable',
-          iterable,
-          `for...of loop`
-        );
+        const error = new TypeMismatchError('iterable', iterable, `for...of loop`);
         this.enhanceErrorWithContext(error, node);
         throw error;
       }
@@ -1722,7 +1713,7 @@ export class WangInterpreter {
         const error = new TypeMismatchError(
           'iterable (Array, Set, Map, String, etc.)',
           iterable,
-          `for...of loop`
+          `for...of loop`,
         );
         this.enhanceErrorWithContext(error, node);
         throw error;
@@ -1745,11 +1736,7 @@ export class WangInterpreter {
     } else if (node.type === 'ForInStatement') {
       const obj = await this.evaluateNode(node.right);
       if (obj == null) {
-        const error = new TypeMismatchError(
-          'object',
-          obj,
-          `for...in loop`
-        );
+        const error = new TypeMismatchError('object', obj, `for...in loop`);
         this.enhanceErrorWithContext(error, node);
         throw error;
       }
@@ -1997,14 +1984,13 @@ export class WangInterpreter {
     }
 
     if (typeof callee !== 'function') {
-      const calleeName = node.callee.type === 'Identifier' ? 
-        node.callee.name : 
-        (node.callee.type === 'MemberExpression' ? 'member expression' : 'expression');
-      const error = new TypeMismatchError(
-        'function', 
-        callee, 
-        `calling '${calleeName}'`
-      );
+      const calleeName =
+        node.callee.type === 'Identifier'
+          ? node.callee.name
+          : node.callee.type === 'MemberExpression'
+            ? 'member expression'
+            : 'expression';
+      const error = new TypeMismatchError('function', callee, `calling '${calleeName}'`);
       this.enhanceErrorWithContext(error, node);
       throw error;
     }
@@ -2025,18 +2011,21 @@ export class WangInterpreter {
     );
 
     // Add to call stack
-    const calleeName = node.callee.type === 'Identifier' ? node.callee.name : 
-                      node.callee.type === 'MemberExpression' ? 
-                      (node.callee.property.name || '<computed>') : '<anonymous>';
+    const calleeName =
+      node.callee.type === 'Identifier'
+        ? node.callee.name
+        : node.callee.type === 'MemberExpression'
+          ? node.callee.property.name || '<computed>'
+          : '<anonymous>';
     const loc = this.getNodeLocation(node);
     const stackFrame: CallStackFrame = {
       functionName: calleeName,
       modulePath: this.currentModulePath,
       line: loc.line,
       column: loc.column,
-      nodeType: 'CallExpression'
+      nodeType: 'CallExpression',
     };
-    
+
     this.callStack.push(stackFrame);
     try {
       return await callee.apply(thisContext, processedArgs);
@@ -2367,12 +2356,12 @@ export class WangInterpreter {
         : node.argument.property.name;
 
       if (object == null) {
-        const objName = node.argument.object.type === 'Identifier' ? 
-          node.argument.object.name : 'expression';
+        const objName =
+          node.argument.object.type === 'Identifier' ? node.argument.object.name : 'expression';
         throw new TypeMismatchError(
           'object',
           object,
-          `updating property '${property}' of '${objName}'`
+          `updating property '${property}' of '${objName}'`,
         );
       }
 
@@ -2405,11 +2394,11 @@ export class WangInterpreter {
     // Throw error when accessing property on null/undefined (non-optional)
     if (!node.optional && object == null) {
       const objName = node.object.type === 'Identifier' ? node.object.name : 'expression';
-      const propName = node.computed ? '<computed>' : (node.property.name || '<unknown>');
+      const propName = node.computed ? '<computed>' : node.property.name || '<unknown>';
       const error = new TypeMismatchError(
         'object',
         object,
-        `accessing property '${propName}' of '${objName}'`
+        `accessing property '${propName}' of '${objName}'`,
       );
       this.enhanceErrorWithContext(error, node);
       throw error;
