@@ -27,7 +27,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (497/499 tests passing - 99.6% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (569/571 tests passing - 99.6% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
 - ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar  
 - 🔍 **Regular Expression Support** - Full regex literals with all JavaScript flags (`/pattern/gimsuy`)
@@ -35,6 +35,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 💾 **State Serialization** - Save and restore complete interpreter state to/from JSON
 - 🔤 **Reserved Keywords as Properties** - Use reserved words like `from`, `import`, `class` as property names (JavaScript-compatible)
 - 📝 **Console Capture** - Capture all console.log, warn, and error outputs with metadata (v0.12.0+)
+- 📐 **Multi-line Function Calls** - Support for multi-line function calls and parameters for better readability (v0.15.14+)
 
 ## Installation
 
@@ -115,10 +116,10 @@ npx wang-run hello.wang
 ## Quick Start
 
 ```javascript
-import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang';
+import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang'
 
 // Create a module resolver
-const resolver = new InMemoryModuleResolver();
+const resolver = new InMemoryModuleResolver()
 
 // Add a module
 resolver.addModule('utils', `
@@ -126,9 +127,9 @@ resolver.addModule('utils', `
     return data 
       |> filter(_, item => item.active)
       |> map(_, item => item.name)
-      |> sort(_);
+      |> sort(_)
   }
-`);
+`)
 
 // Create interpreter - 70+ stdlib functions are automatically available!
 const interpreter = new WangInterpreter({
@@ -137,29 +138,29 @@ const interpreter = new WangInterpreter({
   functions: {
     myCustomFunction: (x) => x * 2
   }
-});
+})
 
 // Set JavaScript objects as variables (v0.11.1+)
-interpreter.setVariable('Math', Math);
-interpreter.setVariable('JSON', JSON);
-interpreter.setVariable('customObject', { value: 42 });
+interpreter.setVariable('Math', Math)
+interpreter.setVariable('JSON', JSON)
+interpreter.setVariable('customObject', { value: 42 })
 
 // Execute Wang code - returns the last expression value
 const result = await interpreter.execute(`
-  import { processData } from "utils";
+  import { processData } from "utils"
   
   let data = [
     { name: "Alice", active: true },
     { name: "Bob", active: false },
     { name: "Charlie", active: true }
-  ];
+  ]
   
-  let processed = processData(data);
-  log(processed);  // ["Alice", "Charlie"]
+  let processed = processData(data)
+  log(processed)  // ["Alice", "Charlie"]
   
   // Last expression becomes the return value
   { processed, count: processed.length }
-`);
+`)
 
 console.log(result); // { processed: ["Alice", "Charlie"], count: 2 }
 ```
@@ -247,80 +248,80 @@ mutable *= 3;           // Multiplication assignment: 39
 mutable /= 2;           // Division assignment: 19.5
 
 // Increment and decrement operators
-let counter = 0;
-counter++;              // Post-increment: returns 0, then increments to 1
+let counter = 0
+counter++              // Post-increment: returns 0, then increments to 1
 ++counter;              // Pre-increment: increments to 2, then returns 2
 counter--;              // Post-decrement: returns 2, then decrements to 1  
 --counter;              // Pre-decrement: decrements to 0, then returns 0
 
 // Const immutability is enforced
-const PI = 3.14159;
-// PI = 3.14;  // ❌ Error: Cannot reassign const variable
+const PI = 3.14159
+// PI = 3.14  // ❌ Error: Cannot reassign const variable
 
 // Var hoisting works correctly
-log(typeof x);           // "undefined" (not an error!)
-var x = 42;
-log(x);                  // 42
+log(typeof x)           // "undefined" (not an error!)
+var x = 42
+log(x)                  // 42
 
 // Block scoping with proper shadowing
-let outer = 1;
+let outer = 1
 {
-  let outer = 2;         // Shadows outer variable
-  const inner = 3;
-  log(outer);            // 2
-};
-log(outer);              // 1
+  let outer = 2         // Shadows outer variable
+  const inner = 3
+  log(outer)            // 2
+}
+log(outer)              // 1
 // log(inner);           // ❌ Error: inner is not defined
 
 // Destructuring
-const { name, age } = person;
-const [first, second, ...rest] = numbers;
+const { name, age } = person
+const [first, second, ...rest] = numbers
 
 // Template literals
-const message = `Hello, ${name}!`;
+const message = `Hello, ${name}!`
 
 // Optional chaining (dot notation and computed member access)
-const value = obj?.nested?.property ?? defaultValue;
-const title = titles.data?.[0]?.textContent;
-const item = matrix?.[row]?.[col]?.value;
+const value = obj?.nested?.property ?? defaultValue
+const title = titles.data?.[0]?.textContent
+const item = matrix?.[row]?.[col]?.value
 
 // Reserved keywords as property names (JavaScript-compatible)
-const result = Array.from([1, 2, 3]);  // 'from' is a reserved keyword
+const result = Array.from([1, 2, 3])  // 'from' is a reserved keyword
 const config = { 
   import: "module", 
   class: "MyClass",
   from: "source" 
-};
-const source = config.from;  // Access reserved keyword properties
+}
+const source = config.from  // Access reserved keyword properties
 
 // Spread operator
-const combined = [...array1, ...array2];
-const merged = { ...obj1, ...obj2 };
+const combined = [...array1, ...array2]
+const merged = { ...obj1, ...obj2 }
 
 // Arrow functions
-const double = x => x * 2;
-const add = (a, b) => a + b;
+const double = x => x * 2
+const add = (a, b) => a + b
 
 // Regular expression literals with all JavaScript flags
-const emailPattern = /^[^@]+@[^@]+\.[^@]+$/;
-const phoneRegex = /\(\d{3}\)\s\d{3}-\d{4}/g;
-const unicodePattern = /[\u{1F600}-\u{1F64F}]/gu;  // Emoji with unicode flag
+const emailPattern = /^[^@]+@[^@]+\.[^@]+$/
+const phoneRegex = /\(\d{3}\)\s\d{3}-\d{4}/g
+const unicodePattern = /[\u{1F600}-\u{1F64F}]/gu  // Emoji with unicode flag
 const multilineText = /^start.*end$/ms;             // Multiline and dotAll flags
 
 // Regex methods work seamlessly
-const text = "Contact: user@domain.com or call (555) 123-4567";
-const emails = text.match(/\w+@\w+\.\w+/g);          // ["user@domain.com"]  
+const text = "Contact: user@domain.com or call (555) 123-4567"
+const emails = text.match(/\w+@\w+\.\w+/g)          // ["user@domain.com"]  
 const hasPhone = /\(\d{3}\)/.test(text);            // true
 const cleaned = text.replace(/\d+/g, "XXX");        // Replace all digits
 
 // Ternary conditional operator
-const status = age >= 18 ? "adult" : "minor";
-const value = condition ? (nested ? 1 : 2) : 3;
+const status = age >= 18 ? "adult" : "minor"
+const value = condition ? (nested ? 1 : 2) : 3
 
 // Async/await
 async function fetchData() {
-  const response = await fetch(url);
-  return await response.json();
+  const response = await fetch(url)
+  return await response.json()
 }
 ```
 
@@ -331,31 +332,31 @@ Full object-oriented programming support with inheritance and proper `this` bind
 ```javascript
 class Animal {
   constructor(name) {
-    this.name = name;
+    this.name = name
   }
   
   speak() {
-    return this.name + " makes a sound";
+    return this.name + " makes a sound"
   }
 }
 
 class Dog extends Animal {
   constructor(name, breed) {
-    super(name);  // Call parent constructor
-    this.breed = breed;
+    super(name)  // Call parent constructor
+    this.breed = breed
   }
   
   speak() {
-    return this.name + " barks";
+    return this.name + " barks"
   }
   
   getBreed() {
-    return this.breed;
+    return this.breed
   }
 }
 
-const dog = new Dog("Max", "Golden Retriever");
-log(dog.speak());       // "Max barks"
+const dog = new Dog("Max", "Golden Retriever")
+log(dog.speak())       // "Max barks"
 log(dog.getBreed());    // "Golden Retriever"
 ```
 
@@ -366,19 +367,19 @@ Wang returns the last evaluated expression, making it perfect for REPL usage and
 ```javascript
 // Simple expression return
 const sum = await interpreter.execute(`
-  let x = 5;
-  let y = 10;
+  let x = 5
+  let y = 10
   x + y  // Returns 15
-`);
+`)
 
 // Object construction return
 const config = await interpreter.execute(`
-  const env = "production";
-  const port = 3000;
+  const env = "production"
+  const port = 3000
   
   // This object is returned
   { env, port, debug: false }
-`);
+`)
 
 // Pipeline result return
 const result = await interpreter.execute(`
@@ -386,7 +387,7 @@ const result = await interpreter.execute(`
     |> filter(_, n => n > 2)
     |> map(_, n => n * 2)
     |> reduce(_, (sum, n) => sum + n, 0)
-`);
+`)
 // result = 24
 ```
 
@@ -399,26 +400,26 @@ Wang provides powerful pipeline operators for elegant data transformation with f
 const result = data
   |> filter(_, x => x > 0)
   |> map(_, x => x * 2)
-  |> reduce(_, (sum, x) => sum + x, 0);
+  |> reduce(_, (sum, x) => sum + x, 0)
 
 // Chained pipelines on same line (fully supported!)
-const processed = data |> filter(_, active) |> map(_, transform) |> sort(_);
+const processed = data |> filter(_, active) |> map(_, transform) |> sort(_)
 
 // Nested pipelines work perfectly on single lines
-const groups = [[1, 2], [3, 4], [5, 6]];
-const doubled = groups |> map(_, group => group |> map(_, x => x * 2));
+const groups = [[1, 2], [3, 4], [5, 6]]
+const doubled = groups |> map(_, group => group |> map(_, x => x * 2))
 // Result: [[2, 4], [6, 8], [10, 12]]
 
 // Complex nested pipelines with calculations
 const users = [
   {name: "Alice", scores: [80, 90, 85]},
   {name: "Bob", scores: [75, 85, 95]}
-];
+]
 
 const averages = users |> map(_, user => ({
   name: user.name,
   avg: user.scores |> reduce(_, (a, b) => a + b, 0) |> (sum => sum / user.scores.length)
-}));
+}))
 
 // Multiline pipelines with proper indentation
 const processed = rawData
@@ -430,17 +431,17 @@ const processed = rawData
 // Arrow operator (->) - passes result to function or stores
 profiles 
   |> extractData(_)
-  -> saveToDatabase("profiles");
+  -> saveToDatabase("profiles")
 
 // Regular expressions work perfectly with pipelines
-const logData = "ERROR: Failed login\nINFO: Success\nERROR: Database timeout";
+const logData = "ERROR: Failed login\nINFO: Success\nERROR: Database timeout"
 const errorCount = logData
   |> split(_, /\n/)
   |> filter(_, line => line.match(/ERROR:/))
   |> length(_);  // 2
 
 // Extract and process data with regex
-const userEmails = "Contact alice@company.com or bob@startup.org for info";
+const userEmails = "Contact alice@company.com or bob@startup.org for info"
 const domains = userEmails
   |> match(_, /(\w+)@(\w+\.\w+)/g)
   |> map(_, email => email.split('@')[1])
@@ -460,7 +461,7 @@ const result = groups |> map(_, group => {
     |> filter(_, x => x > 2)
     |> map(_, x => x * 10)
     |> reduce(_, (a, b) => a + b, 0)
-});
+})
 ```
 
 **Pipeline Limitations:**
@@ -474,15 +475,15 @@ Full ES6 module support:
 ```javascript
 // math.wang
 export function square(x) {
-  return x * x;
+  return x * x
 }
 
-export const PI = 3.14159;
+export const PI = 3.14159
 
 // main.wang
-import { square, PI } from "math";
+import { square, PI } from "math"
 
-const area = square(5) * PI;
+const area = square(5) * PI
 ```
 
 ## Module Resolution
@@ -490,29 +491,29 @@ const area = square(5) * PI;
 Wang provides a pluggable module resolution system. Implement your own resolver:
 
 ```javascript
-import { ModuleResolver } from '@wang-lang/core';
+import { ModuleResolver } from '@wang-lang/core'
 
 class MyCustomResolver extends ModuleResolver {
   async resolve(modulePath, fromPath) {
     // Your logic to find and return module code
-    const code = await fetchModuleFromSomewhere(modulePath);
-    return { code, path: modulePath };
+    const code = await fetchModuleFromSomewhere(modulePath)
+    return { code, path: modulePath }
   }
   
   async exists(modulePath) {
     // Check if module exists
-    return await checkIfModuleExists(modulePath);
+    return await checkIfModuleExists(modulePath)
   }
   
   async list(prefix) {
     // Return available modules for autocomplete
-    return await getAvailableModules(prefix);
+    return await getAvailableModules(prefix)
   }
 }
 
 const interpreter = new WangInterpreter({
   moduleResolver: new MyCustomResolver()
-});
+})
 ```
 
 ### Built-in Resolvers
@@ -528,32 +529,32 @@ const interpreter = new WangInterpreter({
 // Define a workflow module
 resolver.addModule('linkedin-workflow', `
   export async function extractProfiles() {
-    let profiles = querySelectorAll(".profile-card");
-    let results = [];
+    let profiles = querySelectorAll(".profile-card")
+    let results = []
     
     for (let profile of profiles) {
-      let nameText = profile |> querySelector(_, ".name") |> getText(_);
-      let titleText = profile |> querySelector(_, ".title") |> getText(_);
-      let companyText = profile |> querySelector(_, ".company") |> getText(_);
+      let nameText = profile |> querySelector(_, ".name") |> getText(_)
+      let titleText = profile |> querySelector(_, ".title") |> getText(_)
+      let companyText = profile |> querySelector(_, ".company") |> getText(_)
       
       let data = {
         name: nameText |> replace(_, /[^\w\s]/g, "") |> trim(_),  // Clean name
         title: titleText |> match(_, /^([^@]+)/)?.[1] || titleText, // Extract title before @
         company: companyText |> replace(_, /\s+/g, " ") |> trim(_), // Normalize whitespace
         isVerified: profile |> querySelector(_, ".verified-badge") !== null
-      };
+      }
       
       // Skip profiles without email patterns in title/company  
       if (titleText.match(/@/) || companyText.match(/\.(com|org|net)/i)) {
-        results.push(data);
+        results.push(data)
       }
       
-      await wait(1000);  // Rate limiting
+      await wait(1000)  // Rate limiting
     }
     
-    return results;
+    return results
   }
-`);
+`)
 
 // Bind DOM functions
 const interpreter = new WangInterpreter({
@@ -567,15 +568,15 @@ const interpreter = new WangInterpreter({
     trim: (str) => str.trim(),
     wait: (ms) => new Promise(r => setTimeout(r, ms))
   }
-});
+})
 
 // Execute the workflow
 await interpreter.execute(`
-  import { extractProfiles } from "linkedin-workflow";
+  import { extractProfiles } from "linkedin-workflow"
   
-  let profiles = await extractProfiles();
-  log(\`Found \${profiles.length} profiles\`);
-`);
+  let profiles = await extractProfiles()
+  log(\`Found \${profiles.length} profiles\`)
+`)
 ```
 
 ## Pausable Execution & State Serialization
@@ -585,17 +586,17 @@ Wang includes a `PausableWangInterpreter` that extends the base interpreter with
 ### Pause and Resume Execution
 
 ```javascript
-import { PausableWangInterpreter } from 'wang-lang';
+import { PausableWangInterpreter } from 'wang-lang'
 
 const interpreter = new PausableWangInterpreter({
   functions: {
     fetchData: async (id) => {
       // Simulate async work
-      await new Promise(r => setTimeout(r, 100));
-      return { id, data: `Data ${id}` };
+      await new Promise(r => setTimeout(r, 100))
+      return { id, data: `Data ${id}` }
     }
   }
-});
+})
 
 // Start long-running execution
 const promise = interpreter.execute(`
@@ -605,20 +606,20 @@ const promise = interpreter.execute(`
     results.push(data)
   }
   results
-`);
+`)
 
 // Pause execution after some time
 setTimeout(() => {
   if (interpreter.isRunning()) {
-    interpreter.pause();
-    console.log('Paused at:', interpreter.getCurrentVariables());
+    interpreter.pause()
+    console.log('Paused at:', interpreter.getCurrentVariables())
   }
-}, 500);
+}, 500)
 
 // Resume later
 if (interpreter.isPaused()) {
-  const result = await interpreter.resume();
-  console.log('Completed:', result);
+  const result = await interpreter.resume()
+  console.log('Completed:', result)
 }
 ```
 
@@ -638,7 +639,7 @@ await interpreter.execute(`
   function updateScore(points) {
     gameState.player.score += points
   }
-`);
+`)
 
 // Start a process
 const promise = interpreter.execute(`
@@ -649,26 +650,26 @@ const promise = interpreter.execute(`
     }
   }
   gameState
-`);
+`)
 
 // Pause at checkpoint
-setTimeout(() => interpreter.pause(), 200);
+setTimeout(() => interpreter.pause(), 200)
 
 // Save state to JSON
 if (interpreter.isPaused()) {
-  const serialized = interpreter.serialize();
+  const serialized = interpreter.serialize()
   
   // Save to file, database, etc.
-  await saveToFile('game-state.json', serialized);
+  await saveToFile('game-state.json', serialized)
   
   // Later, restore from saved state
-  const savedState = await loadFromFile('game-state.json');
+  const savedState = await loadFromFile('game-state.json')
   const restored = await PausableWangInterpreter.deserialize(savedState, {
     functions: { /* re-bind custom functions */ }
-  });
+  })
   
   // Continue execution from saved point
-  const result = await restored.resume();
+  const result = await restored.resume()
 }
 ```
 
@@ -698,33 +699,33 @@ interpreter.resume()  // Continue from pause point
 Wang provides a comprehensive metadata API that captures and exposes compilation, interpretation, and execution data:
 
 ```javascript
-import { WangInterpreter } from 'wang-lang';
-import { MetadataCollector } from 'wang-lang/metadata';
+import { WangInterpreter } from 'wang-lang'
+import { MetadataCollector } from 'wang-lang/metadata'
 
 // Create interpreter with metadata collection
-const collector = new MetadataCollector();
+const collector = new MetadataCollector()
 const interpreter = new WangInterpreter({
   onNodeVisit: (node, depth) => collector.onNodeVisit(node, depth),
   onFunctionCall: (name, args, node) => collector.onFunctionCall(name, args, node),
   onVariableAccess: (name, type, value) => collector.onVariableAccess(name, type, value)
-});
+})
 
 // Execute code with metadata collection
-collector.onExecutionStart();
-await interpreter.execute(code);
-collector.onExecutionEnd();
+collector.onExecutionStart()
+await interpreter.execute(code)
+collector.onExecutionEnd()
 
 // Get comprehensive metadata
-const metadata = collector.getMetadata();
+const metadata = collector.getMetadata()
 
 // Query execution insights
-console.log('Hot functions:', metadata.getHotFunctions(5));
-console.log('Variable access patterns:', metadata.getHotVariables(5));
-console.log('Execution path:', metadata.getExecutionPath());
-console.log('Performance summary:', metadata.getExecutionSummary());
+console.log('Hot functions:', metadata.getHotFunctions(5))
+console.log('Variable access patterns:', metadata.getHotVariables(5))
+console.log('Execution path:', metadata.getExecutionPath())
+console.log('Performance summary:', metadata.getExecutionSummary())
 
 // Export for external tools
-const json = collector.export();
+const json = collector.export()
 ```
 
 ### Metadata Categories
@@ -768,7 +769,7 @@ All unsupported features have clear workarounds using supported syntax.
 Wang achieves **99.6% test coverage** with comprehensive testing:
 
 ```bash
-# Run all tests (497/499 passing)
+# Run all tests (569/571 passing)
 npm test
 
 # Watch mode for development  
@@ -781,7 +782,7 @@ npm test:coverage
 npm test:ui
 ```
 
-**Test Results**: 497/499 tests passing (99.6% coverage), including:
+**Test Results**: 569/571 tests passing (99.6% coverage), including:
 - Comprehensive language features (classes, async/await, modules)
 - Advanced pipeline operations (chained, nested, multiline)  
 - Full regular expression support with all JavaScript features
@@ -865,11 +866,11 @@ Wang is designed to run in Content Security Policy restricted environments where
 <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
 
 <script type="module">
-  import { WangInterpreter } from '@wang-lang/core';
+  import { WangInterpreter } from '@wang-lang/core'
   
   // This works even with strict CSP!
-  const interpreter = new WangInterpreter();
-  await interpreter.execute('log("Hello from Wang!");');
+  const interpreter = new WangInterpreter()
+  await interpreter.execute('log("Hello from Wang!")')
 </script>
 ```
 
@@ -903,20 +904,20 @@ The main interpreter class.
 ```typescript
 class WangInterpreter {
   constructor(options?: {
-    moduleResolver?: ModuleResolver;
-    functions?: Record<string, Function>;
-    globalContext?: ExecutionContext;
-  });
+    moduleResolver?: ModuleResolver
+    functions?: Record<string, Function>
+    globalContext?: ExecutionContext
+  })
   
   // Default: returns execution result
-  execute(code: string, context?: ExecutionContext): Promise<any>;
+  execute(code: string, context?: ExecutionContext): Promise<any>
   
   // With metadata: returns result and captured console logs (v0.12.0+)
   execute(code: string, context?: ExecutionContext, options?: { withMetadata: true }): 
-    Promise<{ result: any; metadata: { logs: ConsoleLog[] } }>;
+    Promise<{ result: any; metadata: { logs: ConsoleLog[] } }>
     
-  bindFunction(name: string, fn: Function): void;
-  setVariable(name: string, value: any): void;  // v0.11.1+
+  bindFunction(name: string, fn: Function): void
+  setVariable(name: string, value: any): void  // v0.11.1+
 }
 ```
 
@@ -925,7 +926,7 @@ class WangInterpreter {
 The `execute()` method can capture all console output from Wang code when using the `withMetadata` option:
 
 ```javascript
-const interpreter = new WangInterpreter();
+const interpreter = new WangInterpreter()
 
 // Capture console logs with metadata
 const { result, metadata } = await interpreter.execute(`
@@ -937,10 +938,10 @@ const { result, metadata } = await interpreter.execute(`
   log("Data:", data)
   
   data.reduce((sum, n) => sum + n, 0)
-`, undefined, { withMetadata: true });
+`, undefined, { withMetadata: true })
 
-console.log(result); // 6
-console.log(metadata.logs); 
+console.log(result) // 6
+console.log(metadata.logs) 
 // [
 //   { type: 'log', args: ['Processing started'], timestamp: 1234567890 },
 //   { type: 'warn', args: ['Low memory'], timestamp: 1234567891 },
@@ -953,19 +954,19 @@ metadata.logs.forEach(log => {
   switch(log.type) {
     case 'error':
       // Handle errors
-      break;
+      break
     case 'warn':
       // Handle warnings
-      break;
+      break
     case 'log':
       // Handle info logs
-      break;
+      break
   }
-});
+})
 
 // Default behavior (backward compatible) - no metadata
-const result2 = await interpreter.execute(`log("Hello"); 42`);
-console.log(result2); // 42
+const result2 = await interpreter.execute(`log("Hello"); 42`)
+console.log(result2) // 42
 ```
 
 #### Setting Variables
@@ -973,21 +974,21 @@ console.log(result2); // 42
 The `setVariable()` method (v0.11.1+) allows you to inject JavaScript objects and values directly into Wang's global scope:
 
 ```javascript
-const interpreter = new WangInterpreter();
+const interpreter = new WangInterpreter()
 
 // Set JavaScript built-in objects
-interpreter.setVariable('Math', Math);
-interpreter.setVariable('JSON', JSON);
-interpreter.setVariable('Object', Object);
-interpreter.setVariable('Array', Array);
-interpreter.setVariable('console', console);
+interpreter.setVariable('Math', Math)
+interpreter.setVariable('JSON', JSON)
+interpreter.setVariable('Object', Object)
+interpreter.setVariable('Array', Array)
+interpreter.setVariable('console', console)
 
 // Set custom objects
 interpreter.setVariable('myAPI', {
   baseURL: 'https://api.example.com',
   getUser: (id) => fetch(`/users/${id}`),
   data: [1, 2, 3]
-});
+})
 
 // Now accessible in Wang code
 await interpreter.execute(`
@@ -995,7 +996,7 @@ await interpreter.execute(`
   let data = JSON.stringify({ value: 42 })
   let keys = Object.keys(myAPI)
   console.log("API URL:", myAPI.baseURL)
-`);
+`)
 ```
 
 ### WangValidator
@@ -1004,65 +1005,65 @@ A lightweight parser and syntax validator that validates Wang code without execu
 
 ```typescript
 class WangValidator {
-  validate(code: string, options?: ParserOptions): ValidationResult;
-  checkSyntaxPatterns(code: string): SyntaxPatterns;
-  suggestFixes(code: string): string[];
+  validate(code: string, options?: ParserOptions): ValidationResult
+  checkSyntaxPatterns(code: string): SyntaxPatterns
+  suggestFixes(code: string): string[]
 }
 
 interface ValidationResult {
-  valid: boolean;
+  valid: boolean
   error?: {
-    message: string;
-    line: number;
-    column: number;
-    suggestion?: string;
-  };
-  ast?: any;  // Optional AST when includeAST: true
+    message: string
+    line: number
+    column: number
+    suggestion?: string
+  }
+  ast?: any  // Optional AST when includeAST: true
 }
 
 interface ParserOptions {
-  includeAST?: boolean;  // Include the parsed AST in result
+  includeAST?: boolean  // Include the parsed AST in result
 }
 ```
 
 #### Usage Examples
 
 ```javascript
-import { WangValidator } from 'wang-lang';
+import { WangValidator } from 'wang-lang'
 
-const validator = new WangValidator();
+const validator = new WangValidator()
 
 // Simple validation
 const result = validator.validate(`
   let x = 10
   x |> double |> log
-`);
+`)
 
 if (result.valid) {
-  console.log("Code is valid!");
+  console.log("Code is valid!")
 } else {
-  console.error(`Error at line ${result.error.line}, col ${result.error.column}:`);
-  console.error(result.error.message);
+  console.error(`Error at line ${result.error.line}, col ${result.error.column}:`)
+  console.error(result.error.message)
   if (result.error.suggestion) {
-    console.log("Suggestion:", result.error.suggestion);
+    console.log("Suggestion:", result.error.suggestion)
   }
 }
 
 // Get AST for further analysis
-const resultWithAST = validator.validate(code, { includeAST: true });
+const resultWithAST = validator.validate(code, { includeAST: true })
 if (resultWithAST.valid) {
-  console.log("AST:", resultWithAST.ast);
+  console.log("AST:", resultWithAST.ast)
 }
 
 // Check for specific syntax patterns
-const patterns = validator.checkSyntaxPatterns(code);
-console.log("Has pipelines:", patterns.hasPipelines);
-console.log("Has async/await:", patterns.hasAsyncAwait);
-console.log("Has classes:", patterns.hasClasses);
+const patterns = validator.checkSyntaxPatterns(code)
+console.log("Has pipelines:", patterns.hasPipelines)
+console.log("Has async/await:", patterns.hasAsyncAwait)
+console.log("Has classes:", patterns.hasClasses)
 
 // Get suggestions for common issues
-const suggestions = validator.suggestFixes(code);
-suggestions.forEach(suggestion => console.log("Tip:", suggestion));
+const suggestions = validator.suggestFixes(code)
+suggestions.forEach(suggestion => console.log("Tip:", suggestion))
 ```
 
 #### Error Messages with Context
@@ -1073,7 +1074,7 @@ The validator provides detailed error messages with visual context:
 const result = validator.validate(`
   let x = 10
   x |> 
-`);
+`)
 
 // Output:
 // Parse error: Syntax error at line 3 col 6:
@@ -1104,9 +1105,9 @@ Base class for implementing module resolution.
 
 ```typescript
 abstract class ModuleResolver {
-  abstract resolve(modulePath: string, fromPath?: string): Promise<ModuleResolution>;
-  abstract exists(modulePath: string, fromPath?: string): Promise<boolean>;
-  abstract list(prefix?: string): Promise<string[]>;
+  abstract resolve(modulePath: string, fromPath?: string): Promise<ModuleResolution>
+  abstract exists(modulePath: string, fromPath?: string): Promise<boolean>
+  abstract list(prefix?: string): Promise<string[]>
 }
 ```
 

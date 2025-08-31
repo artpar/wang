@@ -1462,15 +1462,23 @@ var grammar = {
         }) },
     {"name": "FunctionDeclaration$ebnf$1", "symbols": [{"literal":"async"}], "postprocess": id},
     {"name": "FunctionDeclaration$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "FunctionDeclaration", "symbols": ["FunctionDeclaration$ebnf$1", {"literal":"function"}, (lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionDeclaration', {
+    {"name": "FunctionDeclaration$ebnf$2", "symbols": []},
+    {"name": "FunctionDeclaration$ebnf$2", "symbols": ["FunctionDeclaration$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "FunctionDeclaration$ebnf$3", "symbols": []},
+    {"name": "FunctionDeclaration$ebnf$3", "symbols": ["FunctionDeclaration$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "FunctionDeclaration", "symbols": ["FunctionDeclaration$ebnf$1", {"literal":"function"}, (lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":"("}, "FunctionDeclaration$ebnf$2", "ParameterList", "FunctionDeclaration$ebnf$3", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionDeclaration', {
           async: !!d[0],
           id: createIdentifier(d[2].value),
-          params: d[4],
-          body: d[6]
+          params: d[5],
+          body: d[8]
         }) },
     {"name": "ParameterList", "symbols": [], "postprocess": () => []},
     {"name": "ParameterList", "symbols": ["Parameter"], "postprocess": d => [d[0]]},
-    {"name": "ParameterList", "symbols": ["ParameterList", {"literal":","}, "Parameter"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "ParameterList$ebnf$1", "symbols": []},
+    {"name": "ParameterList$ebnf$1", "symbols": ["ParameterList$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ParameterList$ebnf$2", "symbols": []},
+    {"name": "ParameterList$ebnf$2", "symbols": ["ParameterList$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ParameterList", "symbols": ["ParameterList", "ParameterList$ebnf$1", {"literal":","}, "ParameterList$ebnf$2", "Parameter"], "postprocess": d => [...d[0], d[4]]},
     {"name": "Parameter", "symbols": ["BindingPattern"], "postprocess": id},
     {"name": "Parameter", "symbols": ["BindingPattern", {"literal":"="}, "AssignmentExpression"], "postprocess": d => createNode('AssignmentPattern', { left: d[0], right: d[2] })},
     {"name": "Parameter", "symbols": [{"literal":"..."}, "BindingPattern"], "postprocess": d => createNode('RestElement', { argument: d[1] })},
@@ -1498,18 +1506,26 @@ var grammar = {
     {"name": "ClassMember", "symbols": ["PropertyDefinition"], "postprocess": id},
     {"name": "MethodDefinition$ebnf$1", "symbols": [{"literal":"async"}], "postprocess": id},
     {"name": "MethodDefinition$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MethodDefinition", "symbols": ["MethodDefinition$ebnf$1", "PropertyKey", {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
+    {"name": "MethodDefinition$ebnf$2", "symbols": []},
+    {"name": "MethodDefinition$ebnf$2", "symbols": ["MethodDefinition$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "MethodDefinition$ebnf$3", "symbols": []},
+    {"name": "MethodDefinition$ebnf$3", "symbols": ["MethodDefinition$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "MethodDefinition", "symbols": ["MethodDefinition$ebnf$1", "PropertyKey", {"literal":"("}, "MethodDefinition$ebnf$2", "ParameterList", "MethodDefinition$ebnf$3", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
           async: !!d[0],
           kind: 'method',
           key: d[1],
-          params: d[3],
-          body: d[5]
+          params: d[4],
+          body: d[7]
         }) },
-    {"name": "MethodDefinition", "symbols": [{"literal":"constructor"}, {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
+    {"name": "MethodDefinition$ebnf$4", "symbols": []},
+    {"name": "MethodDefinition$ebnf$4", "symbols": ["MethodDefinition$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "MethodDefinition$ebnf$5", "symbols": []},
+    {"name": "MethodDefinition$ebnf$5", "symbols": ["MethodDefinition$ebnf$5", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "MethodDefinition", "symbols": [{"literal":"constructor"}, {"literal":"("}, "MethodDefinition$ebnf$4", "ParameterList", "MethodDefinition$ebnf$5", {"literal":")"}, "Block"], "postprocess":  d => createNode('MethodDefinition', {
           kind: 'constructor',
           key: createIdentifier('constructor'),
-          params: d[2],
-          body: d[4]
+          params: d[3],
+          body: d[6]
         }) },
     {"name": "PropertyDefinition", "symbols": ["PropertyKey", {"literal":"="}, "AssignmentExpression"], "postprocess":  d => createNode('PropertyDefinition', {
           key: d[0],
@@ -1645,7 +1661,11 @@ var grammar = {
           body: d[3]
         }) },
     {"name": "ArrowParameters", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => [createIdentifier(d[0].value)]},
-    {"name": "ArrowParameters", "symbols": [{"literal":"("}, "ParameterList", {"literal":")"}], "postprocess": d => d[1]},
+    {"name": "ArrowParameters$ebnf$1", "symbols": []},
+    {"name": "ArrowParameters$ebnf$1", "symbols": ["ArrowParameters$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArrowParameters$ebnf$2", "symbols": []},
+    {"name": "ArrowParameters$ebnf$2", "symbols": ["ArrowParameters$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArrowParameters", "symbols": [{"literal":"("}, "ArrowParameters$ebnf$1", "ParameterList", "ArrowParameters$ebnf$2", {"literal":")"}], "postprocess": d => d[2]},
     {"name": "ArrowBody", "symbols": ["Block"], "postprocess": id},
     {"name": "ArrowBody", "symbols": ["AssignmentExpression"], "postprocess": id},
     {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression"], "postprocess": id},
@@ -1781,12 +1801,24 @@ var grammar = {
     {"name": "ReservedKeyword", "symbols": [{"literal":"instanceof"}], "postprocess": d => ({ value: 'instanceof' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"in"}], "postprocess": d => ({ value: 'in' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"of"}], "postprocess": d => ({ value: 'of' })},
-    {"name": "Arguments", "symbols": [{"literal":"("}, "ArgumentList", {"literal":")"}], "postprocess": d => d[1]},
+    {"name": "Arguments$ebnf$1", "symbols": []},
+    {"name": "Arguments$ebnf$1", "symbols": ["Arguments$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "Arguments$ebnf$2", "symbols": []},
+    {"name": "Arguments$ebnf$2", "symbols": ["Arguments$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "Arguments", "symbols": [{"literal":"("}, "Arguments$ebnf$1", "ArgumentList", "Arguments$ebnf$2", {"literal":")"}], "postprocess": d => d[2]},
     {"name": "ArgumentList", "symbols": [], "postprocess": () => []},
     {"name": "ArgumentList", "symbols": ["AssignmentExpression"], "postprocess": d => [d[0]]},
-    {"name": "ArgumentList", "symbols": ["ArgumentList", {"literal":","}, "AssignmentExpression"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "ArgumentList$ebnf$1", "symbols": []},
+    {"name": "ArgumentList$ebnf$1", "symbols": ["ArgumentList$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArgumentList$ebnf$2", "symbols": []},
+    {"name": "ArgumentList$ebnf$2", "symbols": ["ArgumentList$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArgumentList", "symbols": ["ArgumentList", "ArgumentList$ebnf$1", {"literal":","}, "ArgumentList$ebnf$2", "AssignmentExpression"], "postprocess": d => [...d[0], d[4]]},
     {"name": "ArgumentList", "symbols": [{"literal":"..."}, "AssignmentExpression"], "postprocess": d => [createNode('SpreadElement', { argument: d[1] })]},
-    {"name": "ArgumentList", "symbols": ["ArgumentList", {"literal":","}, {"literal":"..."}, "AssignmentExpression"], "postprocess": d => [...d[0], createNode('SpreadElement', { argument: d[3] })]},
+    {"name": "ArgumentList$ebnf$3", "symbols": []},
+    {"name": "ArgumentList$ebnf$3", "symbols": ["ArgumentList$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArgumentList$ebnf$4", "symbols": []},
+    {"name": "ArgumentList$ebnf$4", "symbols": ["ArgumentList$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ArgumentList", "symbols": ["ArgumentList", "ArgumentList$ebnf$3", {"literal":","}, "ArgumentList$ebnf$4", {"literal":"..."}, "AssignmentExpression"], "postprocess": d => [...d[0], createNode('SpreadElement', { argument: d[5] })]},
     {"name": "PrimaryExpression", "symbols": [{"literal":"this"}], "postprocess": () => createNode('ThisExpression')},
     {"name": "PrimaryExpression", "symbols": [{"literal":"super"}], "postprocess": () => createNode('Super')},
     {"name": "PrimaryExpression", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": d => createIdentifier(d[0].value)},
@@ -1796,17 +1828,25 @@ var grammar = {
     {"name": "PrimaryExpression", "symbols": ["FunctionExpression"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": ["TemplateLiteral"], "postprocess": id},
     {"name": "PrimaryExpression", "symbols": [{"literal":"("}, "Expression", {"literal":")"}], "postprocess": d => d[1]},
-    {"name": "FunctionExpression", "symbols": [{"literal":"function"}, {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
+    {"name": "FunctionExpression$ebnf$1", "symbols": []},
+    {"name": "FunctionExpression$ebnf$1", "symbols": ["FunctionExpression$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "FunctionExpression$ebnf$2", "symbols": []},
+    {"name": "FunctionExpression$ebnf$2", "symbols": ["FunctionExpression$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "FunctionExpression", "symbols": [{"literal":"function"}, {"literal":"("}, "FunctionExpression$ebnf$1", "ParameterList", "FunctionExpression$ebnf$2", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
           async: false,
           id: null,
-          params: d[2],
-          body: d[4]
+          params: d[3],
+          body: d[6]
         }) },
-    {"name": "FunctionExpression", "symbols": [{"literal":"async"}, {"literal":"function"}, {"literal":"("}, "ParameterList", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
+    {"name": "FunctionExpression$ebnf$3", "symbols": []},
+    {"name": "FunctionExpression$ebnf$3", "symbols": ["FunctionExpression$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "FunctionExpression$ebnf$4", "symbols": []},
+    {"name": "FunctionExpression$ebnf$4", "symbols": ["FunctionExpression$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "FunctionExpression", "symbols": [{"literal":"async"}, {"literal":"function"}, {"literal":"("}, "FunctionExpression$ebnf$3", "ParameterList", "FunctionExpression$ebnf$4", {"literal":")"}, "Block"], "postprocess":  d => createNode('FunctionExpression', {
           async: true,
           id: null,
-          params: d[3],
-          body: d[5]
+          params: d[4],
+          body: d[7]
         }) },
     {"name": "Literal", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": d => createLiteral(d[0].value, d[0].text)},
     {"name": "Literal", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": d => createLiteral(d[0].value, d[0].text)},

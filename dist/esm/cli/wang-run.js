@@ -97,6 +97,7 @@ async function main() {
         interpreter.setVariable('Math', Math);
         interpreter.setVariable('JSON', JSON);
         interpreter.setVariable('Date', Date);
+        interpreter.setVariable('Promise', Promise);
         interpreter.setVariable('process', process);
         interpreter.setVariable('console', {
             log: (...args) => console.log(...args),

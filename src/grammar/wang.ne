@@ -287,18 +287,18 @@ ObjectPatternProperty ->
 
 # Function Declaration - ONLY NAMED FUNCTIONS
 FunctionDeclaration ->
-    "async":? "function" %identifier "(" ParameterList ")" Block
+    "async":? "function" %identifier "(" %NL:* ParameterList %NL:* ")" Block
     {% d => createNode('FunctionDeclaration', {
       async: !!d[0],
       id: createIdentifier(d[2].value),
-      params: d[4],
-      body: d[6]
+      params: d[5],
+      body: d[8]
     }) %}
 
 ParameterList ->
     null {% () => [] %}
   | Parameter {% d => [d[0]] %}
-  | ParameterList "," Parameter {% d => [...d[0], d[2]] %}
+  | ParameterList %NL:* "," %NL:* Parameter {% d => [...d[0], d[4]] %}
 
 Parameter ->
     BindingPattern {% id %}
@@ -336,20 +336,20 @@ ClassMember ->
   | PropertyDefinition {% id %}
 
 MethodDefinition ->
-    "async":? PropertyKey "(" ParameterList ")" Block
+    "async":? PropertyKey "(" %NL:* ParameterList %NL:* ")" Block
     {% d => createNode('MethodDefinition', {
       async: !!d[0],
       kind: 'method',
       key: d[1],
-      params: d[3],
-      body: d[5]
+      params: d[4],
+      body: d[7]
     }) %}
-  | "constructor" "(" ParameterList ")" Block
+  | "constructor" "(" %NL:* ParameterList %NL:* ")" Block
     {% d => createNode('MethodDefinition', {
       kind: 'constructor',
       key: createIdentifier('constructor'),
-      params: d[2],
-      body: d[4]
+      params: d[3],
+      body: d[6]
     }) %}
 
 PropertyDefinition ->
@@ -532,7 +532,7 @@ ArrowFunction ->
 
 ArrowParameters ->
     %identifier {% d => [createIdentifier(d[0].value)] %}
-  | "(" ParameterList ")" {% d => d[1] %}
+  | "(" %NL:* ParameterList %NL:* ")" {% d => d[2] %}
 
 ArrowBody ->
     Block {% id %}
@@ -697,14 +697,14 @@ ReservedKeyword ->
   | "of" {% d => ({ value: 'of' }) %}
 
 Arguments ->
-    "(" ArgumentList ")" {% d => d[1] %}
+    "(" %NL:* ArgumentList %NL:* ")" {% d => d[2] %}
 
 ArgumentList ->
     null {% () => [] %}
   | AssignmentExpression {% d => [d[0]] %}
-  | ArgumentList "," AssignmentExpression {% d => [...d[0], d[2]] %}
+  | ArgumentList %NL:* "," %NL:* AssignmentExpression {% d => [...d[0], d[4]] %}
   | "..." AssignmentExpression {% d => [createNode('SpreadElement', { argument: d[1] })] %}
-  | ArgumentList "," "..." AssignmentExpression {% d => [...d[0], createNode('SpreadElement', { argument: d[3] })] %}
+  | ArgumentList %NL:* "," %NL:* "..." AssignmentExpression {% d => [...d[0], createNode('SpreadElement', { argument: d[5] })] %}
 
 PrimaryExpression ->
     "this" {% () => createNode('ThisExpression') %}
@@ -719,19 +719,19 @@ PrimaryExpression ->
 
 # Function expressions - ALWAYS ANONYMOUS
 FunctionExpression ->
-    "function" "(" ParameterList ")" Block
+    "function" "(" %NL:* ParameterList %NL:* ")" Block
     {% d => createNode('FunctionExpression', {
       async: false,
       id: null,
-      params: d[2],
-      body: d[4]
+      params: d[3],
+      body: d[6]
     }) %}
-  | "async" "function" "(" ParameterList ")" Block
+  | "async" "function" "(" %NL:* ParameterList %NL:* ")" Block
     {% d => createNode('FunctionExpression', {
       async: true,
       id: null,
-      params: d[3],
-      body: d[5]
+      params: d[4],
+      body: d[7]
     }) %}
 
 Literal ->

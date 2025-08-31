@@ -1,8 +1,9 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 0.11.1  
-**Test Coverage:** 507/509 tests (99.6%)  
+**Version:** 0.15.14  
+**Test Coverage:** 569/571 tests (99.6%)  
 **CSP Safe:** ✅ No eval(), new Function()  
+**New in 0.15.14:** 📝 Multi-line function calls and parameters  
 **New in 0.11.1:** 🔧 Direct JavaScript object injection via setVariable()  
 **New in 0.9.0:** 🔍 Full Regular Expression Support  
 
@@ -78,6 +79,13 @@ const complex = (x, y) => {
   return result + 1
 }
 
+// Multi-line parameters (v0.15.14+)
+const multiLineArrow = (
+  first,
+  second,
+  third
+) => first + second + third
+
 // Lexical 'this' binding
 class Calculator {
   constructor() { this.value = 0 }
@@ -98,6 +106,42 @@ function sum(...numbers) {
 
 const arr = [1, 2, 3]
 sum(...arr) // Spread in call
+```
+
+#### Multi-line Function Calls (v0.15.14+)
+```javascript
+// Function calls can span multiple lines for better readability
+let result = myFunction(
+  firstArgument,
+  secondArgument,
+  thirdArgument
+)
+
+// Works with complex expressions
+let data = processData(
+  array.filter(x => x > 0),
+  { config: true },
+  "options"
+)
+
+// Nested multi-line calls
+let output = outer(
+  inner(
+    value1,
+    value2
+  ),
+  inner(
+    value3,
+    value4
+  )
+)
+
+// Chrome debugger example
+let nodeId = await chrome.debugger.sendCommand(
+  { tabId: tab.id },
+  "DOM.querySelector",
+  { nodeId: doc.root.nodeId, selector: "h1" }
+)
 ```
 
 #### Closures
@@ -496,7 +540,7 @@ const multiLine = `
 `
 
 // Nested template literals
-const nested = `Outer: "${`Inner: ${value}`}"`;
+const nested = `Outer: "${`Inner: ${value}`}"`
 ```
 
 ### Regular Expression Literals
@@ -505,9 +549,9 @@ const nested = `Outer: "${`Inner: ${value}`}"`;
 
 ```javascript
 // Basic regex patterns
-const emailPattern = /^[^@]+@[^@]+\.[^@]+$/;
-const phoneRegex = /\(\d{3}\)\s\d{3}-\d{4}/;
-const wordBoundary = /\b\w+\b/g;
+const emailPattern = /^[^@]+@[^@]+\.[^@]+$/
+const phoneRegex = /\(\d{3}\)\s\d{3}-\d{4}/
+const wordBoundary = /\b\w+\b/g
 
 // All JavaScript flags supported
 const globalSearch = /pattern/g;           // Global flag
@@ -523,13 +567,13 @@ const newlines = /line1\nline2/;          // Newline characters
 const tabs = /column1\tcolumn2/;          // Tab characters
 
 // Regex methods work seamlessly
-const text = "Contact: user@domain.com or call (555) 123-4567";
+const text = "Contact: user@domain.com or call (555) 123-4567"
 const emails = text.match(/\w+@\w+\.\w+/g);     // ["user@domain.com"]
 const hasPhone = /\(\d{3}\)/.test(text);        // true
 const cleaned = text.replace(/\d+/g, "XXX");    // Replace digits
 
 // Integration with pipelines
-const logData = "ERROR: Failed login\nINFO: Success\nERROR: Timeout";
+const logData = "ERROR: Failed login\nINFO: Success\nERROR: Timeout"
 const errorCount = logData
   |> split(_, /\n/)
   |> filter(_, line => line.match(/ERROR:/))
@@ -541,12 +585,12 @@ Wang automatically distinguishes between division (`/`) and regex literals using
 
 ```javascript
 // These are correctly parsed as division
-let half = count / 2;
-let ratio = (a + b) / (c + d);
+let half = count / 2
+let ratio = (a + b) / (c + d)
 
 // These are correctly parsed as regex
-let pattern = /\d+/g;
-let emailRegex = /[^@]+@[^@]+/;
+let pattern = /\d+/g
+let emailRegex = /[^@]+@[^@]+/
 ```
 
 ### Async/Await
@@ -679,7 +723,7 @@ import { localData } from "indexeddb://local-storage"
 
 ##### In-Memory Resolver
 ```javascript
-const resolver = new InMemoryModuleResolver();
+const resolver = new InMemoryModuleResolver()
 resolver.addModule("math", `
   export function add(a, b) { return a + b }
   export function multiply(a, b) { return a * b }
@@ -688,13 +732,13 @@ resolver.addModule("math", `
 
 ##### HTTP Resolver
 ```javascript
-const httpResolver = new HTTPModuleResolver();
+const httpResolver = new HTTPModuleResolver()
 // Resolves: import { utils } from "https://cdn.example.com/utils.js"
 ```
 
 ##### IndexedDB Resolver  
 ```javascript
-const dbResolver = new IndexedDBModuleResolver();
+const dbResolver = new IndexedDBModuleResolver()
 // Stores modules persistently in browser storage
 ```
 
@@ -704,23 +748,23 @@ const resolver = new CompositeModuleResolver([
   new InMemoryModuleResolver(),    // Try memory first
   new IndexedDBModuleResolver(),   // Then persistent storage
   new HTTPModuleResolver()         // Finally network
-]);
+])
 ```
 
 #### Custom Resolver
 ```javascript
 class CustomResolver extends ModuleResolver {
   async resolve(modulePath, fromPath) {
-    const code = await this.fetchModuleCode(modulePath);
-    return { code, path: modulePath };
+    const code = await this.fetchModuleCode(modulePath)
+    return { code, path: modulePath }
   }
   
   async exists(modulePath) {
-    return await this.checkModuleExists(modulePath);
+    return await this.checkModuleExists(modulePath)
   }
   
   async list(prefix) {
-    return await this.getAvailableModules(prefix);
+    return await this.getAvailableModules(prefix)
   }
 }
 ```
@@ -1006,9 +1050,9 @@ wait(ms)          // Async delay (returns Promise)
 
 ### Basic Setup
 ```javascript
-import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang';
+import { WangInterpreter, InMemoryModuleResolver } from 'wang-lang'
 
-const resolver = new InMemoryModuleResolver();
+const resolver = new InMemoryModuleResolver()
 const interpreter = new WangInterpreter({
   moduleResolver: resolver,
   functions: {
@@ -1016,29 +1060,29 @@ const interpreter = new WangInterpreter({
     customFunc: (arg) => processArg(arg),
     domQuery: (sel) => document.querySelector(sel)
   }
-});
+})
 
 // Execute Wang code
 const result = await interpreter.execute(`
   let data = [1, 2, 3]
   data |> map(_, x => x * 2) |> reduce(_, (sum, x) => sum + x, 0)
-`);
-console.log(result); // 12
+`)
+console.log(result) // 12
 ```
 
 ### JavaScript Interoperability
 
 #### Variable Injection (v0.11.1+)
 ```javascript
-const interpreter = new WangInterpreter();
+const interpreter = new WangInterpreter()
 
 // Inject JavaScript built-in objects
-interpreter.setVariable('Math', Math);
-interpreter.setVariable('JSON', JSON);
-interpreter.setVariable('Object', Object);
-interpreter.setVariable('Array', Array);
-interpreter.setVariable('Date', Date);
-interpreter.setVariable('RegExp', RegExp);
+interpreter.setVariable('Math', Math)
+interpreter.setVariable('JSON', JSON)
+interpreter.setVariable('Object', Object)
+interpreter.setVariable('Array', Array)
+interpreter.setVariable('Date', Date)
+interpreter.setVariable('RegExp', RegExp)
 interpreter.setVariable('console', console);
 
 // Inject custom objects and values
@@ -1074,7 +1118,7 @@ const interpreter = new WangInterpreter({
     click: (el) => el.click(),
     wait: (ms) => new Promise(r => setTimeout(r, ms))
   }
-});
+})
 
 // Bind functions after creation
 interpreter.bindFunction('newFunc', (arg) => arg.toUpperCase());
@@ -1090,7 +1134,7 @@ const interpreter = new WangInterpreter({
     click: (el) => el.click(),
     wait: (ms) => new Promise(r => setTimeout(r, ms))
   }
-});
+})
 
 await interpreter.execute(`
   // Extract profile data
@@ -1565,7 +1609,7 @@ const workflowResult = await interpreter.execute(`
     success: true,
     timestamp: Date.now()
   }
-`);
+`)
 ```
 
 ### Use Cases
