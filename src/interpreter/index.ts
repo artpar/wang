@@ -2487,12 +2487,12 @@ export class WangInterpreter {
   private async evaluateTemplateLiteral(node: any): Promise<string> {
     // Get the raw template string
     const raw = node.raw || node.value || '';
-    
+
     // If it contains ${...} expressions, interpolate them
     if (raw.includes('${')) {
       return await this.interpolateTemplate(raw);
     }
-    
+
     // Otherwise return as-is
     return raw;
   }
@@ -2513,10 +2513,10 @@ export class WangInterpreter {
         // @ts-ignore - generated grammar file
         const { nearley, default: grammar } = await import('../generated/wang-grammar.js');
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-        
+
         // Parse the expression as a complete Wang expression
         const parseResult = parser.feed(expression).results;
-        
+
         if (parseResult && parseResult.length > 0) {
           // Evaluate the parsed AST
           const ast = parseResult[0];
@@ -2559,7 +2559,7 @@ export class WangInterpreter {
       const { nearley, default: grammar } = await import('../generated/wang-grammar.js');
       const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
       const parseResult = parser.feed(expression).results;
-      
+
       if (parseResult && parseResult.length > 0) {
         return await this.evaluateNode(parseResult[0]);
       }
@@ -2570,7 +2570,7 @@ export class WangInterpreter {
         return this.evaluateIdentifier({ name: trimmed });
       }
     }
-    
+
     return expression; // Return the original if we can't parse it
   }
 
