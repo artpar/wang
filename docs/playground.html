@@ -597,54 +597,214 @@
                 document.documentElement.classList.add('dark');
             }
             
-            // Register Wang language
+            // Register Wang language with enhanced syntax highlighting
             monaco.languages.register({ id: 'wang' });
             monaco.languages.setMonarchTokensProvider('wang', {
-                keywords: ['let', 'const', 'var', 'function', 'async', 'await', 'if', 'else', 'for', 'while', 'do', 'break', 'continue', 'return', 'class', 'extends', 'new', 'this', 'super', 'import', 'export', 'from', 'try', 'catch', 'finally', 'throw', 'typeof', 'instanceof', 'true', 'false', 'null', 'undefined'],
-                operators: ['=', '>', '<', '!', '~', '?', ':', '==', '<=', '>=', '!=', '&&', '||', '++', '--', '+', '-', '*', '/', '&', '|', '^', '%', '<<', '>>', '>>>', '+=', '-=', '*=', '/=', '&=', '|=', '^=', '%=', '<<=', '>>=', '>>>=', '=>', '|>', '->'],
+                defaultToken: 'invalid',
+                tokenPostfix: '.wang',
+                
+                keywords: [
+                    'let', 'const', 'var', 'if', 'else', 'for', 'while', 'do',
+                    'break', 'continue', 'return', 'function', 'class', 'extends',
+                    'constructor', 'async', 'await', 'import', 'export', 'from', 'as',
+                    'try', 'catch', 'finally', 'throw', 'this', 'super', 'new',
+                    'typeof', 'instanceof', 'in', 'of'
+                ],
+                
+                operators: [
+                    '|>', '->', '=>', '+=', '-=', '*=', '/=', '===', '!==',
+                    '==', '!=', '<=', '>=', '<<', '>>', '>>>', '&&', '||', '??',
+                    '?.', '...', '++', '--', '**', '+', '-', '*', '/', '%',
+                    '&', '|', '^', '~', '!', '?', ':', '=', '<', '>'
+                ],
+                
+                symbols: /[=><!~?:&|+\-*\/\^%]+/,
+                escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+                
                 tokenizer: {
                     root: [
-                        [/\/\/.*$/, 'comment'],
+                        // Identifiers and keywords
+                        [/[a-zA-Z_$][\w$]*/, {
+                            cases: {
+                                '@keywords': 'keyword',
+                                'true|false|null|undefined': 'constant.language',
+                                '@default': 'identifier'
+                            }
+                        }],
+                        
+                        // Whitespace and comments
+                        [/[ \t\r\n]+/, 'white'],
                         [/\/\*/, 'comment', '@comment'],
-                        [/\b(let|const|var|function|async|await|if|else|for|while|do|break|continue|return|class|extends|new|this|super|import|export|from|try|catch|finally|throw|typeof|instanceof|true|false|null|undefined)\b/, 'keyword'],
-                        [/\b\d+(\.\d+)?\b/, 'number'],
+                        [/\/\/.*$/, 'comment'],
+                        
+                        // Delimiters and operators
+                        [/[{}()\[\]]/, '@brackets'],
+                        [/[<>](?!@symbols)/, '@brackets'],
+                        [/@symbols/, {
+                            cases: {
+                                '@operators': 'operator',
+                                '@default': ''
+                            }
+                        }],
+                        
+                        // Numbers
+                        [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+                        [/0[xX][0-9a-fA-F]+/, 'number.hex'],
+                        [/\d+/, 'number'],
+                        
+                        // Delimiter
+                        [/[;,.]/, 'delimiter'],
+                        
+                        // Strings
                         [/"([^"\\]|\\.)*$/, 'string.invalid'],
                         [/'([^'\\]|\\.)*$/, 'string.invalid'],
                         [/"/, 'string', '@string_double'],
                         [/'/, 'string', '@string_single'],
-                        [/`/, 'string', '@string_backtick'],
-                        [/[=><!~?:&|+\-*\/\^%]+/, 'operator'],
-                        [/[a-zA-Z_$][a-zA-Z0-9_$]*/, 'identifier'],
-                        [/[ \t\r\n]+/, 'white'],
-                        [/[{}()\[\]]/, '@brackets'],
-                        [/[;,.]/, 'delimiter']
+                        
+                        // Template literals
+                        [/`/, 'string.template', '@template'],
+                        
+                        // Regular expressions
+                        [/\/(?=([^\/\\]|\\.)+\/)/, 'regexp', '@regexp'],
                     ],
+                    
+                    whitespace: [
+                        [/[ \t\r\n]+/, ''],
+                        [/\/\*/, 'comment', '@comment'],
+                        [/\/\/.*$/, 'comment'],
+                    ],
+                    
                     comment: [
                         [/[^\/*]+/, 'comment'],
                         [/\*\//, 'comment', '@pop'],
                         [/[\/*]/, 'comment']
                     ],
+                    
                     string_double: [
                         [/[^\\"]+/, 'string'],
-                        [/\\./, 'string.escape'],
+                        [/@escapes/, 'string.escape'],
+                        [/\\./, 'string.escape.invalid'],
                         [/"/, 'string', '@pop']
                     ],
+                    
                     string_single: [
                         [/[^\\']+/, 'string'],
-                        [/\\./, 'string.escape'],
+                        [/@escapes/, 'string.escape'],
+                        [/\\./, 'string.escape.invalid'],
                         [/'/, 'string', '@pop']
                     ],
-                    string_backtick: [
-                        [/[^\\`$]+/, 'string'],
-                        [/\\./, 'string.escape'],
-                        [/\$\{/, 'delimiter', '@interpolation'],
-                        [/`/, 'string', '@pop']
+                    
+                    template: [
+                        [/[^`\\$]+/, 'string.template'],
+                        [/@escapes/, 'string.escape'],
+                        [/\\./, 'string.escape.invalid'],
+                        [/\${/, { token: 'delimiter.bracket', next: '@templateExpression' }],
+                        [/`/, 'string.template', '@pop']
                     ],
-                    interpolation: [
-                        [/\}/, 'delimiter', '@pop'],
+                    
+                    templateExpression: [
+                        [/}/, { token: 'delimiter.bracket', next: '@pop' }],
                         { include: 'root' }
-                    ]
+                    ],
+                    
+                    regexp: [
+                        [/(\{)(\d+(?:,\d*)?)(\})/, ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']],
+                        [/(\[)([^\]\\]|\\.)*(\])/, 'regexp.escape.control'],
+                        [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
+                        [/[()]/, 'regexp.escape.control'],
+                        [/@escapes/, 'regexp.escape'],
+                        [/\\./, 'regexp.escape'],
+                        [/\/[gimsuy]*/, { token: 'regexp', bracket: '@close', next: '@pop' }],
+                        [/./, 'regexp']
+                    ],
+                },
+            });
+            
+            // Configure language features
+            monaco.languages.setLanguageConfiguration('wang', {
+                comments: {
+                    lineComment: '//',
+                    blockComment: ['/*', '*/']
+                },
+                brackets: [
+                    ['{', '}'],
+                    ['[', ']'],
+                    ['(', ')']
+                ],
+                autoClosingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '"', close: '"', notIn: ['string'] },
+                    { open: "'", close: "'", notIn: ['string'] },
+                    { open: '`', close: '`', notIn: ['string'] },
+                    { open: '/*', close: '*/' }
+                ],
+                surroundingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '"', close: '"' },
+                    { open: "'", close: "'" },
+                    { open: '`', close: '`' }
+                ],
+                folding: {
+                    markers: {
+                        start: new RegExp("^\\s*//\\s*#?region\\b"),
+                        end: new RegExp("^\\s*//\\s*#?endregion\\b")
+                    }
+                },
+                indentationRules: {
+                    increaseIndentPattern: new RegExp('^.*(\\{[^}]*|\\([^)]*|\\[[^\\]]*)$'),
+                    decreaseIndentPattern: new RegExp('^\\s*(\\}|\\)|\\])')
                 }
+            });
+            
+            // Define custom Wang theme
+            monaco.editor.defineTheme('wang-dark', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'keyword', foreground: 'ff79c6' },
+                    { token: 'keyword.operator.pipeline', foreground: 'ff79c6', fontStyle: 'bold' },
+                    { token: 'operator', foreground: 'ffb86c' },
+                    { token: 'string', foreground: '50fa7b' },
+                    { token: 'string.template', foreground: '50fa7b' },
+                    { token: 'string.escape', foreground: 'f1fa8c' },
+                    { token: 'comment', foreground: '6272a4', fontStyle: 'italic' },
+                    { token: 'number', foreground: 'bd93f9' },
+                    { token: 'number.float', foreground: 'bd93f9' },
+                    { token: 'number.hex', foreground: 'bd93f9' },
+                    { token: 'constant.language', foreground: 'bd93f9' },
+                    { token: 'regexp', foreground: 'ff5555' },
+                    { token: 'identifier', foreground: 'f8f8f2' },
+                    { token: 'delimiter', foreground: 'f8f8f2' },
+                    { token: 'delimiter.bracket', foreground: 'ff79c6' }
+                ],
+                colors: {
+                    'editor.background': '#1e1f29',
+                    'editor.foreground': '#f8f8f2',
+                    'editor.lineHighlightBackground': '#282a36',
+                    'editor.selectionBackground': '#44475a',
+                    'editorCursor.foreground': '#50fa7b',
+                    'editorWhitespace.foreground': '#3B3A32'
+                }
+            });
+            
+            monaco.editor.defineTheme('wang-light', {
+                base: 'vs',
+                inherit: true,
+                rules: [
+                    { token: 'keyword', foreground: 'd73a49' },
+                    { token: 'keyword.operator.pipeline', foreground: 'd73a49', fontStyle: 'bold' },
+                    { token: 'operator', foreground: 'a626a4' },
+                    { token: 'string', foreground: '50a14f' },
+                    { token: 'string.template', foreground: '50a14f' },
+                    { token: 'comment', foreground: '969896', fontStyle: 'italic' },
+                    { token: 'number', foreground: '986801' },
+                    { token: 'constant.language', foreground: '0184bc' },
+                    { token: 'regexp', foreground: 'c18401' }
+                ]
             });
             
             // Create Monaco editor with debugging features
@@ -665,7 +825,7 @@ log("Result:", result)
 
 // Try pressing Ctrl+Enter to run!`,
                 language: 'wang',
-                theme: theme === 'dark' ? 'vs-dark' : 'vs',
+                theme: theme === 'dark' ? 'wang-dark' : 'wang-light',
                 fontSize: 14,
                 minimap: { enabled: false },
                 automaticLayout: true,
@@ -1141,7 +1301,7 @@ pet.speak()`
                 document.documentElement.classList.toggle('dark');
                 const isDark = document.documentElement.classList.contains('dark');
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                monaco.editor.setTheme(isDark ? 'vs-dark' : 'vs');
+                monaco.editor.setTheme(isDark ? 'wang-dark' : 'wang-light');
             });
             
             // Settings
