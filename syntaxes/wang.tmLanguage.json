@@ -1,0 +1,232 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Wang",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#keywords" },
+    { "include": "#strings" },
+    { "include": "#template-literals" },
+    { "include": "#numbers" },
+    { "include": "#regex" },
+    { "include": "#operators" },
+    { "include": "#punctuation" },
+    { "include": "#identifiers" },
+    { "include": "#pipeline-operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.wang",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.wang",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.wang",
+          "match": "\\b(if|else|for|while|do|break|continue|return|switch|case|default|try|catch|finally|throw)\\b"
+        },
+        {
+          "name": "storage.type.wang",
+          "match": "\\b(let|const|var)\\b"
+        },
+        {
+          "name": "storage.type.function.wang",
+          "match": "\\b(function|async|await)\\b"
+        },
+        {
+          "name": "storage.type.class.wang",
+          "match": "\\b(class|extends|constructor|super|this|new)\\b"
+        },
+        {
+          "name": "keyword.control.import.wang",
+          "match": "\\b(import|export|from|as)\\b"
+        },
+        {
+          "name": "keyword.operator.wang",
+          "match": "\\b(typeof|instanceof|in|of)\\b"
+        },
+        {
+          "name": "constant.language.wang",
+          "match": "\\b(true|false|null|undefined)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.wang",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.wang",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.wang",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.wang",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "template-literals": {
+      "name": "string.template.wang",
+      "begin": "`",
+      "end": "`",
+      "patterns": [
+        {
+          "name": "constant.character.escape.wang",
+          "match": "\\\\."
+        },
+        {
+          "name": "meta.embedded.expression.wang",
+          "begin": "\\${",
+          "end": "}",
+          "patterns": [
+            { "include": "$self" }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.wang",
+          "match": "\\b\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+        },
+        {
+          "name": "constant.numeric.hex.wang",
+          "match": "\\b0[xX][0-9a-fA-F]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.wang",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "regex": {
+      "name": "string.regexp.wang",
+      "begin": "(?<=[=(:,\\[\\s])/(?![/*])",
+      "end": "/[gimsuy]*",
+      "patterns": [
+        {
+          "name": "constant.character.escape.wang",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "pipeline-operators": {
+      "name": "keyword.operator.pipeline.wang",
+      "match": "(\\|>|->)"
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.assignment.compound.wang",
+          "match": "(\\+=|-=|\\*=|/=|%=)"
+        },
+        {
+          "name": "keyword.operator.comparison.wang",
+          "match": "(===|!==|==|!=|<=|>=|<|>)"
+        },
+        {
+          "name": "keyword.operator.logical.wang",
+          "match": "(&&|\\|\\||\\?\\?|!)"
+        },
+        {
+          "name": "keyword.operator.bitwise.wang",
+          "match": "(<<|>>>|>>|&|\\||\\^|~)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.wang",
+          "match": "(\\*\\*|\\+\\+|--|\\+|-|\\*|/|%)"
+        },
+        {
+          "name": "keyword.operator.optional.wang",
+          "match": "\\?\\."
+        },
+        {
+          "name": "keyword.operator.spread.wang",
+          "match": "\\.\\.\\."
+        },
+        {
+          "name": "keyword.operator.arrow.wang",
+          "match": "=>"
+        },
+        {
+          "name": "keyword.operator.assignment.wang",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.ternary.wang",
+          "match": "\\?|:"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.terminator.statement.wang",
+          "match": ";"
+        },
+        {
+          "name": "punctuation.separator.comma.wang",
+          "match": ","
+        },
+        {
+          "name": "punctuation.accessor.wang",
+          "match": "\\."
+        },
+        {
+          "name": "punctuation.definition.block.wang",
+          "match": "[{}]"
+        },
+        {
+          "name": "punctuation.definition.array.wang",
+          "match": "[\\[\\]]"
+        },
+        {
+          "name": "punctuation.definition.parameters.wang",
+          "match": "[()]"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "variable.language.this.wang",
+          "match": "\\bthis\\b"
+        },
+        {
+          "name": "variable.language.super.wang",
+          "match": "\\bsuper\\b"
+        },
+        {
+          "name": "entity.name.function.wang",
+          "match": "\\b[a-zA-Z_$][\\w$]*(?=\\s*\\()"
+        },
+        {
+          "name": "variable.other.wang",
+          "match": "\\b[a-zA-Z_$][\\w$]*\\b"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.wang"
+}

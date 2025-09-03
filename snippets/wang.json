@@ -1,0 +1,76 @@
+{
+  "Pipeline": {
+    "prefix": "pipe",
+    "body": [
+      "${1:data}",
+      "  |> ${2:filter}(_, ${3:predicate})",
+      "  |> ${4:map}(_, ${5:transform})",
+      "  -> ${6:result}"
+    ],
+    "description": "Wang pipeline expression"
+  },
+  "Class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:ClassName} extends ${2:BaseClass} {",
+      "  constructor(${3:params}) {",
+      "    super(${4:args})",
+      "    ${5:// Initialize}",
+      "  }",
+      "  ",
+      "  ${6:methodName}(${7:params}) {",
+      "    ${8:// Method body}",
+      "  }",
+      "}"
+    ],
+    "description": "Wang class definition"
+  },
+  "Import": {
+    "prefix": "imp",
+    "body": [
+      "import { ${1:name} } from \"${2:module}\""
+    ],
+    "description": "Wang import statement"
+  },
+  "Async Function": {
+    "prefix": "afn",
+    "body": [
+      "async function ${1:name}(${2:params}) {",
+      "  ${3:// Body}",
+      "}"
+    ],
+    "description": "Wang async function"
+  },
+  "Arrow Function": {
+    "prefix": "arrow",
+    "body": [
+      "(${1:params}) => ${2:expression}"
+    ],
+    "description": "Wang arrow function"
+  },
+  "Try Catch": {
+    "prefix": "try",
+    "body": [
+      "try {",
+      "  ${1:// Code}",
+      "} catch (${2:error}) {",
+      "  ${3:// Handle error}",
+      "}"
+    ],
+    "description": "Wang try-catch block"
+  },
+  "Template Literal": {
+    "prefix": "tpl",
+    "body": [
+      "\\`${1:text} \\${${2:expression}} ${3:more text}\\`"
+    ],
+    "description": "Wang template literal"
+  },
+  "Optional Chaining": {
+    "prefix": "opt",
+    "body": [
+      "${1:object}?.${2:property}?.[${3:index}]"
+    ],
+    "description": "Wang optional chaining"
+  }
+}

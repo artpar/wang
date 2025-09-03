@@ -37,6 +37,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📝 **Console Capture** - Capture all console.log, warn, and error outputs with metadata (v0.12.0+)
 - 📐 **Multi-line Function Calls** - Support for multi-line function calls and parameters for better readability (v0.15.14+)
 - 📝 **Template Literals** - Full support for template strings with expression interpolation `` `Hello, ${name}!` ``
+- 🎨 **Syntax Highlighting** - Language support for Monaco Editor, VS Code, and CodeMirror
 
 ## Installation
 
@@ -583,6 +584,45 @@ await interpreter.execute(`
   log(\`Found \${profiles.length} profiles\`)
 `)
 ```
+
+## Syntax Highlighting
+
+Wang has syntax highlighting support for popular code editors:
+
+### Monaco Editor (Web)
+
+```javascript
+import { registerWangLanguage } from 'wang-lang/editor/monaco'
+
+// After Monaco loads
+registerWangLanguage(monaco)
+const editor = monaco.editor.create(container, {
+  value: wangCode,
+  language: 'wang',
+  theme: 'vs-dark'
+})
+```
+
+### VS Code Extension
+
+Install the Wang language extension from the VS Code marketplace or build from source:
+
+```bash
+# Build the extension
+cd syntaxes
+vsce package
+
+# Install the .vsix file in VS Code
+```
+
+### CodeMirror
+
+```javascript
+import { wangLanguage } from 'wang-lang/editor/codemirror'
+// Use with CodeMirror 6
+```
+
+See [SYNTAX_HIGHLIGHTING.md](./SYNTAX_HIGHLIGHTING.md) for detailed setup instructions.
 
 ## Pausable Execution & State Serialization
 

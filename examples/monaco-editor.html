@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wang Language - Monaco Editor Demo</title>
+    <meta charset="utf-8">
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; }
+        #container { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+    <script type="module">
+        // Import Wang language definition
+        import { registerWangLanguage } from '../src/editor/wang-monaco.js';
+        
+        require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs' } });
+        
+        require(['vs/editor/editor.main'], function() {
+            // Register Wang language
+            registerWangLanguage(monaco);
+            
+            // Sample Wang code
+            const sampleCode = `// Wang Language Example
+import { ProfileExtractor } from "./modules/extractor.wang"
+
+class LinkedInWorkflow extends Workflow {
+  constructor(config) {
+    super(config)
+    this.profiles = []
+  }
+  
+  async process(profiles) {
+    // Pipeline operators for data flow
+    let results = profiles
+      |> filter(_, p => p.active)
+      -> map(_, this.extractProfile)
+      |> sort(_, "score")
+    
+    // Template literals with expressions
+    let message = \`Found \${results.length} active profiles\`
+    console.log(message)
+    
+    // Optional chaining with computed access
+    let firstName = results?.[0]?.name?.first ?? "Unknown"
+    
+    // Modern async/await
+    for (let profile of results) {
+      try {
+        let decision = await this.judge(profile)
+        if (decision === "save") {
+          profile 
+            |> querySelector(".save-btn") 
+            |> click
+        }
+      } catch (error) {
+        console.error(\`Failed to process \${profile.id}: \${error.message}\`)
+      }
+    }
+    
+    return results
+  }
+  
+  extractProfile(element) {
+    return {
+      name: element.querySelector(".name")?.textContent,
+      title: element.querySelector(".title")?.textContent,
+      company: element.querySelector(".company")?.textContent
+    }
+  }
+}
+
+// Export the workflow
+export { LinkedInWorkflow }`;
+            
+            // Create editor
+            const editor = monaco.editor.create(document.getElementById('container'), {
+                value: sampleCode,
+                language: 'wang',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: true },
+                fontSize: 14,
+                wordWrap: 'on',
+                formatOnPaste: true,
+                formatOnType: true,
+                suggestOnTriggerCharacters: true,
+                scrollBeyondLastLine: false
+            });
+            
+            // Add custom theme for Wang
+            monaco.editor.defineTheme('wang-dark', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'keyword.operator.pipeline.wang', foreground: 'ff79c6', fontStyle: 'bold' },
+                    { token: 'string.template.wang', foreground: '50fa7b' },
+                    { token: 'keyword.control.wang', foreground: 'ff79c6' },
+                    { token: 'storage.type.wang', foreground: '8be9fd' }
+                ],
+                colors: {
+                    'editor.background': '#282a36',
+                    'editor.foreground': '#f8f8f2'
+                }
+            });
+            
+            // Apply custom theme
+            monaco.editor.setTheme('wang-dark');
+        });
+    </script>
+</body>
+</html>

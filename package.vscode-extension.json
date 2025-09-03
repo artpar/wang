@@ -1,0 +1,27 @@
+{
+  "name": "wang-lang",
+  "displayName": "Wang Language",
+  "description": "Syntax highlighting and language support for Wang programming language",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [{
+      "id": "wang",
+      "aliases": ["Wang", "wang"],
+      "extensions": [".wang"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "wang",
+      "scopeName": "source.wang",
+      "path": "./syntaxes/wang.tmLanguage.json"
+    }],
+    "snippets": [{
+      "language": "wang",
+      "path": "./snippets/wang.json"
+    }]
+  }
+}
