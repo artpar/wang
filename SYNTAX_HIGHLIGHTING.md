@@ -16,7 +16,7 @@ Monaco Editor is the code editor that powers VS Code, perfect for web applicatio
 ### Installation
 
 ```javascript
-import { registerWangLanguage, wangLanguage } from 'wang-lang/src/editor/wang-monaco.js'
+import { registerWangLanguage, wangLanguage } from 'wang-lang/editor/monaco'
 
 // Register Wang language with Monaco
 registerWangLanguage(monaco)
@@ -132,7 +132,7 @@ npm install @codemirror/language
 ```javascript
 import { EditorView, basicSetup } from 'codemirror'
 import { StreamLanguage } from '@codemirror/language'
-import { wangLanguage } from 'wang-lang/src/editor/wang-codemirror.js'
+import { wangLanguage } from 'wang-lang/editor/codemirror'
 
 const wangMode = StreamLanguage.define(wangLanguage)
 

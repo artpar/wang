@@ -1,6 +1,6 @@
 {
   "name": "wang-lang",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "A CSP-safe workflow programming language for browser automation",
   "keywords": [
     "workflow",
@@ -51,6 +51,14 @@
     "./resolvers": {
       "types": "./dist/types/resolvers/index.d.ts",
       "import": "./dist/esm/resolvers/index.js"
+    },
+    "./editor/monaco": {
+      "import": "./src/editor/wang-monaco.js",
+      "require": "./src/editor/wang-monaco.js"
+    },
+    "./editor/codemirror": {
+      "import": "./src/editor/wang-codemirror.js",
+      "require": "./src/editor/wang-codemirror.js"
     }
   },
   "bin": {
