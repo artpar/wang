@@ -36,6 +36,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🔤 **Reserved Keywords as Properties** - Use reserved words like `from`, `import`, `class` as property names (JavaScript-compatible)
 - 📝 **Console Capture** - Capture all console.log, warn, and error outputs with metadata (v0.12.0+)
 - 📐 **Multi-line Function Calls** - Support for multi-line function calls and parameters for better readability (v0.15.14+)
+- 📝 **Template Literals** - Full support for template strings with expression interpolation `` `Hello, ${name}!` ``
 
 ## Installation
 
@@ -277,8 +278,12 @@ log(outer)              // 1
 const { name, age } = person
 const [first, second, ...rest] = numbers
 
-// Template literals
+// Template literals with full expression support
 const message = `Hello, ${name}!`
+const math = `Result: ${2 + 3} and ${10 * 5}`
+const complex = `User ${user.name} is ${user.age >= 18 ? "adult" : "minor"}`
+const formatted = `Price: $${price.toFixed(2)}`
+// Note: Nested template literals are not supported (architectural limitation)
 
 // Optional chaining (dot notation and computed member access)
 const value = obj?.nested?.property ?? defaultValue

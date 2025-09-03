@@ -42,8 +42,26 @@ const lexer = moo.compile({
     }}
   ],
   
-  // Template literals (basic - no embedded expressions for now)
-  templateLiteral: { match: /`(?:[^`\\]|\\[^])*`/u, value: s => s.slice(1, -1) },
+  // Template literals - capture the entire template including expressions
+  templateLiteral: { 
+    match: /`(?:[^`\\]|\\[^])*`/u, 
+    value: s => {
+      // Process escape sequences but keep ${...} for interpolation
+      const content = s.slice(1, -1);
+      // Only process escape sequences, not ${...} expressions
+      return content.replace(/\\(.)/g, (match, char) => {
+        switch (char) {
+          case 'n': return '\n';
+          case 't': return '\t';
+          case 'r': return '\r';
+          case '\\': return '\\';
+          case '`': return '`';
+          case '$': return '$';  // Allow escaping $ to prevent interpolation
+          default: return char;
+        }
+      });
+    }
+  },
   
   // Regular expression literals - allow backslashes and non-space first characters
   regex: { 
@@ -778,8 +796,8 @@ Literal ->
 TemplateLiteral ->
     %templateLiteral 
     {% d => createNode('TemplateLiteral', { 
-      quasis: [createNode('TemplateElement', { value: { cooked: d[0].value, raw: d[0].value } })], 
-      expressions: [] 
+      raw: d[0].value,
+      value: d[0].value 
     }) %}
 
 ArrayLiteral ->

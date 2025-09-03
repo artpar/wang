@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2025-01-03
+
+### Added
+- **Template Literals**: Full support for template strings with expression interpolation
+  - CSP-safe implementation using Wang's own parser (no eval/new Function)
+  - Supports all expression types: variables, arithmetic, object access, function calls
+  - Proper escape sequence processing (`\n`, `\t`, `\\`, `\$`, etc.)
+  - Null and undefined values correctly convert to string representation
+  - Known limitations: Nested template literals throw parse errors (architectural constraint)
+  - Invalid expressions in templates are left unevaluated as fail-safe behavior
+  - Comprehensive test suite with 36 tests documenting all behaviors
+
 ## [Unreleased]
 
 ### Fixed

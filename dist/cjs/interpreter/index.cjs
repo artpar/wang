@@ -3,6 +3,39 @@
  * Wang Interpreter - CSP-safe interpreter for the Wang language
  * Works with Nearley-generated AST
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WangInterpreter = void 0;
 const memory_1 = require("../resolvers/memory.cjs");
@@ -2184,26 +2217,18 @@ class WangInterpreter {
         return result;
     }
     async evaluateTemplateLiteral(node) {
-        // Handle new AST structure with quasis and expressions
-        if (node.quasis && node.quasis.length > 0) {
-            const raw = node.quasis[0].value.raw;
-            // If the raw text contains template expressions, interpolate them
-            if (raw.includes('${')) {
-                return await this.interpolateTemplate(raw);
-            }
-            // Otherwise return the raw text as-is
-            return raw;
+        // Get the raw template string
+        const raw = node.raw || node.value || '';
+        // If it contains ${...} expressions, interpolate them
+        if (raw.includes('${')) {
+            return await this.interpolateTemplate(raw);
         }
-        // Fallback to old structure
-        const raw = node.raw || node.value;
-        if (typeof raw === 'string' && raw.startsWith('`') && raw.endsWith('`')) {
-            const content = raw.slice(1, -1);
-            return await this.interpolateTemplate(content);
-        }
-        return node.value || '';
+        // Otherwise return as-is
+        return raw;
     }
     async interpolateTemplate(template) {
-        // Match ${...} expressions
+        // Match ${...} expressions using regex just for finding positions
+        // But not escaped ones (which would now be just $ after escape processing)
         const expressionRegex = /\$\{([^}]+)\}/g;
         let result = template;
         let match;
@@ -2211,20 +2236,37 @@ class WangInterpreter {
         while ((match = expressionRegex.exec(template)) !== null) {
             const expression = match[1];
             try {
-                // Parse and evaluate the expression
-                // Create a mini parser for the expression
-                const exprCode = expression.trim();
-                // Try to evaluate as a simple expression
-                const value = await this.evaluateTemplateExpression(exprCode);
-                replacements.push({
-                    start: match.index,
-                    end: match.index + match[0].length,
-                    value: String(value),
-                });
+                // Parse the expression using the Wang parser itself - CSP-safe!
+                // @ts-ignore - generated grammar file
+                const { nearley, default: grammar } = await Promise.resolve().then(() => __importStar(require("../generated/wang-grammar.cjs")));
+                const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+                // Parse the expression as a complete Wang expression
+                const parseResult = parser.feed(expression).results;
+                if (parseResult && parseResult.length > 0) {
+                    // Evaluate the parsed AST
+                    const ast = parseResult[0];
+                    const value = await this.evaluateNode(ast);
+                    replacements.push({
+                        start: match.index,
+                        end: match.index + match[0].length,
+                        value: String(value),
+                    });
+                }
+                else {
+                    // If parsing fails, try as simple identifier
+                    const value = this.currentContext.variables.get(expression.trim());
+                    if (value !== undefined) {
+                        replacements.push({
+                            start: match.index,
+                            end: match.index + match[0].length,
+                            value: String(value),
+                        });
+                    }
+                }
             }
             catch (error) {
                 // If evaluation fails, leave as is
-                console.warn(`Failed to evaluate template expression: ${expression}`);
+                console.warn(`Failed to evaluate template expression: ${expression}`, error);
             }
         }
         // Apply replacements in reverse order to maintain indices
@@ -2235,53 +2277,24 @@ class WangInterpreter {
         return result;
     }
     async evaluateTemplateExpression(expression) {
-        // This is a simplified expression evaluator
-        // For full support, we'd need to parse the expression properly
-        // Handle simple variable references
-        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(expression)) {
-            return this.evaluateIdentifier({ name: expression });
-        }
-        // Handle binary operations (a + b, a * b, etc.)
-        const binaryOpMatch = expression.match(/^(.+?)\s*([\+\-\*\/])\s*(.+)$/);
-        if (binaryOpMatch) {
-            const left = await this.evaluateTemplateExpression(binaryOpMatch[1].trim());
-            const right = await this.evaluateTemplateExpression(binaryOpMatch[3].trim());
-            const op = binaryOpMatch[2];
-            switch (op) {
-                case '+':
-                    return left + right;
-                case '-':
-                    return left - right;
-                case '*':
-                    return left * right;
-                case '/':
-                    return left / right;
-                default:
-                    return expression;
+        // Parse and evaluate using the Wang parser - this is now CSP-safe
+        try {
+            // @ts-ignore - generated grammar file
+            const { nearley, default: grammar } = await Promise.resolve().then(() => __importStar(require("../generated/wang-grammar.cjs")));
+            const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+            const parseResult = parser.feed(expression).results;
+            if (parseResult && parseResult.length > 0) {
+                return await this.evaluateNode(parseResult[0]);
             }
         }
-        // Handle member expressions (a.b)
-        if (expression.includes('.')) {
-            const parts = expression.split('.');
-            let obj = await this.evaluateTemplateExpression(parts[0]);
-            for (let i = 1; i < parts.length; i++) {
-                obj = obj[parts[i]];
+        catch (error) {
+            // Fallback to simple identifier lookup
+            const trimmed = expression.trim();
+            if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(trimmed)) {
+                return this.evaluateIdentifier({ name: trimmed });
             }
-            return obj;
         }
-        // Handle numbers
-        const num = Number(expression);
-        if (!isNaN(num)) {
-            return num;
-        }
-        // Handle strings
-        if (expression.startsWith('"') && expression.endsWith('"')) {
-            return expression.slice(1, -1);
-        }
-        if (expression.startsWith("'") && expression.endsWith("'")) {
-            return expression.slice(1, -1);
-        }
-        return expression;
+        return expression; // Return the original if we can't parse it
     }
     async evaluateImport(node) {
         // node.source is a Literal node, we need its value

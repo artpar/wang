@@ -13,6 +13,7 @@ Wang is a modern workflow programming language that runs inside JavaScript, desi
 - Comprehensive error reporting with recovery suggestions
 - **99.4% test coverage** (334/336 tests passing) with intentional exclusion of complex edge cases
 - **Optional chaining** with computed member access (`titles.data?.[i]?.textContent`)
+- **Template literals** with full expression interpolation support `` `Hello, ${name}!` `` (CSP-safe)
 
 ## Critical Security Requirements
 
