@@ -487,9 +487,19 @@ ForStatement ->
       update: d[6] ? d[6][0] : null,
       body: d[8]
     }) %}
-  | # for-of loop (no for-in)
+  | # for-of loop
     "for" "(" ("let" | "const" | "var") BindingPattern "of" Expression ")" Statement
     {% d => createNode('ForOfStatement', {
+      left: createNode('VariableDeclaration', { 
+        kind: d[2][0].value, 
+        declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 
+      }),
+      right: d[5],
+      body: d[7]
+    }) %}
+  | # for-in loop
+    "for" "(" ("let" | "const" | "var") BindingPattern "in" Expression ")" Statement
+    {% d => createNode('ForInStatement', {
       left: createNode('VariableDeclaration', { 
         kind: d[2][0].value, 
         declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 

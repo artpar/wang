@@ -1653,6 +1653,17 @@ var grammar = {
           right: d[5],
           body: d[7]
         }) },
+    {"name": "ForStatement$subexpression$5", "symbols": [{"literal":"let"}]},
+    {"name": "ForStatement$subexpression$5", "symbols": [{"literal":"const"}]},
+    {"name": "ForStatement$subexpression$5", "symbols": [{"literal":"var"}]},
+    {"name": "ForStatement", "symbols": [{"literal":"for"}, {"literal":"("}, "ForStatement$subexpression$5", "BindingPattern", {"literal":"in"}, "Expression", {"literal":")"}, "Statement"], "postprocess":  d => createNode('ForInStatement', {
+          left: createNode('VariableDeclaration', { 
+            kind: d[2][0].value, 
+            declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 
+          }),
+          right: d[5],
+          body: d[7]
+        }) },
     {"name": "TryStatement", "symbols": [{"literal":"try"}, "Block", "CatchFinally"], "postprocess":  d => createNode('TryStatement', {
           block: d[1],
           handler: d[2].handler,
