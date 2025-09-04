@@ -299,7 +299,17 @@ for (let i = 0; i < 10; i = i + 1) {
   console.log(i)
 }
 
-// For-of (iterables) - recommended for objects
+// For-in loop (object properties and array indices)
+for (let key in object) {
+  console.log(key, object[key])
+}
+
+// For-in with arrays (iterates indices as strings)
+for (let index in array) {
+  console.log(index, array[index]) // index is "0", "1", etc.
+}
+
+// For-of (iterables) - recommended for arrays
 for (let item of array) {
   console.log(item)
 }

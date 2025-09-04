@@ -27,7 +27,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (569/571 tests passing - 99.6% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (638/640 tests passing - 99.7% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
 - ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar  
 - 🔍 **Regular Expression Support** - Full regex literals with all JavaScript flags (`/pattern/gimsuy`)
@@ -789,7 +789,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
-- **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
+- **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
 - **Operators**: All arithmetic, comparison, logical, increment/decrement (`++`, `--`), compound assignment (`+=`, `-=`, `*=`, `/=`), ternary (`? :`), and pipeline operators (`|>`, `->`)
 - **Regular Expressions**: Full regex literal syntax (`/pattern/flags`) with all JavaScript flags (`g`, `i`, `m`, `s`, `u`, `y`)
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects

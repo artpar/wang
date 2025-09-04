@@ -245,7 +245,7 @@ Wang achieves **167/167 tests passing** with comprehensive coverage of:
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
-- **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`), `switch`, `try/catch/finally`
+- **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `switch`, `try/catch/finally`
 - **Operators**: All arithmetic, comparison, logical, and pipeline operators (`|>`, `->`)
 
 ### Modern JavaScript Syntax
