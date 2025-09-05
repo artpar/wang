@@ -45,8 +45,8 @@ export {
 import { WangInterpreter } from './interpreter';
 import type { InterpreterOptions } from './interpreter';
 
-// Version
-export const VERSION = '0.1.0';
+// Version - will be replaced during build with actual package.json version
+export const VERSION = '0.21.0';
 
 /**
  * Quick start helper to create an interpreter

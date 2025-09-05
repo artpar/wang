@@ -8,6 +8,9 @@ import { InMemoryModuleResolver } from '../resolvers/memory';
 import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/errors';
 import { stdlib } from '../stdlib/index';
 
+// Version will be replaced during build
+const VERSION = '0.21.0';
+
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 import { grammar, nearley } from '../generated/wang-grammar.js';
@@ -50,6 +53,9 @@ export class WangInterpreter {
   protected callStack: CallStackFrame[] = [];
   protected currentModulePath: string = '<main>';
   protected nodeStack: any[] = [];
+  
+  // Track if version has been logged for this session
+  private static versionLogged: boolean = false;
 
   constructor(options: InterpreterOptions = {}) {
     this.moduleResolver = options.moduleResolver || new InMemoryModuleResolver();
@@ -66,6 +72,7 @@ export class WangInterpreter {
       });
     }
   }
+
 
   protected createContext(parent?: ExecutionContext): ExecutionContext {
     return {
@@ -442,6 +449,12 @@ export class WangInterpreter {
     context?: ExecutionContext,
     options?: { withMetadata?: boolean },
   ): Promise<any> {
+    // Log Wang runtime version on first execution
+    if (!WangInterpreter.versionLogged) {
+      console.log(`Wang Language Runtime v${VERSION}`);
+      WangInterpreter.versionLogged = true;
+    }
+    
     // Clear console logs for this execution
     this.consoleLogs = [];
 

@@ -13,7 +13,7 @@ export { WangError, ModuleNotFoundError, CircularDependencyError, TypeMismatchEr
 export { WangValidator, validator, type ValidationResult, type ParserOptions, } from './parser/wang-validator';
 import { WangInterpreter } from './interpreter';
 import type { InterpreterOptions } from './interpreter';
-export declare const VERSION = "0.1.0";
+export declare const VERSION = "0.21.0";
 /**
  * Quick start helper to create an interpreter
  */

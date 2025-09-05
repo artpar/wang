@@ -41,6 +41,7 @@ export declare class WangInterpreter {
     protected callStack: CallStackFrame[];
     protected currentModulePath: string;
     protected nodeStack: any[];
+    private static versionLogged;
     constructor(options?: InterpreterOptions);
     protected createContext(parent?: ExecutionContext): ExecutionContext;
     private getStackTrace;

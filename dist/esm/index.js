@@ -16,8 +16,8 @@ export { WangError, ModuleNotFoundError, CircularDependencyError, TypeMismatchEr
 export { WangValidator, validator, } from './parser/wang-validator.js';
 // Import for createInterpreter
 import { WangInterpreter } from './interpreter/index.js';
-// Version
-export const VERSION = '0.1.0';
+// Version - will be replaced during build with actual package.json version
+export const VERSION = '0.21.0';
 /**
  * Quick start helper to create an interpreter
  */

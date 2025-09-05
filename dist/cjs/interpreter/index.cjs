@@ -41,6 +41,8 @@ exports.WangInterpreter = void 0;
 const memory_1 = require("../resolvers/memory.cjs");
 const errors_1 = require("../utils/errors.cjs");
 const index_1 = require("../stdlib/index.cjs");
+// Version will be replaced during build
+const VERSION = '0.21.0';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 const wang_grammar_js_1 = require("../generated/wang-grammar.cjs");
@@ -368,6 +370,11 @@ class WangInterpreter {
         this.globalContext.variables.set(name, value);
     }
     async execute(code, context, options) {
+        // Log Wang runtime version on first execution
+        if (!WangInterpreter.versionLogged) {
+            console.log(`Wang Language Runtime v${VERSION}`);
+            WangInterpreter.versionLogged = true;
+        }
         // Clear console logs for this execution
         this.consoleLogs = [];
         // Create parser using bundled nearley runtime
@@ -2392,6 +2399,8 @@ class WangInterpreter {
     }
 }
 exports.WangInterpreter = WangInterpreter;
+// Track if version has been logged for this session
+WangInterpreter.versionLogged = false;
 // Export for use
 exports.default = WangInterpreter;
 //# sourceMappingURL=index.js.map

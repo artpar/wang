@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Runtime Version Logging**: Automatic logging of Wang runtime version on first execution
+  - Logs `Wang Language Runtime v{version}` when interpreter executes code for the first time
+  - Version automatically injected from package.json during build process
+  - Added build-time version injection script for all output formats (ESM, CJS, Browser)
+  - Version logged once per interpreter instance to avoid spam
+  - Helps with debugging and support by clearly identifying runtime version
+
 ## [0.21.0] - 2025-01-05
 
 ### Added
@@ -29,8 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Known limitations: Nested template literals throw parse errors (architectural constraint)
   - Invalid expressions in templates are left unevaluated as fail-safe behavior
   - Comprehensive test suite with 36 tests documenting all behaviors
-
-## [Unreleased]
 
 ### Fixed
 - **Grammar**: Fixed method chaining on `new` expressions (e.g., `new Date().toISOString()`)

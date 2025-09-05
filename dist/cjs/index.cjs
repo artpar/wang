@@ -32,8 +32,8 @@ Object.defineProperty(exports, "WangValidator", { enumerable: true, get: functio
 Object.defineProperty(exports, "validator", { enumerable: true, get: function () { return wang_validator_1.validator; } });
 // Import for createInterpreter
 const interpreter_2 = require("./interpreter/index.cjs");
-// Version
-exports.VERSION = '0.1.0';
+// Version - will be replaced during build with actual package.json version
+exports.VERSION = '0.21.0';
 /**
  * Quick start helper to create an interpreter
  */
