@@ -706,6 +706,9 @@ class WangInterpreter {
                     }
                     else if (elem.type === 'SpreadElement') {
                         const spread = this.evaluateNodeSync(elem.argument);
+                        if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
+                            throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                        }
                         arrResult.push(...spread);
                     }
                     else {
@@ -1755,6 +1758,9 @@ class WangInterpreter {
             for (const arg of node.arguments) {
                 if (arg.type === 'SpreadElement') {
                     const spread = await this.evaluateNode(arg.argument);
+                    if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
+                        throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                    }
                     args.push(...spread);
                 }
                 else {
@@ -1791,6 +1797,9 @@ class WangInterpreter {
         for (const arg of node.arguments) {
             if (arg.type === 'SpreadElement') {
                 const spread = await this.evaluateNode(arg.argument);
+                if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
+                    throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                }
                 args.push(...spread);
             }
             else {
@@ -2190,6 +2199,9 @@ class WangInterpreter {
             if (element) {
                 if (element.type === 'SpreadElement') {
                     const spread = await this.evaluateNode(element.argument);
+                    if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
+                        throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                    }
                     result.push(...spread);
                 }
                 else {

@@ -54,7 +54,13 @@ jobs:
           
           # Copy browser bundle to docs
           mkdir -p docs/dist/browser
-          cp -r dist/browser/* docs/dist/browser/ || echo "Browser bundle not found"
+          # Only copy the actual browser bundle files, not subdirectories
+          if [ -f "dist/browser/wang.min.js" ]; then
+            cp dist/browser/wang.min.js docs/dist/browser/
+            cp dist/browser/wang.min.js.map docs/dist/browser/
+          else
+            echo "Browser bundle not found, skipping..."
+          fi
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
