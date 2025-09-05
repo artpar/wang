@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2025-01-05
+
+### Added
+- **Multiline Expressions**: Full support for multiline conditionals and expressions
+  - Complex conditionals can span multiple lines with proper indentation
+  - Newlines supported around all binary operators (`&&`, `||`, `??`, `==`, `!=`, `+`, `-`, etc.)
+  - Multiline support for for/while/do-while loop conditions
+  - Multiline ternary operator expressions with nested indentation
+  - Multiline parenthesized expressions for better code organization
+  - No breaking changes - all existing code continues to work
+  - Comprehensive test suite with 17 tests covering all multiline scenarios
+  - Addresses real-world use cases like complex form validation and URL filtering
+
 ## [0.18.0] - 2025-01-03
 
 ### Added
