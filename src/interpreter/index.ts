@@ -53,7 +53,7 @@ export class WangInterpreter {
   protected callStack: CallStackFrame[] = [];
   protected currentModulePath: string = '<main>';
   protected nodeStack: any[] = [];
-  
+
   // Track if version has been logged for this session
   private static versionLogged: boolean = false;
 
@@ -72,8 +72,6 @@ export class WangInterpreter {
       });
     }
   }
-
-
   protected createContext(parent?: ExecutionContext): ExecutionContext {
     return {
       variables: new Map(),
@@ -454,7 +452,7 @@ export class WangInterpreter {
       console.log(`Wang Language Runtime v${VERSION}`);
       WangInterpreter.versionLogged = true;
     }
-    
+
     // Clear console logs for this execution
     this.consoleLogs = [];
 
