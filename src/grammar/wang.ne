@@ -463,49 +463,49 @@ ControlStatement ->
   | ContinueStatement {% id %}
 
 IfStatement ->
-    "if" "(" Expression ")" Statement ("else" Statement):?
+    "if" "(" %NL:* Expression %NL:* ")" Statement ("else" Statement):?
     {% d => createNode('IfStatement', {
-      test: d[2],
-      consequent: d[4],
-      alternate: d[5] ? d[5][1] : null
+      test: d[3],
+      consequent: d[6],
+      alternate: d[7] ? d[7][1] : null
     }) %}
 
 WhileStatement ->
-    "while" "(" Expression ")" Statement
-    {% d => createNode('WhileStatement', { test: d[2], body: d[4] }) %}
+    "while" "(" %NL:* Expression %NL:* ")" Statement
+    {% d => createNode('WhileStatement', { test: d[3], body: d[6] }) %}
 
 DoWhileStatement ->
-    "do" Statement "while" "(" Expression ")"
-    {% d => createNode('DoWhileStatement', { body: d[1], test: d[4] }) %}
+    "do" Statement "while" "(" %NL:* Expression %NL:* ")"
+    {% d => createNode('DoWhileStatement', { body: d[1], test: d[5] }) %}
 
 ForStatement ->
     # C-style for loop (no ++ operator)
-    "for" "(" (VariableDeclaration | Expression | null) ";" (Expression | null) ";" (Expression | null) ")" Statement
+    "for" "(" %NL:* (VariableDeclaration | Expression | null) %NL:* ";" %NL:* (Expression | null) %NL:* ";" %NL:* (Expression | null) %NL:* ")" Statement
     {% d => createNode('ForStatement', {
-      init: d[2] ? d[2][0] : null,
-      test: d[4] ? d[4][0] : null,
-      update: d[6] ? d[6][0] : null,
-      body: d[8]
+      init: d[3] ? d[3][0] : null,
+      test: d[7] ? d[7][0] : null,
+      update: d[11] ? d[11][0] : null,
+      body: d[14]
     }) %}
   | # for-of loop
-    "for" "(" ("let" | "const" | "var") BindingPattern "of" Expression ")" Statement
+    "for" "(" %NL:* ("let" | "const" | "var") BindingPattern %NL:* "of" %NL:* Expression %NL:* ")" Statement
     {% d => createNode('ForOfStatement', {
       left: createNode('VariableDeclaration', { 
-        kind: d[2][0].value, 
-        declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 
+        kind: d[3][0].value, 
+        declarations: [createNode('VariableDeclarator', { id: d[4], init: null })] 
       }),
-      right: d[5],
-      body: d[7]
+      right: d[8],
+      body: d[11]
     }) %}
   | # for-in loop
-    "for" "(" ("let" | "const" | "var") BindingPattern "in" Expression ")" Statement
+    "for" "(" %NL:* ("let" | "const" | "var") BindingPattern %NL:* "in" %NL:* Expression %NL:* ")" Statement
     {% d => createNode('ForInStatement', {
       left: createNode('VariableDeclaration', { 
-        kind: d[2][0].value, 
-        declarations: [createNode('VariableDeclarator', { id: d[3], init: null })] 
+        kind: d[3][0].value, 
+        declarations: [createNode('VariableDeclarator', { id: d[4], init: null })] 
       }),
-      right: d[5],
-      body: d[7]
+      right: d[8],
+      body: d[11]
     }) %}
 
 TryStatement ->
@@ -601,49 +601,49 @@ ArrowBody ->
 # Ternary operator (single-line only to avoid ambiguity)
 ConditionalExpression ->
     LogicalOrExpression {% id %}
-  | LogicalOrExpression "?" AssignmentExpression ":" ConditionalExpression
+  | LogicalOrExpression %NL:* "?" %NL:* AssignmentExpression %NL:* ":" %NL:* ConditionalExpression
     {% d => createNode('ConditionalExpression', {
       test: d[0],
-      consequent: d[2],
-      alternate: d[4]
+      consequent: d[4],
+      alternate: d[8]
     }) %}
 
 LogicalOrExpression ->
     LogicalAndExpression {% id %}
-  | LogicalOrExpression ("||" | "??") LogicalAndExpression
-    {% d => createBinaryOp(d[0], d[1][0].value, d[2]) %}
+  | LogicalOrExpression %NL:* ("||" | "??") %NL:* LogicalAndExpression
+    {% d => createBinaryOp(d[0], d[2][0].value, d[4]) %}
 
 LogicalAndExpression ->
     EqualityExpression {% id %}
-  | LogicalAndExpression "&&" EqualityExpression
-    {% d => createBinaryOp(d[0], d[1].value, d[2]) %}
+  | LogicalAndExpression %NL:* "&&" %NL:* EqualityExpression
+    {% d => createBinaryOp(d[0], d[2].value, d[4]) %}
 
 EqualityExpression ->
     RelationalExpression {% id %}
-  | EqualityExpression ("==" | "!=" | "===" | "!==") RelationalExpression
-    {% d => createBinaryOp(d[0], d[1][0].value, d[2]) %}
+  | EqualityExpression %NL:* ("==" | "!=" | "===" | "!==") %NL:* RelationalExpression
+    {% d => createBinaryOp(d[0], d[2][0].value, d[4]) %}
 
 RelationalExpression ->
     AdditiveExpression {% id %}
-  | RelationalExpression ("<" | ">" | "<=" | ">=") AdditiveExpression
-    {% d => createBinaryOp(d[0], d[1][0].value, d[2]) %}
-  | RelationalExpression ("instanceof" | "in") AdditiveExpression
-    {% d => createBinaryOp(d[0], d[1][0].value, d[2]) %}
+  | RelationalExpression %NL:* ("<" | ">" | "<=" | ">=") %NL:* AdditiveExpression
+    {% d => createBinaryOp(d[0], d[2][0].value, d[4]) %}
+  | RelationalExpression %NL:* ("instanceof" | "in") %NL:* AdditiveExpression
+    {% d => createBinaryOp(d[0], d[2][0].value, d[4]) %}
 
 AdditiveExpression ->
     MultiplicativeExpression {% id %}
-  | AdditiveExpression ("+" | "-") MultiplicativeExpression
-    {% d => createBinaryOp(d[0], d[1][0].value, d[2]) %}
+  | AdditiveExpression %NL:* ("+" | "-") %NL:* MultiplicativeExpression
+    {% d => createBinaryOp(d[0], d[2][0].value, d[4]) %}
 
 MultiplicativeExpression ->
     ExponentiationExpression {% id %}
-  | MultiplicativeExpression ("*" | "/" | "%") ExponentiationExpression
-    {% d => createBinaryOp(d[0], d[1][0].value, d[2]) %}
+  | MultiplicativeExpression %NL:* ("*" | "/" | "%") %NL:* ExponentiationExpression
+    {% d => createBinaryOp(d[0], d[2][0].value, d[4]) %}
 
 ExponentiationExpression ->
     UnaryExpression {% id %}
-  | UnaryExpression "**" ExponentiationExpression
-    {% d => createBinaryOp(d[0], d[1].value, d[2]) %}
+  | UnaryExpression %NL:* "**" %NL:* ExponentiationExpression
+    {% d => createBinaryOp(d[0], d[2].value, d[4]) %}
 
 UnaryExpression ->
     PostfixExpression {% id %}
@@ -775,7 +775,7 @@ PrimaryExpression ->
   | ObjectLiteral {% id %}
   | FunctionExpression {% id %}
   | TemplateLiteral {% id %}
-  | "(" Expression ")" {% d => d[1] %}
+  | "(" %NL:* Expression %NL:* ")" {% d => d[2] %}
 
 # Function expressions - ALWAYS ANONYMOUS
 FunctionExpression ->

@@ -239,7 +239,7 @@ Suggestions:
 
 ## Language Features Implemented (100% Test Coverage)
 
-Wang achieves **167/167 tests passing** with comprehensive coverage of:
+Wang achieves **638/640 tests passing** with comprehensive coverage of:
 
 ### Core Language Features
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
@@ -254,6 +254,7 @@ Wang achieves **167/167 tests passing** with comprehensive coverage of:
 - **Async**: Promises, async/await with comprehensive error handling
 - **Built-ins**: Error constructor, type conversion functions, array methods
 - **Modern Operators**: Optional chaining (`?.`) with computed member access (`?.[expression]`), nullish coalescing (`??`)
+- **Multiline Expressions** (v0.21.0+): Complex conditionals and expressions can span multiple lines with proper indentation
 
 ### Advanced Features
 - **Pipeline Operators**: `|>` (pipe) and `->` (arrow) for elegant data flow with multiline support

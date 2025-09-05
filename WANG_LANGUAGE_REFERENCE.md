@@ -1,8 +1,9 @@
 # Wang Language Reference - The Black Book
 
-**Version:** 0.15.14  
-**Test Coverage:** 569/571 tests (99.6%)  
+**Version:** 0.21.0  
+**Test Coverage:** 655/657 tests (99.7%)  
 **CSP Safe:** ✅ No eval(), new Function()  
+**New in 0.21.0:** 🔀 Multiline conditional expressions and statements  
 **New in 0.15.14:** 📝 Multi-line function calls and parameters  
 **New in 0.11.1:** 🔧 Direct JavaScript object injection via setVariable()  
 **New in 0.9.0:** 🔍 Full Regular Expression Support  
@@ -264,6 +265,16 @@ if (condition) {
   // block
 }
 
+// Multiline conditionals (v0.21.0+)
+if (text && href && (
+  text.toLowerCase().includes('result') || 
+  text.toLowerCase().includes('fixture') || 
+  text.toLowerCase().includes('match') ||
+  text.toLowerCase().includes('schedule')
+)) {
+  // Process sports-related links
+}
+
 // Ternary operator (conditional expression)
 const result = condition ? value1 : value2
 
@@ -272,6 +283,13 @@ const classify = n =>
   n > 100 ? "huge" :
   n > 50 ? "large" :
   n > 10 ? "small" : "tiny"
+
+// Multiline ternary (v0.21.0+)
+const category = value > 100 
+  ? "high" 
+  : value > 50 
+    ? "medium"
+    : "low"
 ```
 
 #### Complex Conditionals
@@ -296,6 +314,15 @@ function getDayType(day) {
 for (let i = 0; i < 10; i = i + 1) {
   if (i === 5) break
   if (i === 2) continue
+  console.log(i)
+}
+
+// Multiline for loop (v0.21.0+)
+for (
+  let i = 0;
+  i < 10;
+  i = i + 1
+) {
   console.log(i)
 }
 

@@ -235,7 +235,7 @@ See [Standard Library Reference](#standard-library-reference) for the complete l
 
 ### Modern JavaScript Syntax
 
-Wang supports most modern JavaScript features:
+Wang supports most modern JavaScript features including multiline expressions (v0.21.0+):
 
 ```javascript
 // Variables with proper scoping semantics
@@ -264,6 +264,39 @@ const PI = 3.14159
 log(typeof x)           // "undefined" (not an error!)
 var x = 42
 log(x)                  // 42
+
+// Multiline conditionals (v0.21.0+)
+if (text && href && (
+  text.toLowerCase().includes('result') || 
+  text.toLowerCase().includes('fixture') || 
+  text.toLowerCase().includes('match') ||
+  text.toLowerCase().includes('schedule')
+)) {
+  console.log("Sports link found!")
+}
+
+// Multiline logical expressions
+let isValid = (
+  value !== null 
+  && value !== undefined
+  && (value > 0 || value === -1)
+)
+
+// Multiline ternary operators
+let message = value > 100 
+  ? "Large value" 
+  : value > 50 
+    ? "Medium value"
+    : "Small value"
+
+// Multiline for loops
+for (
+  let i = 0;
+  i < items.length;
+  i++
+) {
+  process(items[i])
+}
 
 // Block scoping with proper shadowing
 let outer = 1
