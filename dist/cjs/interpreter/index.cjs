@@ -707,7 +707,7 @@ class WangInterpreter {
                     else if (elem.type === 'SpreadElement') {
                         const spread = this.evaluateNodeSync(elem.argument);
                         if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
-                            throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                            throw new Error('Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function');
                         }
                         arrResult.push(...spread);
                     }
@@ -1759,7 +1759,7 @@ class WangInterpreter {
                 if (arg.type === 'SpreadElement') {
                     const spread = await this.evaluateNode(arg.argument);
                     if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
-                        throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                        throw new Error('Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function');
                     }
                     args.push(...spread);
                 }
@@ -1798,7 +1798,7 @@ class WangInterpreter {
             if (arg.type === 'SpreadElement') {
                 const spread = await this.evaluateNode(arg.argument);
                 if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
-                    throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                    throw new Error('Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function');
                 }
                 args.push(...spread);
             }
@@ -2200,7 +2200,7 @@ class WangInterpreter {
                 if (element.type === 'SpreadElement') {
                     const spread = await this.evaluateNode(element.argument);
                     if (typeof spread[Symbol.iterator] !== 'function' && !Array.isArray(spread)) {
-                        throw new Error(`Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function`);
+                        throw new Error('Parse error: Spread syntax requires ...iterable[Symbol.iterator] to be a function');
                     }
                     result.push(...spread);
                 }
