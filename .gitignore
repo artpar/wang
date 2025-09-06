@@ -51,9 +51,10 @@ lerna-debug.log*
 .temp/
 .tmp/
 
-# Documentation - only ignore generated API docs
-docs/api/
-docs/reference/generated/
+# Documentation - ignore all generated TypeDoc files
+docs/
+# But keep the media folder with markdown docs
+!docs/media/
 
 # Debug/test files
 test-*.js
