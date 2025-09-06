@@ -44,13 +44,18 @@ jobs:
       - name: Build project
         run: npm run build
       
+      - name: Backup playground before TypeDoc
+        run: |
+          # Backup playground.html since TypeDoc will overwrite the docs directory
+          cp docs/playground.html playground.html.backup
+      
       - name: Generate TypeDoc documentation
         run: npm run docs
       
-      - name: Add playground and browser bundle to docs
+      - name: Restore playground and add browser bundle
         run: |
-          # playground.html is already in docs/ directory, no need to copy
-          echo "Playground is already in docs/ directory"
+          # Restore playground.html after TypeDoc generation
+          cp playground.html.backup docs/playground.html
           
           # Copy browser bundle to docs
           mkdir -p docs/dist/browser
