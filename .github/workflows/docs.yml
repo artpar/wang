@@ -49,8 +49,8 @@ jobs:
       
       - name: Add playground and browser bundle to docs
         run: |
-          # Copy playground to docs directory (alongside TypeDoc docs)
-          cp playground.html docs/playground.html
+          # playground.html is already in docs/ directory, no need to copy
+          echo "Playground is already in docs/ directory"
           
           # Copy browser bundle to docs
           mkdir -p docs/dist/browser
