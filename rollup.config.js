@@ -19,9 +19,11 @@ export default {
   plugins: [
     replace({
       preventAssignment: true,
+      delimiters: ['', ''],
       values: {
         "__WANG_VERSION__": pkg.version,
-        "VERSION = '0.21.0'": `VERSION = '${pkg.version}'`
+        "const VERSION = '0.21.0'": `const VERSION = '${pkg.version}'`,
+        "export const VERSION = '0.21.0'": `export const VERSION = '${pkg.version}'`
       }
     }),
     nodeResolve({

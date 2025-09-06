@@ -187,7 +187,7 @@
                 </div>
                 <h1 class="text-lg font-semibold hidden sm:block">Wang Playground</h1>
                 <h1 class="text-lg font-semibold sm:hidden">Wang</h1>
-                <span class="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-full hidden sm:inline">v0.14</span>
+                <span id="wang-version" class="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-full hidden sm:inline">loading...</span>
             </div>
             
             <div class="flex items-center gap-2">
@@ -554,6 +554,22 @@
             document.body.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error: Failed to load Wang library from CDN. Please refresh the page.</div>' + document.body.innerHTML;
         } else {
             console.log('Wang loaded successfully:', Wang);
+            // Display Wang version if available
+            if (Wang && Wang.VERSION) {
+                document.getElementById('wang-version').textContent = `v${Wang.VERSION}`;
+            } else if (Wang && Wang.version) {
+                document.getElementById('wang-version').textContent = `v${Wang.version}`;
+            } else {
+                // Fallback: try to get version from the module
+                fetch('https://unpkg.com/wang-lang@latest/package.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('wang-version').textContent = `v${data.version}`;
+                    })
+                    .catch(() => {
+                        document.getElementById('wang-version').textContent = 'latest';
+                    });
+            }
         }
     </script>
     

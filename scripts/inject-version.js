@@ -22,8 +22,8 @@ console.log(`Injecting version ${version} into build files...`);
 const esmIndexPath = path.join(rootDir, 'dist/esm/index.js');
 if (fs.existsSync(esmIndexPath)) {
   let content = fs.readFileSync(esmIndexPath, 'utf8');
-  // Replace the VERSION export
-  content = content.replace(/export const VERSION = '[\d.]+';/, `export const VERSION = '${version}';`);
+  // Replace the VERSION export - handle any string value
+  content = content.replace(/export const VERSION = ['"][^'"]*['"];/, `export const VERSION = '${version}';`);
   fs.writeFileSync(esmIndexPath, content);
   console.log('Updated ESM index.js');
 }
@@ -32,8 +32,8 @@ if (fs.existsSync(esmIndexPath)) {
 const cjsIndexPath = path.join(rootDir, 'dist/cjs/index.cjs');
 if (fs.existsSync(cjsIndexPath)) {
   let content = fs.readFileSync(cjsIndexPath, 'utf8');
-  // Replace the VERSION export
-  content = content.replace(/exports\.VERSION = '[\d.]+';/, `exports.VERSION = '${version}';`);
+  // Replace the VERSION export - handle any string value
+  content = content.replace(/exports\.VERSION = ['"][^'"]*['"];/, `exports.VERSION = '${version}';`);
   fs.writeFileSync(cjsIndexPath, content);
   console.log('Updated CJS index.cjs');
 }
@@ -42,8 +42,8 @@ if (fs.existsSync(cjsIndexPath)) {
 const esmInterpreterPath = path.join(rootDir, 'dist/esm/interpreter/index.js');
 if (fs.existsSync(esmInterpreterPath)) {
   let content = fs.readFileSync(esmInterpreterPath, 'utf8');
-  // Replace the VERSION const
-  content = content.replace(/const VERSION = '[\d.]+';/, `const VERSION = '${version}';`);
+  // Replace the VERSION const - handle any string value
+  content = content.replace(/const VERSION = ['"][^'"]*['"];/, `const VERSION = '${version}';`);
   fs.writeFileSync(esmInterpreterPath, content);
   console.log('Updated ESM interpreter/index.js');
 }
@@ -52,8 +52,8 @@ if (fs.existsSync(esmInterpreterPath)) {
 const cjsInterpreterPath = path.join(rootDir, 'dist/cjs/interpreter/index.cjs');
 if (fs.existsSync(cjsInterpreterPath)) {
   let content = fs.readFileSync(cjsInterpreterPath, 'utf8');
-  // Replace the VERSION const
-  content = content.replace(/const VERSION = '[\d.]+';/, `const VERSION = '${version}';`);
+  // Replace the VERSION const - handle any string value
+  content = content.replace(/const VERSION = ['"][^'"]*['"];/, `const VERSION = '${version}';`);
   fs.writeFileSync(cjsInterpreterPath, content);
   console.log('Updated CJS interpreter/index.cjs');
 }
