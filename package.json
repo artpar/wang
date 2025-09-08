@@ -59,6 +59,10 @@
     "./editor/codemirror": {
       "import": "./src/editor/wang-codemirror.js",
       "require": "./src/editor/wang-codemirror.js"
+    },
+    "./src/editor/wang-prism": {
+      "import": "./src/editor/wang-prism.js",
+      "require": "./src/editor/wang-prism.js"
     }
   },
   "bin": {
