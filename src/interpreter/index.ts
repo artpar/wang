@@ -2541,8 +2541,7 @@ export class WangInterpreter {
       const expression = match[1];
       try {
         // Parse the expression using the Wang parser itself - CSP-safe!
-        // @ts-ignore - generated grammar file
-        const { nearley, default: grammar } = await import('../generated/wang-grammar.js');
+        // Use statically imported grammar and nearley
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
         // Parse the expression as a complete Wang expression
@@ -2586,8 +2585,7 @@ export class WangInterpreter {
   private async evaluateTemplateExpression(expression: string): Promise<any> {
     // Parse and evaluate using the Wang parser - this is now CSP-safe
     try {
-      // @ts-ignore - generated grammar file
-      const { nearley, default: grammar } = await import('../generated/wang-grammar.js');
+      // Use statically imported grammar and nearley
       const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
       const parseResult = parser.feed(expression).results;
 

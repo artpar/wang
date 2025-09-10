@@ -3,6 +3,9 @@
  */
 import { WangInterpreter } from './index.js';
 import { InMemoryModuleResolver } from '../resolvers/memory.js';
+// Import the generated parser (will be generated at build time)
+// @ts-ignore - Generated file
+import { grammar, nearley } from '../generated/wang-grammar.js';
 export class PausableWangInterpreter extends WangInterpreter {
     constructor(options = {}) {
         super(options);
@@ -106,10 +109,7 @@ export class PausableWangInterpreter extends WangInterpreter {
             type: 'running',
             callStack: [],
         };
-        // Import the generated parser (will be imported at runtime)
-        // @ts-ignore - Generated file
-        const { grammar, nearley } = await import('../generated/wang-grammar.js');
-        // Create parser using bundled nearley runtime
+        // Create parser using statically imported grammar and nearley
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
         try {
             // Parse the code

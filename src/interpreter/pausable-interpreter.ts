@@ -5,6 +5,9 @@
 import { WangInterpreter, ExecutionContext, InterpreterOptions } from './index';
 import { ModuleResolver } from '../resolvers/base';
 import { InMemoryModuleResolver } from '../resolvers/memory';
+// Import the generated parser (will be generated at build time)
+// @ts-ignore - Generated file
+import { grammar, nearley } from '../generated/wang-grammar.js';
 
 // Execution state for tracking where we are in the code
 export interface ExecutionState {
@@ -173,11 +176,7 @@ export class PausableWangInterpreter extends WangInterpreter {
       callStack: [],
     };
 
-    // Import the generated parser (will be imported at runtime)
-    // @ts-ignore - Generated file
-    const { grammar, nearley } = await import('../generated/wang-grammar.js');
-
-    // Create parser using bundled nearley runtime
+    // Create parser using statically imported grammar and nearley
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
 
     try {

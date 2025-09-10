@@ -2,43 +2,13 @@
 /**
  * Pausable Wang Interpreter - Extends WangInterpreter with pause/resume and state serialization
  */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PausableWangInterpreter = void 0;
 const index_1 = require("./index.cjs");
 const memory_1 = require("../resolvers/memory.cjs");
+// Import the generated parser (will be generated at build time)
+// @ts-ignore - Generated file
+const wang_grammar_js_1 = require("../generated/wang-grammar.cjs");
 class PausableWangInterpreter extends index_1.WangInterpreter {
     constructor(options = {}) {
         super(options);
@@ -142,11 +112,8 @@ class PausableWangInterpreter extends index_1.WangInterpreter {
             type: 'running',
             callStack: [],
         };
-        // Import the generated parser (will be imported at runtime)
-        // @ts-ignore - Generated file
-        const { grammar, nearley } = await Promise.resolve().then(() => __importStar(require("../generated/wang-grammar.cjs")));
-        // Create parser using bundled nearley runtime
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+        // Create parser using statically imported grammar and nearley
+        const parser = new wang_grammar_js_1.nearley.Parser(wang_grammar_js_1.nearley.Grammar.fromCompiled(wang_grammar_js_1.grammar));
         try {
             // Parse the code
             parser.feed(code);
