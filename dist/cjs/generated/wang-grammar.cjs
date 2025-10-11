@@ -1424,7 +1424,6 @@ var grammar = {
     {"name": "StatementList", "symbols": ["StatementList", "StatementTerminator"], "postprocess": d => d[0]},
     {"name": "StatementTerminator", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
     {"name": "StatementTerminator", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "StatementTerminator", "symbols": [{"literal":";"}, (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
     {"name": "Statement", "symbols": ["Declaration"], "postprocess": id},
     {"name": "Statement", "symbols": ["LabeledStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ControlStatement"], "postprocess": id},
@@ -1743,7 +1742,7 @@ var grammar = {
     {"name": "ConditionalExpression$ebnf$3", "symbols": ["ConditionalExpression$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "ConditionalExpression$ebnf$4", "symbols": []},
     {"name": "ConditionalExpression$ebnf$4", "symbols": ["ConditionalExpression$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression", "ConditionalExpression$ebnf$1", {"literal":"?"}, "ConditionalExpression$ebnf$2", "AssignmentExpression", "ConditionalExpression$ebnf$3", {"literal":":"}, "ConditionalExpression$ebnf$4", "ConditionalExpression"], "postprocess":  d => createNode('ConditionalExpression', {
+    {"name": "ConditionalExpression", "symbols": ["LogicalOrExpression", "ConditionalExpression$ebnf$1", {"literal":"?"}, "ConditionalExpression$ebnf$2", "AssignmentExpression", "ConditionalExpression$ebnf$3", {"literal":":"}, "ConditionalExpression$ebnf$4", "AssignmentExpression"], "postprocess":  d => createNode('ConditionalExpression', {
           test: d[0],
           consequent: d[4],
           alternate: d[8]

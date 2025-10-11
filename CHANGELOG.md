@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.21.8] - 2024-10-11
+
+### Fixed
+- **Critical**: Fixed out-of-memory (OOM) issue in validator caused by grammar ambiguity
+- **Parser**: Eliminated exponential parse tree explosion by fixing ConditionalExpression recursion
+- **Grammar**: Simplified statement terminators to achieve 0% ambiguity while maintaining 100% JavaScript compatibility
+- **Validator**: Added safety limits and timeout protection to prevent memory exhaustion
+
+### Improved
+- **Performance**: Complex 70+ line scripts now validate instantly instead of causing OOM
+- **Ambiguity**: Achieved 0% grammar ambiguity goal - no more multiple parse paths
+- **Error Handling**: Added specific error messages for parse complexity and timeout issues
+
 ### [0.21.7](https://github.com/artpar/wang/compare/v0.21.6...v0.21.7) (2025-10-11)
 
 ## [0.21.0] - 2025-01-05

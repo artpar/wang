@@ -29,7 +29,6 @@ export declare class WangValidator {
      */
     checkSyntaxPatterns(code: string): {
         hasMultilineArrows: boolean;
-        hasPipelines: boolean;
         hasAsyncAwait: boolean;
         hasClasses: boolean;
         hasModules: boolean;

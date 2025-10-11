@@ -47,7 +47,6 @@ export const wangLanguage = StreamLanguage.define({
       return 'number';
     }
 
-
     // Operators
     if (
       stream.match(

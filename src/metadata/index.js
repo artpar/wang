@@ -263,7 +263,7 @@ export class WangMetadata {
 
   recordPipeline(operator, input, output, node) {
     const operation = {
-      operator, // |> or ->
+      operator, // method name
       input: this._serializeValue(input),
       output: this._serializeValue(output),
       inputType: typeof input,

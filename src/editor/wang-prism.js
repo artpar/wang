@@ -73,7 +73,6 @@
     // Numbers
     number: /\b(?:0x[\dA-Fa-f]+|0b[01]+|0o[0-7]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\b/,
 
-
     // Arrow function operator
     'arrow-operator': {
       pattern: /=>/,
@@ -116,7 +115,6 @@
     if (env.language !== 'wang') {
       return;
     }
-
   });
 
   // Hook to add special classes for Wang-specific features
@@ -124,7 +122,6 @@
     if (env.language !== 'wang') {
       return;
     }
-
 
     // Add special class for Wang keywords
     if (env.type === 'keyword' && ['import', 'export', 'from', 'as'].includes(env.content)) {

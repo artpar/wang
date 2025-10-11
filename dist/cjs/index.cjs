@@ -33,7 +33,7 @@ Object.defineProperty(exports, "validator", { enumerable: true, get: function ()
 // Import for createInterpreter
 const interpreter_2 = require("./interpreter/index.cjs");
 // Version - will be replaced during build with actual package.json version
-exports.VERSION = '0.21.5';
+exports.VERSION = '0.21.7';
 /**
  * Quick start helper to create an interpreter
  */

@@ -25,7 +25,7 @@ registerWangLanguage(monaco)
 const editor = monaco.editor.create(document.getElementById('container'), {
   value: `// Wang code here
 let data = [1, 2, 3]
-  |> map(_, n => n * 2)
+  .map(n => n * 2)
   -> result`,
   language: 'wang',
   theme: 'vs-dark',
@@ -108,7 +108,7 @@ mkdir -p ~/.vscode/extensions/wang-lang
 
 | Prefix | Description | Expands to |
 |--------|-------------|------------|
-| `pipe` | Pipeline expression | Multi-line pipeline with `\|>` and `->` |
+| `chain` | Method chaining | Multi-line method chaining |
 | `class` | Class definition | Full class with constructor and methods |
 | `imp` | Import statement | `import { name } from "module"` |
 | `afn` | Async function | `async function name(params) { }` |
@@ -150,7 +150,7 @@ const view = new EditorView({
 import { process } from "./workflow.wang"
 
 let results = data
-  |> filter(_, active)
+  .filter(active)
   -> process`
 })
 ```
@@ -163,7 +163,7 @@ All syntax highlighters support:
 
 - **Keywords**: `let`, `const`, `var`, `if`, `else`, `for`, `while`, `class`, `function`, etc.
 - **Operators**: All arithmetic, logical, comparison, and assignment operators
-- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) with special highlighting
+- **Method Chaining**: Support for multi-line method chaining
 - **Comments**: Line (`//`) and block (`/* */`) comments
 - **Strings**: Single, double quotes, and template literals with interpolation
 - **Numbers**: Integers, floats, hex numbers, scientific notation
@@ -171,7 +171,7 @@ All syntax highlighters support:
 
 ### Wang-Specific Features
 
-1. **Pipeline Operators** - Special highlighting for `|>` and `->`
+1. **Method Chaining** - Special highlighting for method chains
 2. **Template Literals** - Full support with `${expression}` interpolation
 3. **Optional Chaining** - Highlights `?.` operator
 4. **Spread Operator** - Highlights `...` in arrays and objects

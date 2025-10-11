@@ -127,10 +127,9 @@ const resolver = new InMemoryModuleResolver()
 resolver.addModule('utils', `
   export function processData(data) {
     return data 
-      |> filter(_, item => item.active)
-      |> map(_, item => item.name)
-      |> sort(_)
-  }
+      .filter(item => item.active)
+      .map(item => item.name)
+      .sort()
 `)
 
 // Create interpreter - 70+ stdlib functions are automatically available!
@@ -175,11 +174,11 @@ Wang includes a comprehensive standard library with 70+ built-in functions that 
 
 ```javascript
 // Array operations (immutable)
-[3, 1, 4, 1, 5, 9, 2, 6]
-  |> unique(_)        // [3, 1, 4, 5, 9, 2, 6] - Remove duplicates  
-  |> sort(_)          // [1, 2, 3, 4, 5, 6, 9] - Sort ascending
-  |> chunk(_, 2)      // [[1,2], [3,4], [5,6], [9]] - Group into pairs
-  |> map(_, pair => sum(pair))  // [3, 7, 11, 9] - Sum each pair
+let arr = [3, 1, 4, 1, 5, 9, 2, 6]
+let uniqueArr = unique(arr)        // [3, 1, 4, 5, 9, 2, 6] - Remove duplicates  
+let sortedArr = sort(uniqueArr)    // [1, 2, 3, 4, 5, 6, 9] - Sort ascending
+let chunkedArr = chunk(sortedArr, 2)  // [[1,2], [3,4], [5,6], [9]] - Group into pairs
+let result = map(chunkedArr, pair => sum(pair))  // [3, 7, 11, 9] - Sum each pair
 
 // Advanced array operations
 let users = [
@@ -188,11 +187,10 @@ let users = [
   { name: "Charlie", age: 35, active: true }
 ]
 
-users
-  |> filter(_, u => u.active)           // Only active users
-  |> sort_by(_, "age")                  // Sort by age property
-  |> map(_, u => u.name)                // Extract names
-  |> join(_, ", ")                      // "Alice, Charlie"
+let activeUsers = filter(users, u => u.active)     // Only active users
+let sortedUsers = sort_by(activeUsers, "age")      // Sort by age property
+let names = map(sortedUsers, u => u.name)          // Extract names
+let result = join(names, ", ")                      // "Alice, Charlie"
 
 // Object operations
 let user = { name: "Alice", age: 30, email: "alice@example.com", password: "secret" }
@@ -201,11 +199,11 @@ let withoutSecret = omit(user, ["password"])        // Remove sensitive data
 let merged = merge(user, { location: "NYC" })       // Add new properties
 
 // String operations
-"  hello world  "
-  |> trim(_)                      // "hello world" - Remove whitespace
-  |> upper(_)                     // "HELLO WORLD" - Uppercase
-  |> replace_all(_, "O", "0")     // "HELL0 W0RLD" - Replace all O's
-  |> split(_, " ")                // ["HELL0", "W0RLD"] - Split to array
+let str = "  hello world  "
+let trimmed = trim(str)                    // "hello world" - Remove whitespace
+let uppercased = upper(trimmed)            // "HELLO WORLD" - Uppercase
+let replaced = replace_all(uppercased, "O", "0")  // "HELL0 W0RLD" - Replace all O's
+let result = split(replaced, " ")          // ["HELL0", "W0RLD"] - Split to array
 
 // Math and utilities  
 let numbers = [1, 5, 3, 9, 2]
@@ -547,15 +545,18 @@ resolver.addModule('linkedin-workflow', `
     let results = []
     
     for (let profile of profiles) {
-      let nameText = profile |> querySelector(_, ".name") |> getText(_)
-      let titleText = profile |> querySelector(_, ".title") |> getText(_)
-      let companyText = profile |> querySelector(_, ".company") |> getText(_)
+      let nameEl = querySelector(profile, ".name")
+      let nameText = getText(nameEl)
+      let titleEl = querySelector(profile, ".title")
+      let titleText = getText(titleEl)
+      let companyEl = querySelector(profile, ".company")
+      let companyText = getText(companyEl)
       
       let data = {
-        name: nameText |> replace(_, /[^\w\s]/g, "") |> trim(_),  // Clean name
-        title: titleText |> match(_, /^([^@]+)/)?.[1] || titleText, // Extract title before @
-        company: companyText |> replace(_, /\s+/g, " ") |> trim(_), // Normalize whitespace
-        isVerified: profile |> querySelector(_, ".verified-badge") !== null
+        name: trim(replace(nameText, /[^\w\s]/g, "")),  // Clean name
+        title: match(titleText, /^([^@]+)/)?.[1] || titleText, // Extract title before @
+        company: trim(replace(companyText, /\s+/g, " ")), // Normalize whitespace
+        isVerified: querySelector(profile, ".verified-badge") !== null
       }
       
       // Skip profiles without email patterns in title/company  
@@ -1089,7 +1090,7 @@ const validator = new WangValidator()
 // Simple validation
 const result = validator.validate(`
   let x = 10
-  x |> double |> log
+  double(log(x))
 `)
 
 if (result.valid) {
@@ -1126,7 +1127,7 @@ The validator provides detailed error messages with visual context:
 ```javascript
 const result = validator.validate(`
   let x = 10
-  x |> 
+  x.
 `)
 
 // Output:
@@ -1134,8 +1135,8 @@ const result = validator.validate(`
 //
 // 1 
 // 2   let x = 10
-// 3   x |> 
-//        ^
+// 3   x.
+//     ^
 // Unexpected NL token. Instead, I was expecting to see one of the following:
 // 
 // A function name token based on:

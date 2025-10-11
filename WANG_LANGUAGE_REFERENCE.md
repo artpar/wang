@@ -415,10 +415,10 @@ x = x + 1  // Simple increment: x becomes 6
 x = x + 1  // x becomes 7
 ```
 
-### Method Chaining (JavaScript Compatible)
+### Method Chaining
 
 ```javascript
-// Chain array methods directly
+// Chain array methods directly (standard JavaScript)
 [1, 2, 3, 4, 5]
   .filter(n => n > 2)     // [3, 4, 5]
   .map(n => n * 2)        // [6, 8, 10]
@@ -427,8 +427,8 @@ x = x + 1  // x becomes 7
 // Method chaining with objects
 data
   .filter(item => item.active)
-  .transform(options)
-  .validate()
+  .map(item => ({ ...item, processed: true }))
+  .sort((a, b) => a.priority - b.priority)
 ```
 
 ### Data Types & Structures

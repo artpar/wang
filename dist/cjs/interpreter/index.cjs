@@ -9,7 +9,7 @@ const memory_1 = require("../resolvers/memory.cjs");
 const errors_1 = require("../utils/errors.cjs");
 const index_1 = require("../stdlib/index.cjs");
 // Version will be replaced during build
-const VERSION = '0.21.5';
+const VERSION = '0.21.7';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 const wang_grammar_js_1 = require("../generated/wang-grammar.cjs");
@@ -1113,6 +1113,7 @@ class WangInterpreter {
         return isAsync
             ? fn
             : function (...args) {
+                // Use regular function to preserve 'this'
                 const result = fn.apply(this, args); // Pass 'this' through
                 return result instanceof Promise ? result : Promise.resolve(result);
             };
@@ -1628,7 +1629,9 @@ class WangInterpreter {
             else if (!node.callee.optional && object == null) {
                 // Throw error when accessing property on null/undefined (non-optional)
                 const objName = node.callee.object.type === 'Identifier' ? node.callee.object.name : 'expression';
-                const propName = node.callee.computed ? '<computed>' : node.callee.property.name || '<unknown>';
+                const propName = node.callee.computed
+                    ? '<computed>'
+                    : node.callee.property.name || '<unknown>';
                 const error = new errors_1.TypeMismatchError('object', object, `accessing property '${propName}' of '${objName}'`);
                 this.enhanceErrorWithContext(error, node.callee);
                 throw error;
@@ -2087,7 +2090,9 @@ class WangInterpreter {
             case 'replace':
                 return (searchValue, replaceValue) => {
                     const replaceFn = interpreter.currentContext.functions.get('replace');
-                    return replaceFn ? replaceFn(str, searchValue, replaceValue) : str.replace(searchValue, replaceValue);
+                    return replaceFn
+                        ? replaceFn(str, searchValue, replaceValue)
+                        : str.replace(searchValue, replaceValue);
                 };
             case 'replaceAll':
                 return (searchValue, replaceValue) => {
@@ -2124,7 +2129,9 @@ class WangInterpreter {
             case 'startsWith':
                 return (searchString, position) => {
                     const startsWithFn = interpreter.currentContext.functions.get('startsWith');
-                    return startsWithFn ? startsWithFn(str, searchString) : str.startsWith(searchString, position);
+                    return startsWithFn
+                        ? startsWithFn(str, searchString)
+                        : str.startsWith(searchString, position);
                 };
             case 'endsWith':
                 return (searchString, length) => {
@@ -2139,12 +2146,16 @@ class WangInterpreter {
             case 'padStart':
                 return (targetLength, padString) => {
                     const padStartFn = interpreter.currentContext.functions.get('padStart');
-                    return padStartFn ? padStartFn(str, targetLength, padString) : str.padStart(targetLength, padString);
+                    return padStartFn
+                        ? padStartFn(str, targetLength, padString)
+                        : str.padStart(targetLength, padString);
                 };
             case 'padEnd':
                 return (targetLength, padString) => {
                     const padEndFn = interpreter.currentContext.functions.get('padEnd');
-                    return padEndFn ? padEndFn(str, targetLength, padString) : str.padEnd(targetLength, padString);
+                    return padEndFn
+                        ? padEndFn(str, targetLength, padString)
+                        : str.padEnd(targetLength, padString);
                 };
             case 'match':
                 return (regexp) => str.match(regexp);
@@ -2164,34 +2175,40 @@ class WangInterpreter {
         switch (methodName) {
             case 'filter':
                 return async (predicate) => {
-                    const filterFn = interpreter.currentContext.functions.get('filter') || interpreter.globalContext.functions.get('filter');
+                    const filterFn = interpreter.currentContext.functions.get('filter') ||
+                        interpreter.globalContext.functions.get('filter');
                     return filterFn ? await filterFn(arr, predicate) : arr.filter(predicate);
                 };
             case 'map':
                 return async (mapper) => {
-                    const mapFn = interpreter.currentContext.functions.get('map') || interpreter.globalContext.functions.get('map');
+                    const mapFn = interpreter.currentContext.functions.get('map') ||
+                        interpreter.globalContext.functions.get('map');
                     return mapFn ? await mapFn(arr, mapper) : arr.map(mapper);
                 };
             case 'reduce':
                 return async (reducer, initial) => {
-                    const reduceFn = interpreter.currentContext.functions.get('reduce') || interpreter.globalContext.functions.get('reduce');
+                    const reduceFn = interpreter.currentContext.functions.get('reduce') ||
+                        interpreter.globalContext.functions.get('reduce');
                     return reduceFn ? await reduceFn(arr, reducer, initial) : arr.reduce(reducer, initial);
                 };
             case 'find':
                 return async (predicate) => {
-                    const findFn = interpreter.currentContext.functions.get('find') || interpreter.globalContext.functions.get('find');
+                    const findFn = interpreter.currentContext.functions.get('find') ||
+                        interpreter.globalContext.functions.get('find');
                     return findFn ? await findFn(arr, predicate) : arr.find(predicate);
                 };
             case 'findIndex':
                 return (predicate) => arr.findIndex(predicate);
             case 'some':
                 return async (predicate) => {
-                    const someFn = interpreter.currentContext.functions.get('some') || interpreter.globalContext.functions.get('some');
+                    const someFn = interpreter.currentContext.functions.get('some') ||
+                        interpreter.globalContext.functions.get('some');
                     return someFn ? await someFn(arr, predicate) : arr.some(predicate);
                 };
             case 'every':
                 return async (predicate) => {
-                    const everyFn = interpreter.currentContext.functions.get('every') || interpreter.globalContext.functions.get('every');
+                    const everyFn = interpreter.currentContext.functions.get('every') ||
+                        interpreter.globalContext.functions.get('every');
                     return everyFn ? await everyFn(arr, predicate) : arr.every(predicate);
                 };
             case 'forEach':
@@ -2207,13 +2224,15 @@ class WangInterpreter {
                 };
             case 'sort':
                 return (compareFn) => {
-                    const sortFn = interpreter.currentContext.functions.get('sort') || interpreter.globalContext.functions.get('sort');
+                    const sortFn = interpreter.currentContext.functions.get('sort') ||
+                        interpreter.globalContext.functions.get('sort');
                     // Sort mutates the array and returns it (JavaScript behavior)
                     return sortFn ? sortFn(arr, compareFn) : arr.sort(compareFn);
                 };
             case 'reverse':
                 return () => {
-                    const reverseFn = interpreter.currentContext.functions.get('reverse') || interpreter.globalContext.functions.get('reverse');
+                    const reverseFn = interpreter.currentContext.functions.get('reverse') ||
+                        interpreter.globalContext.functions.get('reverse');
                     // Reverse mutates the array and returns it (JavaScript behavior)
                     return reverseFn ? reverseFn(arr) : arr.reverse();
                 };
@@ -2252,8 +2271,10 @@ class WangInterpreter {
                     // There's a bizarre issue where native lastIndexOf isn't working
                     // Implement it manually as a workaround
                     const len = arr.length;
-                    let start = fromIndex !== undefined
-                        ? (fromIndex < 0 ? Math.max(0, len + fromIndex) : Math.min(fromIndex, len - 1))
+                    const start = fromIndex !== undefined
+                        ? fromIndex < 0
+                            ? Math.max(0, len + fromIndex)
+                            : Math.min(fromIndex, len - 1)
                         : len - 1;
                     for (let i = start; i >= 0; i--) {
                         if (arr[i] === item) {

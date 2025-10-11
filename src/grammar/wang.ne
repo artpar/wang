@@ -210,17 +210,18 @@ Program -> StatementList {% d => createNode('Program', { body: d[0] }) %}
 
 # Statements - Support both newlines and semicolons (JavaScript-compatible)
 # Semicolons are optional statement terminators
+# Fixed: Removed ambiguity by simplifying terminator rules
 StatementList ->
     null {% () => [] %}
   | Statement {% d => [d[0]] %}
   | StatementList StatementTerminator Statement {% d => [...d[0], d[2]] %}
   | StatementList StatementTerminator {% d => d[0] %}  # Allow trailing terminators
 
-# Statement terminator can be newline, semicolon, or semicolon followed by newline
+# Statement terminator - simplified to reduce ambiguity
+# Either newline OR semicolon (optionally followed by newline)
 StatementTerminator ->
     %NL {% id %}
   | ";" {% id %}
-  | ";" %NL {% id %}
 
 Statement ->
     Declaration {% id %}
@@ -455,7 +456,7 @@ DoWhileStatement ->
     {% d => createNode('DoWhileStatement', { body: d[1], test: d[5] }) %}
 
 ForStatement ->
-    # C-style for loop (no ++ operator)
+    # C-style for loop  
     "for" "(" %NL:* (VariableDeclaration | Expression | null) %NL:* ";" %NL:* (Expression | null) %NL:* ";" %NL:* (Expression | null) %NL:* ")" Statement
     {% d => createNode('ForStatement', {
       init: d[3] ? d[3][0] : null,
@@ -571,9 +572,10 @@ ArrowBody ->
   | AssignmentExpression {% id %}
 
 # Ternary operator (single-line only to avoid ambiguity)
+# Fixed: Changed right-recursive ConditionalExpression to AssignmentExpression to prevent exponential parsing complexity
 ConditionalExpression ->
     LogicalOrExpression {% id %}
-  | LogicalOrExpression %NL:* "?" %NL:* AssignmentExpression %NL:* ":" %NL:* ConditionalExpression
+  | LogicalOrExpression %NL:* "?" %NL:* AssignmentExpression %NL:* ":" %NL:* AssignmentExpression
     {% d => createNode('ConditionalExpression', {
       test: d[0],
       consequent: d[4],

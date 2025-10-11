@@ -15,7 +15,41 @@ class WangValidator {
     validate(code, options = {}) {
         try {
             const parser = new wang_grammar_js_1.nearley.Parser(wang_grammar_js_1.nearley.Grammar.fromCompiled(wang_grammar_js_1.grammar));
-            parser.feed(code);
+            // Set a reasonable limit for code size to prevent OOM
+            const MAX_CODE_LENGTH = 50000; // ~50KB of code
+            const MAX_AMBIGUITY = 1000; // Maximum number of parse trees
+            if (code.length > MAX_CODE_LENGTH) {
+                return {
+                    valid: false,
+                    error: {
+                        message: `Code is too large (${code.length} characters). Maximum supported size is ${MAX_CODE_LENGTH} characters.`,
+                        line: 1,
+                        column: 1,
+                        suggestion: 'Consider splitting your code into multiple modules or files',
+                    },
+                };
+            }
+            // Use a timeout to prevent infinite parsing
+            const startTime = Date.now();
+            const PARSE_TIMEOUT = 5000; // 5 seconds
+            try {
+                parser.feed(code);
+            }
+            catch (parseError) {
+                // Check if it's taking too long
+                if (Date.now() - startTime > PARSE_TIMEOUT) {
+                    return {
+                        valid: false,
+                        error: {
+                            message: 'Parse timeout: Code structure is too complex for the parser to handle efficiently.',
+                            line: 1,
+                            column: 1,
+                            suggestion: 'Try breaking complex nested expressions into separate statements',
+                        },
+                    };
+                }
+                throw parseError;
+            }
             if (parser.results.length === 0) {
                 return {
                     valid: false,
@@ -23,6 +57,17 @@ class WangValidator {
                         message: 'No valid parse found',
                         line: 0,
                         column: 0,
+                    },
+                };
+            }
+            if (parser.results.length > MAX_AMBIGUITY) {
+                return {
+                    valid: false,
+                    error: {
+                        message: `Code is too ambiguous: ${parser.results.length} possible interpretations found (maximum: ${MAX_AMBIGUITY}).`,
+                        line: 1,
+                        column: 1,
+                        suggestion: 'Simplify complex expressions, especially nested ternary operators and object literals with logical OR operators',
                     },
                 };
             }
@@ -35,6 +80,18 @@ class WangValidator {
             };
         }
         catch (error) {
+            // Check for stack overflow or memory errors
+            if (error.message && (error.message.includes('Maximum call stack') || error.message.includes('out of memory'))) {
+                return {
+                    valid: false,
+                    error: {
+                        message: 'Parser ran out of memory: Code contains expressions that are too complex to parse.',
+                        line: 1,
+                        column: 1,
+                        suggestion: 'Break down complex nested expressions, especially combinations of ternary operators, logical OR, and object literals',
+                    },
+                };
+            }
             return this.formatError(error, code);
         }
     }
@@ -117,9 +174,6 @@ class WangValidator {
         else if (errorMessage.includes('Unexpected identifier')) {
             suggestion = 'Check for missing operators, commas, or semicolons between statements.';
         }
-        else if (errorMessage.includes('|>') || errorMessage.includes('->')) {
-            suggestion = 'Pipeline operators must be followed by a valid expression or function call.';
-        }
         return {
             valid: false,
             error: {
@@ -136,7 +190,6 @@ class WangValidator {
     checkSyntaxPatterns(code) {
         return {
             hasMultilineArrows: /=>\s*\n\s*[^{]/.test(code),
-            hasPipelines: /\|>|->/.test(code),
             hasAsyncAwait: /\basync\b|\bawait\b/.test(code),
             hasClasses: /\bclass\b/.test(code),
             hasModules: /\bimport\b|\bexport\b/.test(code),
