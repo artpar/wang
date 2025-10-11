@@ -202,7 +202,7 @@ describe('Console Capture', () => {
   });
 
   describe('Complex scenarios', () => {
-    it('should capture logs from pipelines', async () => {
+    it('should capture logs from function calls', async () => {
       const interpreter = new WangInterpreter({
         functions: {
           process: (val) => {
@@ -213,16 +213,16 @@ describe('Console Capture', () => {
       });
       
       const { result, metadata } = await interpreter.execute(`
-        log("Starting pipeline")
-        let result = 5 |> process
-        log("Pipeline result:", result)
+        log("Starting processing")
+        let result = process(5)
+        log("Processing result:", result)
         result
       `, undefined, { withMetadata: true });
       
       expect(result).toBe(10);
       expect(metadata.logs).toHaveLength(2);
-      expect(metadata.logs[0].args).toEqual(['Starting pipeline']);
-      expect(metadata.logs[1].args).toEqual(['Pipeline result:', 10]);
+      expect(metadata.logs[0].args).toEqual(['Starting processing']);
+      expect(metadata.logs[1].args).toEqual(['Processing result:', 10]);
     });
 
     it('should capture logs with complex objects', async () => {

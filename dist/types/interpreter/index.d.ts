@@ -31,7 +31,6 @@ export declare class WangInterpreter {
     protected moduleResolver: ModuleResolver;
     protected globalContext: ExecutionContext;
     protected currentContext: ExecutionContext;
-    protected lastPipelineValue: any;
     protected globalModuleCache: Map<string, any>;
     protected consoleLogs: Array<{
         type: 'log' | 'error' | 'warn';
@@ -85,13 +84,14 @@ export declare class WangInterpreter {
     private evaluateTryStatement;
     private evaluateIdentifier;
     private evaluateCallExpression;
-    private evaluatePipelineExpression;
     private evaluateBinaryExpression;
     private evaluateUnaryExpression;
     private evaluateAssignmentExpression;
     private evaluateUpdateExpression;
     private evaluateConditionalExpression;
     private evaluateMemberExpression;
+    private getStringMethod;
+    private getArrayMethod;
     private evaluateNewExpression;
     private evaluateArrayExpression;
     private evaluateObjectExpression;

@@ -20,7 +20,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 🔌 **Pluggable Module System** - Implement your own module resolution (memory, IndexedDB, HTTP, etc.)
 - 📍 **Enhanced Error Reporting (v0.16.1+)** - Full context with line numbers, stack traces, module names, and intelligent suggestions
 - 🌐 **Browser Automation Focus** - Built for DOM manipulation and web workflows
-- 🚀 **Advanced Pipeline Operators** - Chained pipelines (`data |> filter() |> map()`), nested pipelines, and multiline support
+- 🚀 **JavaScript Method Chaining** - Full support for method chaining, functional programming patterns, and multiline expressions
 - ✨ **Full Class Support** - Classes with constructors, methods, **inheritance with super()**, and proper `this` binding
 - 🔒 **Robust Variable Scoping** - Const immutability, var hoisting, block scoping with proper shadowing
 - ♻️ **Circular Dependency Support** - Handles circular module imports without memory leaks
@@ -171,7 +171,7 @@ console.log(result); // { processed: ["Alice", "Charlie"], count: 2 }
 
 ### Standard Library (70+ Functions)
 
-Wang includes a comprehensive standard library with 70+ built-in functions that work seamlessly with pipelines and require no imports:
+Wang includes a comprehensive standard library with 70+ built-in functions that work seamlessly with method chaining and require no imports:
 
 ```javascript
 // Array operations (immutable)
@@ -420,72 +420,59 @@ const config = await interpreter.execute(`
   { env, port, debug: false }
 `)
 
-// Pipeline result return
+// Functional programming with method chaining
 const result = await interpreter.execute(`
   [1, 2, 3, 4, 5]
-    |> filter(_, n => n > 2)
-    |> map(_, n => n * 2)
-    |> reduce(_, (sum, n) => sum + n, 0)
+    .filter(n => n > 2)
+    .map(n => n * 2)
+    .reduce((sum, n) => sum + n, 0)
 `)
 // result = 24
 ```
 
-### Pipeline Operators
+### Method Chaining and Functional Programming
 
-Wang provides powerful pipeline operators for elegant data transformation with full support for chaining, nesting, and multiline expressions:
+Wang provides full support for JavaScript's method chaining and functional programming patterns:
 
 ```javascript
-// Pipe operator (|>) - passes result as first argument with _ placeholder
+// Array method chaining
 const result = data
-  |> filter(_, x => x > 0)
-  |> map(_, x => x * 2)
-  |> reduce(_, (sum, x) => sum + x, 0)
+  .filter(x => x > 0)
+  .map(x => x * 2)
+  .reduce((sum, x) => sum + x, 0)
 
-// Chained pipelines on same line (fully supported!)
-const processed = data |> filter(_, active) |> map(_, transform) |> sort(_)
-
-// Nested pipelines work perfectly on single lines
-const groups = [[1, 2], [3, 4], [5, 6]]
-const doubled = groups |> map(_, group => group |> map(_, x => x * 2))
-// Result: [[2, 4], [6, 8], [10, 12]]
-
-// Complex nested pipelines with calculations
+// Complex data transformations
 const users = [
   {name: "Alice", scores: [80, 90, 85]},
   {name: "Bob", scores: [75, 85, 95]}
 ]
 
-const averages = users |> map(_, user => ({
+const averages = users.map(user => ({
   name: user.name,
-  avg: user.scores |> reduce(_, (a, b) => a + b, 0) |> (sum => sum / user.scores.length)
+  avg: user.scores.reduce((a, b) => a + b, 0) / user.scores.length
 }))
 
-// Multiline pipelines with proper indentation
+// Multiline method chains with proper indentation
 const processed = rawData
-  |> filter(_, item => item.active)
-  |> map(_, item => ({ ...item, processed: true }))
-  |> sort(_, (a, b) => a.priority - b.priority)
-  |> slice(_, 0, 10)
+  .filter(item => item.active)
+  .map(item => ({ ...item, processed: true }))
+  .sort((a, b) => a.priority - b.priority)
+  .slice(0, 10)
 
-// Arrow operator (->) - passes result to function or stores
-profiles 
-  |> extractData(_)
-  -> saveToDatabase("profiles")
-
-// Regular expressions work perfectly with pipelines
+// Regular expressions with method chaining
 const logData = "ERROR: Failed login\nINFO: Success\nERROR: Database timeout"
 const errorCount = logData
-  |> split(_, /\n/)
-  |> filter(_, line => line.match(/ERROR:/))
-  |> length(_);  // 2
+  .split(/\n/)
+  .filter(line => line.match(/ERROR:/))
+  .length;  // 2
 
 // Extract and process data with regex
 const userEmails = "Contact alice@company.com or bob@startup.org for info"
 const domains = userEmails
-  |> match(_, /(\w+)@(\w+\.\w+)/g)
-  |> map(_, email => email.split('@')[1])
-  |> unique(_)
-  |> sort(_);  // ["company.com", "startup.org"]
+  .match(/(\w+)@(\w+\.\w+)/g)
+  .map(email => email.split('@')[1])
+  .filter((v, i, a) => a.indexOf(v) === i)  // unique
+  .sort();  // ["company.com", "startup.org"]
 
 // Method chaining across lines
 const builder = new StringBuilder()
@@ -493,19 +480,7 @@ const builder = new StringBuilder()
   .append(" ")
   .append("World")
   .toString()
-
-// Nested pipelines with explicit blocks (workaround for multiline)
-const result = groups |> map(_, group => {
-  return group
-    |> filter(_, x => x > 2)
-    |> map(_, x => x * 10)
-    |> reduce(_, (a, b) => a + b, 0)
-})
 ```
-
-**Pipeline Limitations:**
-- Multiline arrow functions with implicit returns don't support pipeline continuations (use explicit blocks with `return`)
-- Ternary operators with pipeline continuations require parentheses for clarity
 
 ### Modules
 
@@ -810,7 +785,7 @@ const json = collector.export()
 
 - **Compilation Phase**: Tokens, AST nodes, parse timing, source mapping
 - **Interpretation Phase**: Module resolution, symbol tables, dependency graphs
-- **Execution Phase**: Call tracking, variable access, control flow, pipeline operations
+- **Execution Phase**: Call tracking, variable access, control flow, method chaining
 - **Runtime Data**: Live variables, execution path, current position, event stream
 
 ## Language Support
@@ -823,7 +798,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `try/catch/finally`, ternary operator (`? :`)
-- **Operators**: All arithmetic, comparison, logical, increment/decrement (`++`, `--`), compound assignment (`+=`, `-=`, `*=`, `/=`), ternary (`? :`), and pipeline operators (`|>`, `->`)
+- **Operators**: All standard JavaScript operators - arithmetic, comparison, logical, increment/decrement (`++`, `--`), compound assignment (`+=`, `-=`, `*=`, `/=`), ternary (`? :`)
 - **Regular Expressions**: Full regex literal syntax (`/pattern/flags`) with all JavaScript flags (`g`, `i`, `m`, `s`, `u`, `y`)
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
@@ -862,7 +837,7 @@ npm test:ui
 
 **Test Results**: 569/571 tests passing (99.6% coverage), including:
 - Comprehensive language features (classes, async/await, modules)
-- Advanced pipeline operations (chained, nested, multiline)  
+- Advanced method chaining and functional programming  
 - Full regular expression support with all JavaScript features
 - Full standard library coverage (70+ functions)
 - Compound assignment and increment/decrement operators
@@ -1135,7 +1110,7 @@ if (resultWithAST.valid) {
 
 // Check for specific syntax patterns
 const patterns = validator.checkSyntaxPatterns(code)
-console.log("Has pipelines:", patterns.hasPipelines)
+console.log("Has method chains:", patterns.hasMethodChains)
 console.log("Has async/await:", patterns.hasAsyncAwait)
 console.log("Has classes:", patterns.hasClasses)
 
@@ -1164,7 +1139,7 @@ const result = validator.validate(`
 // Unexpected NL token. Instead, I was expecting to see one of the following:
 // 
 // A function name token based on:
-//     PipelineOperator → _ "|>" ● FunctionName
+//     MethodCall → Object "." ● MethodName
 // ... and more
 ```
 
@@ -1175,7 +1150,7 @@ The validator automatically detects and suggests fixes for common issues:
 - **Regex in HTML contexts**: Suggests escaping forward slashes in patterns like `</a>`
 - **Multiline arrow functions**: Detects missing braces in multiline arrow function bodies
 - **Missing operators**: Identifies missing commas, semicolons, or operators between statements
-- **Pipeline operator issues**: Ensures pipeline operators are followed by valid expressions
+- **Method chaining issues**: Ensures method calls are properly formatted
 
 ### ModuleResolver
 
@@ -1191,7 +1166,7 @@ abstract class ModuleResolver {
 
 ## Standard Library Reference
 
-Wang's standard library provides 70+ functions organized into logical categories. All functions are **immutable** and **pipeline-friendly**:
+Wang's standard library provides 70+ functions organized into logical categories. All functions are **immutable** and designed for **functional programming**:
 
 ### Array Operations
 ```javascript
@@ -1325,7 +1300,7 @@ All functions follow **snake_case** naming and are **immutable** - they return n
 
 ### ✅ Fully Implemented
 - **Classes**: Constructors, methods, inheritance with `extends` and `super()`, static methods, getters/setters
-- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) with multiline support
+- **Method Chaining**: Cross-line method chaining with proper continuation
 - **Variable Declarations**: `let`, `const`, `var` with proper hoisting and block scoping
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion, default parameters
 - **Control Flow**: `if/else`, loops (`for`, `while`, `do-while`, `for...of`, `for...in`), `switch` statements, `try/catch/finally`

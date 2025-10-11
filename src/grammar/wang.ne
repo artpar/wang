@@ -119,9 +119,7 @@ const lexer = moo.compile({
   '++': /\+\+/u, '--': /--/u,
   '**': /\*\*/u,
   
-  // Pipeline operators (Wang-specific)
-  '|>': /\|>/u,
-  '->': /->/u,
+  // Arrow function operator (JavaScript compatible)
   '=>': /=>/u,
   
   // Single character tokens
@@ -187,9 +185,7 @@ function createUnaryOp(operator, argument, prefix = true, data) {
   return createNode('UnaryExpression', { operator, argument, prefix }, data);
 }
 
-function createPipeline(left, operator, right, data) {
-  return createNode('PipelineExpression', { operator, left, right }, data);
-}
+// Pipeline functions removed - not JavaScript compatible
 
 function createIdentifier(name, data) {
   return createNode('Identifier', { name }, data);
@@ -212,12 +208,19 @@ function createRegexLiteral(pattern, flags) {
 # Start rule
 Program -> StatementList {% d => createNode('Program', { body: d[0] }) %}
 
-# Statements - NEWLINE SEPARATED ONLY (no semicolons)
+# Statements - Support both newlines and semicolons (JavaScript-compatible)
+# Semicolons are optional statement terminators
 StatementList ->
     null {% () => [] %}
   | Statement {% d => [d[0]] %}
-  | StatementList %NL Statement {% d => [...d[0], d[2]] %}
-  | StatementList %NL {% d => d[0] %}  # Allow trailing newlines
+  | StatementList StatementTerminator Statement {% d => [...d[0], d[2]] %}
+  | StatementList StatementTerminator {% d => d[0] %}  # Allow trailing terminators
+
+# Statement terminator can be newline, semicolon, or semicolon followed by newline
+StatementTerminator ->
+    %NL {% id %}
+  | ";" {% id %}
+  | ";" %NL {% id %}
 
 Statement ->
     Declaration {% id %}
@@ -225,37 +228,10 @@ Statement ->
   | ControlStatement {% id %}
   | ExpressionStatement {% id %}
   | Block {% id %}
-  | PipelineContinuation {% id %}
-  | MemberContinuation {% id %}
+  # PipelineContinuation removed - not JavaScript compatible
 
-# Handle pipeline operators at the start of a line as continuations
-PipelineContinuation ->
-    ("|>" | "->") %NL:* AssignmentExpression
-    {% d => {
-      // This will be handled specially by the statement list processor
-      return createNode('PipelineContinuation', {
-        operator: d[0][0].value,
-        right: d[2]
-      });
-    } %}
-
-# Handle member access at the start of a line as continuations  
-MemberContinuation ->
-    "." PropertyName Arguments:?
-    {% d => {
-      return createNode('MemberContinuation', {
-        property: createIdentifier(d[1].value),
-        arguments: d[2] || null
-      });
-    } %}
-  | "?." PropertyName Arguments:?
-    {% d => {
-      return createNode('MemberContinuation', {
-        property: createIdentifier(d[1].value),
-        arguments: d[2] || null,
-        optional: true
-      });
-    } %}
+# PipelineContinuation removed - not JavaScript compatible
+# MemberContinuation removed - not JavaScript compatible
 
 LabeledStatement ->
     %identifier ":" LoopStatement
@@ -553,7 +529,7 @@ Expression -> AssignmentExpression {% id %}
 
 # Assignment - simple and compound
 AssignmentExpression ->
-    PipelineExpression {% id %}
+    ConditionalExpression {% id %}
   | ArrowFunction {% id %}
   | LeftHandSideExpression AssignmentOperator AssignmentExpression
     {% d => createNode('AssignmentExpression', {
@@ -562,11 +538,7 @@ AssignmentExpression ->
       right: d[2]
     }) %}
 
-# Pipeline operators (Wang-specific feature)
-PipelineExpression ->
-    ConditionalExpression {% id %}
-  | PipelineExpression ("|>" | "->") ConditionalExpression
-    {% d => createPipeline(d[0], d[1][0].value, d[2]) %}
+# Pipeline operators removed - not JavaScript compatible
 
 AssignmentOperator ->
     "=" {% d => d[0].value %}

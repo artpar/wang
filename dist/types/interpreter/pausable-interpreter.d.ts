@@ -25,7 +25,6 @@ export interface SerializedState {
     currentContext: SerializedContext;
     executionState: ExecutionState;
     moduleCache: Array<[string, any]>;
-    lastPipelineValue?: any;
     customFunctions?: string[];
 }
 export interface SerializedContext {

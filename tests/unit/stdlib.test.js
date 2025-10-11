@@ -12,7 +12,7 @@ describe('Wang Standard Library', () => {
           { name: "Bob", age: 25 },
           { name: "Charlie", age: 35 }
         ]
-        users |> sort_by(_, "age")
+        sort_by(users, "age")
       `);
       expect(result[0].age).toBe(25);
       expect(result[2].age).toBe(35);
@@ -25,7 +25,7 @@ describe('Wang Standard Library', () => {
           { value: "banana", priority: 1 },
           { value: "cherry", priority: 2 }
         ]
-        items |> sort_by(_, item => item.priority)
+        sort_by(items, item => item.priority)
       `);
       expect(result[0].value).toBe('banana');
       expect(result[2].value).toBe('apple');
@@ -33,14 +33,14 @@ describe('Wang Standard Library', () => {
 
     it('should reverse array', async () => {
       const result = await ctx.execute(`
-        [1, 2, 3, 4, 5] |> reverse
+        reverse([1, 2, 3, 4, 5])
       `);
       expect(result).toEqual([5, 4, 3, 2, 1]);
     });
 
     it('should get unique values', async () => {
       const result = await ctx.execute(`
-        [1, 2, 2, 3, 3, 3, 4] |> unique
+        unique([1, 2, 2, 3, 3, 3, 4])
       `);
       expect(result).toEqual([1, 2, 3, 4]);
     });
@@ -53,7 +53,7 @@ describe('Wang Standard Library', () => {
           { id: 1, name: "C" },
           { id: 3, name: "D" }
         ]
-        items |> unique_by(_, "id")
+        unique_by(items, "id")
       `);
       expect(result).toHaveLength(3);
       expect(result[0].name).toBe('A');
@@ -68,7 +68,7 @@ describe('Wang Standard Library', () => {
           { name: "Charlie", dept: "eng" },
           { name: "Dave", dept: "sales" }
         ]
-        people |> group_by(_, "dept")
+        group_by(people, "dept")
       `);
       expect(result.eng).toHaveLength(2);
       expect(result.sales).toHaveLength(2);
@@ -76,21 +76,21 @@ describe('Wang Standard Library', () => {
 
     it('should chunk array', async () => {
       const result = await ctx.execute(`
-        [1, 2, 3, 4, 5, 6, 7] |> chunk(_, 3)
+        chunk([1, 2, 3, 4, 5, 6, 7], 3)
       `);
       expect(result).toEqual([[1, 2, 3], [4, 5, 6], [7]]);
     });
 
     it('should flatten array', async () => {
       const result = await ctx.execute(`
-        [[1, 2], [3, [4, 5]], 6] |> flatten
+        flatten([[1, 2], [3, [4, 5]], 6])
       `);
       expect(result).toEqual([1, 2, 3, [4, 5], 6]);
     });
 
     it('should flatten with depth', async () => {
       const result = await ctx.execute(`
-        [[1, 2], [3, [4, [5]]]] |> flatten(_, 2)
+        flatten([[1, 2], [3, [4, [5]]]], 2)
       `);
       expect(result).toEqual([1, 2, 3, 4, [5]]);
     });
@@ -136,7 +136,7 @@ describe('Wang Standard Library', () => {
 
     it('should partition array', async () => {
       const result = await ctx.execute(`
-        [1, 2, 3, 4, 5, 6] |> partition(_, x => x % 2 === 0)
+        partition([1, 2, 3, 4, 5, 6], x => x % 2 === 0)
       `);
       expect(result[0]).toEqual([2, 4, 6]); // even
       expect(result[1]).toEqual([1, 3, 5]); // odd
@@ -481,37 +481,5 @@ describe('Wang Standard Library', () => {
     });
   });
 
-  describe('Pipeline Integration', () => {
-    it('should chain array operations', async () => {
-      const result = await ctx.execute(`
-        [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
-          |> unique
-          |> map(_, x => x * 2)
-          |> filter(_, x => x > 4)
-          |> sort_by
-      `);
-      expect(result).toEqual([6, 8]);
-    });
-
-    it('should process data pipeline', async () => {
-      const result = await ctx.execute(`
-        let data = [
-          { name: "Alice", age: 30, dept: "eng" },
-          { name: "Bob", age: 25, dept: "sales" },
-          { name: "Charlie", age: 35, dept: "eng" },
-          { name: "Dave", age: 28, dept: "sales" }
-        ]
-        
-        data
-          |> filter(_, p => p.age >= 28)
-          |> sort_by(_, "age")
-          |> map(_, p => pick(p, ["name", "age"]))
-      `);
-      expect(result).toEqual([
-        { name: 'Dave', age: 28 },
-        { name: 'Alice', age: 30 },
-        { name: 'Charlie', age: 35 },
-      ]);
-    });
-  });
+  // Pipeline Integration tests removed - not JavaScript compatible
 });

@@ -156,23 +156,7 @@ describe('Reserved Keywords as Properties', () => {
       expect(result).toBe('result');
     });
 
-    it('should support pipeline operators with reserved keyword properties', async () => {
-      // Re-create interpreter with transform function
-      interpreter = new WangInterpreter({
-        moduleResolver: resolver,
-        functions: {
-          ...interpreter.functions,
-          transform: (obj) => obj.from
-        }
-      });
-      
-      const result = await interpreter.execute(`
-        let obj = { from: "pipeline" }
-        let result = obj |> transform
-        return result
-      `);
-      expect(result).toBe("pipeline");
-    });
+    // Pipeline test removed - not JavaScript compatible
   });
 
   describe('Edge cases', () => {

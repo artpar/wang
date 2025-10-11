@@ -46,7 +46,7 @@ export class WangInterpreter {
   protected moduleResolver: ModuleResolver;
   protected globalContext: ExecutionContext;
   protected currentContext: ExecutionContext;
-  protected lastPipelineValue: any = undefined;
+  // Pipeline value removed - not JavaScript compatible
   protected globalModuleCache: Map<string, any> = new Map();
   protected consoleLogs: Array<{ type: 'log' | 'error' | 'warn'; args: any[]; timestamp: number }> =
     [];
@@ -347,8 +347,8 @@ export class WangInterpreter {
       return arr.indexOf(item);
     });
     this.bindFunction('push', (arr: any[], ...items: any[]) => {
-      arr.push(...items);
-      return arr;
+      // JavaScript behavior: push mutates array and returns new length
+      return arr.push(...items);
     });
     this.bindFunction(
       'forEach',
@@ -360,8 +360,8 @@ export class WangInterpreter {
     this.bindFunction('pop', (arr: any[]) => arr.pop());
     this.bindFunction('shift', (arr: any[]) => arr.shift());
     this.bindFunction('unshift', (arr: any[], ...items: any[]) => {
-      arr.unshift(...items);
-      return arr;
+      // JavaScript behavior: unshift mutates array and returns new length
+      return arr.unshift(...items);
     });
 
     // Object functions - some commented as stdlib provides better versions
@@ -629,6 +629,23 @@ export class WangInterpreter {
         }
 
         const prop = node.computed ? this.evaluateNodeSync(node.property) : node.property.name;
+        
+        // Handle native string methods
+        if (typeof obj === 'string') {
+          const method = this.getStringMethod(obj, prop);
+          if (method) {
+            return method;
+          }
+        }
+
+        // Handle native array methods
+        if (Array.isArray(obj)) {
+          const method = this.getArrayMethod(obj, prop);
+          if (method) {
+            return method;
+          }
+        }
+        
         return obj[prop];
 
       case 'BinaryExpression':
@@ -773,10 +790,8 @@ export class WangInterpreter {
           return this.evaluateNodeSync(arg);
         });
 
-        // Replace underscore with pipeline value
-        const processedArgs = args.map((arg: any) =>
-          arg === undefined && this.lastPipelineValue !== undefined ? this.lastPipelineValue : arg,
-        );
+        // Process arguments directly
+        const processedArgs = args;
 
         // Handle spread arguments
         const finalArgs = [];
@@ -794,7 +809,8 @@ export class WangInterpreter {
         throw this.evaluateNodeSync(node.argument);
 
       case 'ThisExpression':
-        return this.currentContext.variables.get('this');
+        // Look up 'this' in the current context or parent contexts
+        return this.evaluateIdentifier({ name: 'this' });
 
       case 'ArrowFunctionExpression':
       case 'FunctionExpression':
@@ -842,17 +858,7 @@ export class WangInterpreter {
         }
         return arrResult;
 
-      case 'PipelineExpression':
-        // Handle pipeline expressions synchronously
-        const pipelineLeft = this.evaluateNodeSync(node.left);
-        const prevPipelineValue = this.lastPipelineValue;
-        this.lastPipelineValue = pipelineLeft;
-        try {
-          const pipelineResult = this.evaluateNodeSync(node.right);
-          return pipelineResult;
-        } finally {
-          this.lastPipelineValue = prevPipelineValue;
-        }
+      // PipelineExpression removed - not JavaScript compatible
 
       default:
         throw new WangError(`Cannot evaluate node type synchronously: ${node.type}`, {
@@ -985,11 +991,11 @@ export class WangInterpreter {
       case 'ConditionalExpression':
         return this.evaluateConditionalExpression(node);
 
-      case 'PipelineExpression':
-        return this.evaluatePipelineExpression(node);
+      // PipelineExpression removed - not JavaScript compatible
 
       case 'ThisExpression':
-        return this.currentContext.variables.get('this');
+        // Look up 'this' in the current context or parent contexts
+        return this.evaluateIdentifier({ name: 'this' });
 
       case 'Super':
         return this.currentContext.variables.get('__super__');
@@ -1028,131 +1034,7 @@ export class WangInterpreter {
     for (let i = 0; i < statements.length; i++) {
       const stmt = statements[i];
 
-      if (stmt.type === 'PipelineContinuation' || stmt.type === 'MemberContinuation') {
-        // Find the last statement to merge with
-        if (result.length > 0) {
-          const lastStmt = result[result.length - 1];
-
-          // Handle ExpressionStatement
-          if (lastStmt.type === 'ExpressionStatement') {
-            // Check if the expression is an assignment
-            if (lastStmt.expression.type === 'AssignmentExpression') {
-              // Apply the continuation to the right-hand side of the assignment
-              if (stmt.type === 'PipelineContinuation') {
-                lastStmt.expression.right = {
-                  type: 'PipelineExpression',
-                  operator: stmt.operator,
-                  left: lastStmt.expression.right,
-                  right: stmt.right,
-                };
-              } else if (stmt.type === 'MemberContinuation') {
-                const memberExpr = {
-                  type: 'MemberExpression',
-                  object: lastStmt.expression.right,
-                  property: stmt.property,
-                  computed: false,
-                  optional: stmt.optional,
-                };
-
-                lastStmt.expression.right = stmt.arguments
-                  ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
-                  : memberExpr;
-              }
-            } else {
-              // Not an assignment, apply to the entire expression
-              if (stmt.type === 'PipelineContinuation') {
-                lastStmt.expression = {
-                  type: 'PipelineExpression',
-                  operator: stmt.operator,
-                  left: lastStmt.expression,
-                  right: stmt.right,
-                };
-              } else if (stmt.type === 'MemberContinuation') {
-                const memberExpr = {
-                  type: 'MemberExpression',
-                  object: lastStmt.expression,
-                  property: stmt.property,
-                  computed: false,
-                  optional: stmt.optional,
-                };
-
-                lastStmt.expression = stmt.arguments
-                  ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
-                  : memberExpr;
-              }
-            }
-            continue;
-          }
-
-          // Handle VariableDeclaration with initializer
-          if (
-            lastStmt.type === 'VariableDeclaration' &&
-            lastStmt.declarations &&
-            lastStmt.declarations.length > 0
-          ) {
-            const lastDeclarator = lastStmt.declarations[lastStmt.declarations.length - 1];
-            if (lastDeclarator.init) {
-              if (stmt.type === 'PipelineContinuation') {
-                lastDeclarator.init = {
-                  type: 'PipelineExpression',
-                  operator: stmt.operator,
-                  left: lastDeclarator.init,
-                  right: stmt.right,
-                };
-              } else if (stmt.type === 'MemberContinuation') {
-                const memberExpr = {
-                  type: 'MemberExpression',
-                  object: lastDeclarator.init,
-                  property: stmt.property,
-                  computed: false,
-                  optional: stmt.optional,
-                };
-
-                lastDeclarator.init = stmt.arguments
-                  ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
-                  : memberExpr;
-              }
-              continue;
-            }
-          }
-
-          // Handle assignment expressions in return statements
-          if (lastStmt.type === 'ReturnStatement' && lastStmt.argument) {
-            if (stmt.type === 'PipelineContinuation') {
-              lastStmt.argument = {
-                type: 'PipelineExpression',
-                operator: stmt.operator,
-                left: lastStmt.argument,
-                right: stmt.right,
-              };
-            } else if (stmt.type === 'MemberContinuation') {
-              const memberExpr = {
-                type: 'MemberExpression',
-                object: lastStmt.argument,
-                property: stmt.property,
-                computed: false,
-                optional: stmt.optional,
-              };
-
-              lastStmt.argument = stmt.arguments
-                ? { type: 'CallExpression', callee: memberExpr, arguments: stmt.arguments }
-                : memberExpr;
-            }
-            continue;
-          }
-        }
-
-        // If we can't merge, it's an error
-        throw new WangError(`Unexpected continuation operator at statement ${i + 1}`, {
-          type: 'RuntimeError',
-          suggestions: [
-            'Pipeline operators (|> and ->) must follow an expression',
-            'Check that the previous statement produces a value',
-            'Ensure proper syntax before the continuation operator',
-          ],
-        });
-      }
-
+      // PipelineContinuation removed - not JavaScript compatible
       result.push(stmt);
     }
 
@@ -1450,8 +1332,8 @@ export class WangInterpreter {
 
     return isAsync
       ? fn
-      : (...args: any[]) => {
-          const result = fn(...args);
+      : function(this: any, ...args: any[]) {  // Use regular function to preserve 'this'
+          const result = fn.apply(this, args);  // Pass 'this' through
           return result instanceof Promise ? result : Promise.resolve(result);
         };
   }
@@ -1912,20 +1794,7 @@ export class WangInterpreter {
   private evaluateIdentifier(node: any): any {
     const name = node.name;
 
-    // Special underscore handling for pipelines
-    if (name === '_') {
-      return this.lastPipelineValue;
-    }
-
-    // Debug for 'this'
-    if (name === 'this') {
-      console.log(
-        'Looking up this, context has:',
-        this.currentContext.variables.has('this'),
-        'value:',
-        this.currentContext.variables.get('this'),
-      );
-    }
+    // Underscore no longer has special meaning
 
     // Check variables
     if (this.currentContext.variables.has(name)) {
@@ -1995,11 +1864,48 @@ export class WangInterpreter {
 
     if (node.callee.type === 'MemberExpression') {
       const object = await this.evaluateNode(node.callee.object);
-      const property = node.callee.computed
-        ? await this.evaluateNode(node.callee.property)
-        : node.callee.property.name;
-      callee = object?.[property];
       thisContext = object; // Preserve the object as 'this'
+      
+      // Handle optional chaining
+      if (node.callee.optional && object == null) {
+        callee = undefined;
+      } else if (!node.callee.optional && object == null) {
+        // Throw error when accessing property on null/undefined (non-optional)
+        const objName = node.callee.object.type === 'Identifier' ? node.callee.object.name : 'expression';
+        const propName = node.callee.computed ? '<computed>' : node.callee.property.name || '<unknown>';
+        const error = new TypeMismatchError(
+          'object',
+          object,
+          `accessing property '${propName}' of '${objName}'`,
+        );
+        this.enhanceErrorWithContext(error, node.callee);
+        throw error;
+      } else {
+        // Get the property name
+        const property = node.callee.computed 
+          ? await this.evaluateNode(node.callee.property) 
+          : node.callee.property.name;
+        
+        // Check for native methods on the already-evaluated object
+        if (typeof object === 'string') {
+          const method = this.getStringMethod(object, property);
+          if (method) {
+            callee = method;
+          } else {
+            callee = object[property];
+          }
+        } else if (Array.isArray(object)) {
+          const method = this.getArrayMethod(object, property);
+          if (method) {
+            callee = method;
+          } else {
+            callee = object[property];
+          }
+        } else {
+          // Regular property access
+          callee = object[property];
+        }
+      }
     } else {
       callee = await this.evaluateNode(node.callee);
     }
@@ -2031,10 +1937,8 @@ export class WangInterpreter {
       }
     }
 
-    // Replace underscore with pipeline value
-    const processedArgs = args.map((arg) =>
-      arg === undefined && this.lastPipelineValue !== undefined ? this.lastPipelineValue : arg,
-    );
+    // Process arguments directly
+    const processedArgs = args;
 
     // Add to call stack
     const calleeName =
@@ -2060,22 +1964,7 @@ export class WangInterpreter {
     }
   }
 
-  private async evaluatePipelineExpression(node: any): Promise<any> {
-    let result = await this.evaluateNode(node.left);
-    this.lastPipelineValue = result;
-
-    const right = await this.evaluateNode(node.right);
-
-    // If right is a function call, the underscore will be replaced
-    if (typeof right === 'function') {
-      result = await right(result);
-    } else {
-      result = right;
-    }
-
-    this.lastPipelineValue = result;
-    return result;
-  }
+  // evaluatePipelineExpression removed - not JavaScript compatible
 
   private async evaluateBinaryExpression(node: any): Promise<any> {
     const left = await this.evaluateNode(node.left);
@@ -2432,7 +2321,338 @@ export class WangInterpreter {
 
     const property = node.computed ? await this.evaluateNode(node.property) : node.property.name;
 
+    // Handle native string methods
+    if (typeof object === 'string') {
+      const method = this.getStringMethod(object, property);
+      if (method) {
+        return method;
+      }
+    }
+
+    // Handle native array methods
+    if (Array.isArray(object)) {
+      const method = this.getArrayMethod(object, property);
+      if (method) {
+        return method;
+      }
+    }
+
     return object[property];
+  }
+
+  private getStringMethod(str: string, methodName: string): Function | undefined {
+    const interpreter = this;
+    
+    switch (methodName) {
+      case 'split':
+        return (separator?: string | RegExp) => {
+          // Use the built-in function or native method
+          const splitFn = interpreter.currentContext.functions.get('split');
+          return splitFn ? splitFn(str, separator) : str.split(separator as any);
+        };
+      
+      case 'includes':
+        return (searchString: string, position?: number) => str.includes(searchString, position);
+      
+      case 'indexOf':
+        return (searchString: string, position?: number) => str.indexOf(searchString, position);
+      
+      case 'lastIndexOf':
+        return (searchString: string, position?: number) => str.lastIndexOf(searchString, position);
+      
+      case 'substring':
+        return (start: number, end?: number) => {
+          const substringFn = interpreter.currentContext.functions.get('substring');
+          return substringFn ? substringFn(str, start, end) : str.substring(start, end);
+        };
+      
+      case 'substr':
+        return (start: number, length?: number) => str.substr(start, length);
+      
+      case 'slice':
+        return (start?: number, end?: number) => str.slice(start, end);
+      
+      case 'trim':
+        return () => {
+          const trimFn = interpreter.currentContext.functions.get('trim');
+          return trimFn ? trimFn(str) : str.trim();
+        };
+      
+      case 'trimStart':
+      case 'trimLeft':
+        return () => str.trimStart();
+      
+      case 'trimEnd':
+      case 'trimRight':
+        return () => str.trimEnd();
+      
+      case 'replace':
+        return (searchValue: string | RegExp, replaceValue: string) => {
+          const replaceFn = interpreter.currentContext.functions.get('replace');
+          return replaceFn ? replaceFn(str, searchValue, replaceValue) : str.replace(searchValue, replaceValue);
+        };
+      
+      case 'replaceAll':
+        return (searchValue: string | RegExp, replaceValue: string) => {
+          // Use replaceAll if available (ES2021+), otherwise use replace with global flag
+          if ('replaceAll' in String.prototype) {
+            return (str as any).replaceAll(searchValue, replaceValue);
+          }
+          // Fallback for older environments
+          if (typeof searchValue === 'string') {
+            return str.replace(new RegExp(searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replaceValue);
+          }
+          return str.replace(searchValue, replaceValue);
+        };
+      
+      case 'toLowerCase':
+        return () => {
+          const toLowerCaseFn = interpreter.currentContext.functions.get('toLowerCase');
+          return toLowerCaseFn ? toLowerCaseFn(str) : str.toLowerCase();
+        };
+      
+      case 'toUpperCase':
+        return () => {
+          const toUpperCaseFn = interpreter.currentContext.functions.get('toUpperCase');
+          return toUpperCaseFn ? toUpperCaseFn(str) : str.toUpperCase();
+        };
+      
+      case 'charAt':
+        return (index: number) => {
+          const charAtFn = interpreter.currentContext.functions.get('charAt');
+          return charAtFn ? charAtFn(str, index) : str.charAt(index);
+        };
+      
+      case 'charCodeAt':
+        return (index: number) => {
+          const charCodeAtFn = interpreter.currentContext.functions.get('charCodeAt');
+          return charCodeAtFn ? charCodeAtFn(str, index) : str.charCodeAt(index);
+        };
+      
+      case 'startsWith':
+        return (searchString: string, position?: number) => {
+          const startsWithFn = interpreter.currentContext.functions.get('startsWith');
+          return startsWithFn ? startsWithFn(str, searchString) : str.startsWith(searchString, position);
+        };
+      
+      case 'endsWith':
+        return (searchString: string, length?: number) => {
+          const endsWithFn = interpreter.currentContext.functions.get('endsWith');
+          return endsWithFn ? endsWithFn(str, searchString) : str.endsWith(searchString, length);
+        };
+      
+      case 'repeat':
+        return (count: number) => {
+          const repeatFn = interpreter.currentContext.functions.get('repeat');
+          return repeatFn ? repeatFn(str, count) : str.repeat(count);
+        };
+      
+      case 'padStart':
+        return (targetLength: number, padString?: string) => {
+          const padStartFn = interpreter.currentContext.functions.get('padStart');
+          return padStartFn ? padStartFn(str, targetLength, padString) : str.padStart(targetLength, padString);
+        };
+      
+      case 'padEnd':
+        return (targetLength: number, padString?: string) => {
+          const padEndFn = interpreter.currentContext.functions.get('padEnd');
+          return padEndFn ? padEndFn(str, targetLength, padString) : str.padEnd(targetLength, padString);
+        };
+      
+      case 'match':
+        return (regexp: RegExp | string) => str.match(regexp);
+      
+      case 'search':
+        return (regexp: RegExp | string) => str.search(regexp);
+      
+      case 'concat':
+        return (...strings: string[]) => str.concat(...strings);
+      
+      case 'length':
+        // For length property (not a method), return the value directly
+        return undefined;
+      
+      default:
+        return undefined;
+    }
+  }
+
+  private getArrayMethod(arr: any[], methodName: string): Function | undefined {
+    const interpreter = this;
+    
+    switch (methodName) {
+      case 'filter':
+        return async (predicate: (value: any, index: number, array: any[]) => unknown) => {
+          const filterFn = interpreter.currentContext.functions.get('filter') || interpreter.globalContext.functions.get('filter');
+          return filterFn ? await filterFn(arr, predicate) : arr.filter(predicate);
+        };
+      
+      case 'map':
+        return async (mapper: (value: any, index: number, array: any[]) => unknown) => {
+          const mapFn = interpreter.currentContext.functions.get('map') || interpreter.globalContext.functions.get('map');
+          return mapFn ? await mapFn(arr, mapper) : arr.map(mapper);
+        };
+      
+      case 'reduce':
+        return async (reducer: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any, initial?: any) => {
+          const reduceFn = interpreter.currentContext.functions.get('reduce') || interpreter.globalContext.functions.get('reduce');
+          return reduceFn ? await reduceFn(arr, reducer, initial) : arr.reduce(reducer, initial);
+        };
+      
+      case 'find':
+        return async (predicate: (value: any, index: number, obj: any[]) => unknown) => {
+          const findFn = interpreter.currentContext.functions.get('find') || interpreter.globalContext.functions.get('find');
+          return findFn ? await findFn(arr, predicate) : arr.find(predicate);
+        };
+      
+      case 'findIndex':
+        return (predicate: (value: any, index: number, obj: any[]) => unknown) => arr.findIndex(predicate);
+      
+      case 'some':
+        return async (predicate: (value: any, index: number, array: any[]) => unknown) => {
+          const someFn = interpreter.currentContext.functions.get('some') || interpreter.globalContext.functions.get('some');
+          return someFn ? await someFn(arr, predicate) : arr.some(predicate);
+        };
+      
+      case 'every':
+        return async (predicate: (value: any, index: number, array: any[]) => unknown) => {
+          const everyFn = interpreter.currentContext.functions.get('every') || interpreter.globalContext.functions.get('every');
+          return everyFn ? await everyFn(arr, predicate) : arr.every(predicate);
+        };
+      
+      case 'forEach':
+        return async (fn: (value: any, index: number, array: any[]) => void) => {
+          // Execute the callback for each element
+          if (typeof fn === 'function') {
+            for (let i = 0; i < arr.length; i++) {
+              // Call directly with values to avoid closure issues
+              await fn(arr[i], i, arr);
+            }
+          }
+          return undefined; // forEach returns undefined
+        };
+      
+      case 'sort':
+        return (compareFn?: (a: any, b: any) => number) => {
+          const sortFn = interpreter.currentContext.functions.get('sort') || interpreter.globalContext.functions.get('sort');
+          // Sort mutates the array and returns it (JavaScript behavior)
+          return sortFn ? sortFn(arr, compareFn) : arr.sort(compareFn);
+        };
+      
+      case 'reverse':
+        return () => {
+          const reverseFn = interpreter.currentContext.functions.get('reverse') || interpreter.globalContext.functions.get('reverse');
+          // Reverse mutates the array and returns it (JavaScript behavior)
+          return reverseFn ? reverseFn(arr) : arr.reverse();
+        };
+      
+      case 'slice':
+        return (start?: number, end?: number) => {
+          const sliceFn = interpreter.currentContext.functions.get('slice');
+          return sliceFn ? sliceFn(arr, start, end) : arr.slice(start, end);
+        };
+      
+      case 'splice':
+        return (start: number, deleteCount?: number, ...items: any[]) => {
+          // Splice mutates the array and returns removed elements (JavaScript behavior)
+          return arr.splice(start, deleteCount ?? arr.length - start, ...items);
+        };
+      
+      case 'concat':
+        return (...arrays: any[]) => {
+          const concatFn = interpreter.currentContext.functions.get('concat');
+          return concatFn ? concatFn(arr, ...arrays) : arr.concat(...arrays);
+        };
+      
+      case 'join':
+        return (separator?: string) => {
+          const joinFn = interpreter.currentContext.functions.get('join');
+          return joinFn ? joinFn(arr, separator) : arr.join(separator);
+        };
+      
+      case 'includes':
+        return (item: any, fromIndex?: number) => {
+          const includesFn = interpreter.currentContext.functions.get('includes');
+          return includesFn ? includesFn(arr, item) : arr.includes(item, fromIndex);
+        };
+      
+      case 'indexOf':
+        return (item: any, fromIndex?: number) => {
+          const indexOfFn = interpreter.currentContext.functions.get('indexOf');
+          return indexOfFn ? indexOfFn(arr, item) : arr.indexOf(item, fromIndex);
+        };
+      
+      case 'lastIndexOf':
+        return (item: any, fromIndex?: number) => {
+          // There's a bizarre issue where native lastIndexOf isn't working
+          // Implement it manually as a workaround
+          const len = arr.length;
+          let start = fromIndex !== undefined 
+            ? (fromIndex < 0 ? Math.max(0, len + fromIndex) : Math.min(fromIndex, len - 1))
+            : len - 1;
+          
+          for (let i = start; i >= 0; i--) {
+            if (arr[i] === item) {
+              return i;
+            }
+          }
+          return -1;
+        };
+      
+      case 'push':
+        return (...items: any[]) => {
+          const pushFn = interpreter.currentContext.functions.get('push');
+          if (pushFn) {
+            return pushFn(arr, ...items);
+          }
+          // Push mutates the array and returns the new length (JavaScript behavior)
+          arr.push(...items);
+          return arr.length;
+        };
+      
+      case 'pop':
+        return () => {
+          const popFn = interpreter.currentContext.functions.get('pop');
+          if (popFn) {
+            return popFn(arr);
+          }
+          // Pop mutates the array and returns the removed element (JavaScript behavior)
+          return arr.pop();
+        };
+      
+      case 'shift':
+        return () => {
+          const shiftFn = interpreter.currentContext.functions.get('shift');
+          if (shiftFn) {
+            return shiftFn(arr);
+          }
+          // Shift mutates the array and returns the removed element (JavaScript behavior)
+          return arr.shift();
+        };
+      
+      case 'unshift':
+        return (...items: any[]) => {
+          const unshiftFn = interpreter.currentContext.functions.get('unshift');
+          if (unshiftFn) {
+            return unshiftFn(arr, ...items);
+          }
+          // Unshift mutates the array and returns the new length (JavaScript behavior)
+          return arr.unshift(...items);
+        };
+      
+      case 'flat':
+        return (depth?: number) => arr.flat(depth);
+      
+      case 'flatMap':
+        return (mapper: (value: any, index: number, array: any[]) => any) => arr.flatMap(mapper);
+      
+      case 'length':
+        // For length property (not a method), return undefined to use regular property access
+        return undefined;
+      
+      default:
+        return undefined;
+    }
   }
 
   private async evaluateNewExpression(node: any): Promise<any> {

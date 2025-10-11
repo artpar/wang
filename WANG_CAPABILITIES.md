@@ -69,7 +69,6 @@ After testing 66+ progressive complexity cases, Wang's parser successfully handl
 ### Level 7: Special Features
 - Template literals: `` `Hello World` ``
 - Regex literals: `/pattern/gi`
-- **Pipeline operator** (Wang-specific): `5 |> double`
 - Optional chaining: `obj?.missing?.value`
 - Nullish coalescing: `val ?? "default"`
 - Typeof operator

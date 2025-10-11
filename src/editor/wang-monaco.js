@@ -41,8 +41,6 @@ export const wangLanguage = {
   typeKeywords: [],
 
   operators: [
-    '|>',
-    '->',
     '=>',
     '+=',
     '-=',

@@ -36,7 +36,7 @@ export interface SerializedState {
   currentContext: SerializedContext;
   executionState: ExecutionState;
   moduleCache: Array<[string, any]>;
-  lastPipelineValue?: any;
+  // Pipeline value removed - not JavaScript compatible
   customFunctions?: string[]; // Names of custom functions (can't serialize functions)
 }
 
@@ -242,7 +242,7 @@ export class PausableWangInterpreter extends WangInterpreter {
       currentContext: this.serializeContext(this.currentContext),
       executionState: this.serializeExecutionState(),
       moduleCache: Array.from(this.globalModuleCache.entries()),
-      lastPipelineValue: this.lastPipelineValue,
+      // Pipeline value removed
       customFunctions: Array.from(this.globalContext.functions.keys()),
     };
   }
@@ -270,7 +270,7 @@ export class PausableWangInterpreter extends WangInterpreter {
 
     // Restore execution state
     interpreter.executionState = interpreter.deserializeExecutionState(state.executionState);
-    interpreter.lastPipelineValue = state.lastPipelineValue;
+    // Pipeline value removed
 
     return interpreter;
   }

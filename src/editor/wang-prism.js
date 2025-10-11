@@ -73,11 +73,6 @@
     // Numbers
     number: /\b(?:0x[\dA-Fa-f]+|0b[01]+|0o[0-7]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\b/,
 
-    // Pipeline operators (Wang-specific)
-    'pipeline-operator': {
-      pattern: /\|>|->/,
-      alias: 'operator important',
-    },
 
     // Arrow function operator
     'arrow-operator': {
@@ -122,8 +117,6 @@
       return;
     }
 
-    // Pre-process to handle multiline pipelines
-    env.code = env.code.replace(/\n\s*(\|>|->)/g, ' $1');
   });
 
   // Hook to add special classes for Wang-specific features
@@ -132,10 +125,6 @@
       return;
     }
 
-    // Add special class for pipeline operators
-    if (env.type === 'pipeline-operator') {
-      env.classes.push('wang-pipeline');
-    }
 
     // Add special class for Wang keywords
     if (env.type === 'keyword' && ['import', 'export', 'from', 'as'].includes(env.content)) {

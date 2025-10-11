@@ -1334,9 +1334,7 @@ const lexer = moo.compile({
   '++': /\+\+/u, '--': /--/u,
   '**': /\*\*/u,
   
-  // Pipeline operators (Wang-specific)
-  '|>': /\|>/u,
-  '->': /->/u,
+  // Arrow function operator (JavaScript compatible)
   '=>': /=>/u,
   
   // Single character tokens
@@ -1402,9 +1400,7 @@ function createUnaryOp(operator, argument, prefix = true, data) {
   return createNode('UnaryExpression', { operator, argument, prefix }, data);
 }
 
-function createPipeline(left, operator, right, data) {
-  return createNode('PipelineExpression', { operator, left, right }, data);
-}
+// Pipeline functions removed - not JavaScript compatible
 
 function createIdentifier(name, data) {
   return createNode('Identifier', { name }, data);
@@ -1424,43 +1420,16 @@ var grammar = {
     {"name": "Program", "symbols": ["StatementList"], "postprocess": d => createNode('Program', { body: d[0] })},
     {"name": "StatementList", "symbols": [], "postprocess": () => []},
     {"name": "StatementList", "symbols": ["Statement"], "postprocess": d => [d[0]]},
-    {"name": "StatementList", "symbols": ["StatementList", (lexer.has("NL") ? {type: "NL"} : NL), "Statement"], "postprocess": d => [...d[0], d[2]]},
-    {"name": "StatementList", "symbols": ["StatementList", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": d => d[0]},
+    {"name": "StatementList", "symbols": ["StatementList", "StatementTerminator", "Statement"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "StatementList", "symbols": ["StatementList", "StatementTerminator"], "postprocess": d => d[0]},
+    {"name": "StatementTerminator", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
+    {"name": "StatementTerminator", "symbols": [{"literal":";"}], "postprocess": id},
+    {"name": "StatementTerminator", "symbols": [{"literal":";"}, (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": id},
     {"name": "Statement", "symbols": ["Declaration"], "postprocess": id},
     {"name": "Statement", "symbols": ["LabeledStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ControlStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["ExpressionStatement"], "postprocess": id},
     {"name": "Statement", "symbols": ["Block"], "postprocess": id},
-    {"name": "Statement", "symbols": ["PipelineContinuation"], "postprocess": id},
-    {"name": "Statement", "symbols": ["MemberContinuation"], "postprocess": id},
-    {"name": "PipelineContinuation$subexpression$1", "symbols": [{"literal":"|>"}]},
-    {"name": "PipelineContinuation$subexpression$1", "symbols": [{"literal":"->"}]},
-    {"name": "PipelineContinuation$ebnf$1", "symbols": []},
-    {"name": "PipelineContinuation$ebnf$1", "symbols": ["PipelineContinuation$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "PipelineContinuation", "symbols": ["PipelineContinuation$subexpression$1", "PipelineContinuation$ebnf$1", "AssignmentExpression"], "postprocess":  d => {
-          // This will be handled specially by the statement list processor
-          return createNode('PipelineContinuation', {
-            operator: d[0][0].value,
-            right: d[2]
-          });
-        } },
-    {"name": "MemberContinuation$ebnf$1", "symbols": ["Arguments"], "postprocess": id},
-    {"name": "MemberContinuation$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MemberContinuation", "symbols": [{"literal":"."}, "PropertyName", "MemberContinuation$ebnf$1"], "postprocess":  d => {
-          return createNode('MemberContinuation', {
-            property: createIdentifier(d[1].value),
-            arguments: d[2] || null
-          });
-        } },
-    {"name": "MemberContinuation$ebnf$2", "symbols": ["Arguments"], "postprocess": id},
-    {"name": "MemberContinuation$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "MemberContinuation", "symbols": [{"literal":"?."}, "PropertyName", "MemberContinuation$ebnf$2"], "postprocess":  d => {
-          return createNode('MemberContinuation', {
-            property: createIdentifier(d[1].value),
-            arguments: d[2] || null,
-            optional: true
-          });
-        } },
     {"name": "LabeledStatement", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier), {"literal":":"}, "LoopStatement"], "postprocess":  d => createNode('LabeledStatement', {
           label: createIdentifier(d[0].value),
           body: d[2]
@@ -1735,17 +1704,13 @@ var grammar = {
     {"name": "ContinueStatement", "symbols": [{"literal":"continue"}, "ContinueStatement$ebnf$1"], "postprocess": d => createNode('ContinueStatement', { label: d[1] ? createIdentifier(d[1].value) : null })},
     {"name": "ExpressionStatement", "symbols": ["Expression"], "postprocess": d => createNode('ExpressionStatement', { expression: d[0] })},
     {"name": "Expression", "symbols": ["AssignmentExpression"], "postprocess": id},
-    {"name": "AssignmentExpression", "symbols": ["PipelineExpression"], "postprocess": id},
+    {"name": "AssignmentExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["ArrowFunction"], "postprocess": id},
     {"name": "AssignmentExpression", "symbols": ["LeftHandSideExpression", "AssignmentOperator", "AssignmentExpression"], "postprocess":  d => createNode('AssignmentExpression', {
           operator: d[1],
           left: d[0],
           right: d[2]
         }) },
-    {"name": "PipelineExpression", "symbols": ["ConditionalExpression"], "postprocess": id},
-    {"name": "PipelineExpression$subexpression$1", "symbols": [{"literal":"|>"}]},
-    {"name": "PipelineExpression$subexpression$1", "symbols": [{"literal":"->"}]},
-    {"name": "PipelineExpression", "symbols": ["PipelineExpression", "PipelineExpression$subexpression$1", "ConditionalExpression"], "postprocess": d => createPipeline(d[0], d[1][0].value, d[2])},
     {"name": "AssignmentOperator", "symbols": [{"literal":"="}], "postprocess": d => d[0].value},
     {"name": "AssignmentOperator", "symbols": [{"literal":"+="}], "postprocess": d => d[0].value},
     {"name": "AssignmentOperator", "symbols": [{"literal":"-="}], "postprocess": d => d[0].value},

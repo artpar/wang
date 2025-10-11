@@ -119,16 +119,8 @@ describe('setVariable() method', () => {
     expect(result).toBe('Not a Number');
   });
 
-  it('should work with pipeline operators', async () => {
-    const interpreter = new WangInterpreter();
-    interpreter.setVariable('Math', Math);
-    
-    const result = await interpreter.execute(`
-      -25 |> Math.abs |> Math.sqrt
-    `);
-    
-    expect(result).toBe(5);
-  });
+  // Pipeline operators removed - not JavaScript compatible
+  // Test removed as it used Wang-specific pipeline syntax
 
   it('should allow setting functions as variables', async () => {
     const interpreter = new WangInterpreter();

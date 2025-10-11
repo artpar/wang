@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Wang is a modern workflow programming language that runs inside JavaScript, designed for browser automation and data transformation. The language features:
-- Modern JavaScript-like syntax with pipelines (`|>` and `->`) supporting multiline expressions
+- Modern JavaScript-like syntax fully aligned with ES6+ standards
 - Full module system with named imports/exports
 - Classes with inheritance, methods, and proper scoping
 - CSP-safe execution (no eval/new Function)
@@ -37,7 +37,7 @@ Wang is a modern workflow programming language that runs inside JavaScript, desi
    - CSP-safe by default (no code generation)
    - Full error recovery with suggestions
    - Location tracking for error reporting
-   - Supports classes, modules, async/await, pipelines
+   - Supports classes, modules, async/await
 
 3. **Interpreter** (`wang-interpreter.js`): Executes the CST
    - Pluggable module resolver interface
@@ -61,11 +61,11 @@ import { ProfileExtractor } from "./modules/extractor.wang"
 let profiles = querySelectorAll(".profile-card")
 const API_URL = "https://api.example.com"
 
-// Pipeline operators
-profiles 
-  |> filter(_, "active")           // Pipe operator
-  |> map(_, extractProfile)
-  -> store("results")              // Arrow operator
+// Method chaining and functional programming
+let activeProfiles = profiles
+  .filter(p => p.active)
+  .map(extractProfile);
+store("results", activeProfiles)
 
 // Classes and interfaces
 class LinkedInWorkflow extends Workflow {
@@ -73,7 +73,8 @@ class LinkedInWorkflow extends Workflow {
     for (let profile of profiles) {
       let decision = await this.judge(profile)
       if (decision === "save") {
-        profile |> querySelector(".save-btn") |> click
+        let saveBtn = profile.querySelector(".save-btn")
+        saveBtn.click()
       }
     }
   }
@@ -97,7 +98,7 @@ import { WangInterpreter, InMemoryModuleResolver } from "./wang-interpreter.js"
 const resolver = new InMemoryModuleResolver()
 resolver.addModule("myModule", `
   export function processData(data) {
-    return data |> filter(_, active) |> sort()
+    return data.filter(active).sort()
   }
 `)
 
@@ -179,11 +180,10 @@ npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
    - Easy to implement custom resolvers for any storage backend
    - Module caching for performance
 
-3. **Modern Syntax**:
-   - JavaScript-like syntax familiar to developers
-   - Pipeline operators (`|>` and `->`) for data flow with multiline support
+3. **Modern JavaScript Syntax**:
+   - Full ES6+ JavaScript syntax support
    - Method chaining across lines
-   - Classes, interfaces, async/await support
+   - Classes, async/await support
    - Destructuring, template literals, optional chaining
    - JSON-like object literals with newlines
 
@@ -246,7 +246,7 @@ Wang achieves **638/640 tests passing** with comprehensive coverage of:
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `switch`, `try/catch/finally`
-- **Operators**: All arithmetic, comparison, logical, and pipeline operators (`|>`, `->`)
+- **Operators**: All standard JavaScript arithmetic, comparison, and logical operators
 
 ### Modern JavaScript Syntax
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
@@ -257,7 +257,6 @@ Wang achieves **638/640 tests passing** with comprehensive coverage of:
 - **Multiline Expressions** (v0.21.0+): Complex conditionals and expressions can span multiple lines with proper indentation
 
 ### Advanced Features
-- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) for elegant data flow with multiline support
 - **Method Chaining**: Cross-line method chaining with proper continuation
 - **Class Inheritance**: Full OOP support with `extends` and `super()`
 - **Module Resolution**: Pluggable resolvers (Memory, IndexedDB, HTTP, Composite)

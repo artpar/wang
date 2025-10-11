@@ -130,13 +130,13 @@ describe('Wang Interpreter Return Values', () => {
     expect(result).toBe(25);
   });
 
-  it('should work with pipeline operators returning last value', async () => {
+  it('should work with function composition returning last value', async () => {
     interpreter.bindFunction('double', (x) => x * 2);
     interpreter.bindFunction('addTen', (x) => x + 10);
 
     const result = await interpreter.execute(`
       let start = 5
-      start |> double(_) |> addTen(_)
+      addTen(double(start))
     `);
     expect(result).toBe(20);
   });

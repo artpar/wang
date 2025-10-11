@@ -1,13 +1,13 @@
 {
-  "Pipeline": {
-    "prefix": "pipe",
+  "Method Chain": {
+    "prefix": "chain",
     "body": [
       "${1:data}",
-      "  |> ${2:filter}(_, ${3:predicate})",
-      "  |> ${4:map}(_, ${5:transform})",
-      "  -> ${6:result}"
+      "  .${2:filter}(${3:predicate})",
+      "  .${4:map}(${5:transform})",
+      "  .${6:reduce}(${7:reducer})"
     ],
-    "description": "Wang pipeline expression"
+    "description": "Wang method chaining"
   },
   "Class": {
     "prefix": "class",

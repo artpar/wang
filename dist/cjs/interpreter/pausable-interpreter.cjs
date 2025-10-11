@@ -169,7 +169,7 @@ class PausableWangInterpreter extends index_1.WangInterpreter {
             currentContext: this.serializeContext(this.currentContext),
             executionState: this.serializeExecutionState(),
             moduleCache: Array.from(this.globalModuleCache.entries()),
-            lastPipelineValue: this.lastPipelineValue,
+            // Pipeline value removed
             customFunctions: Array.from(this.globalContext.functions.keys()),
         };
     }
@@ -187,7 +187,7 @@ class PausableWangInterpreter extends index_1.WangInterpreter {
         });
         // Restore execution state
         interpreter.executionState = interpreter.deserializeExecutionState(state.executionState);
-        interpreter.lastPipelineValue = state.lastPipelineValue;
+        // Pipeline value removed
         return interpreter;
     }
     // Helper methods for serialization

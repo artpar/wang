@@ -25,8 +25,8 @@ registerWangLanguage(monaco)
 const editor = monaco.editor.create(document.getElementById('container'), {
   value: `// Wang code here
 let data = [1, 2, 3]
-  |> map(_, n => n * 2)
-  -> result`,
+  .map(n => n * 2)
+  .filter(n => n > 2)`,
   language: 'wang',
   theme: 'vs-dark',
   automaticLayout: true
@@ -35,14 +35,14 @@ let data = [1, 2, 3]
 
 ### Custom Theme
 
-Create a Wang-specific theme with enhanced pipeline operator highlighting:
+Create a Wang-specific theme with enhanced syntax highlighting:
 
 ```javascript
 monaco.editor.defineTheme('wang-dark', {
   base: 'vs-dark',
   inherit: true,
   rules: [
-    { token: 'keyword.operator.pipeline.wang', foreground: 'ff79c6', fontStyle: 'bold' },
+    { token: 'keyword.operator.wang', foreground: 'ff79c6', fontStyle: 'bold' },
     { token: 'string.template.wang', foreground: '50fa7b' },
     { token: 'keyword.control.wang', foreground: 'ff79c6' },
     { token: 'storage.type.wang', foreground: '8be9fd' }
@@ -108,7 +108,7 @@ mkdir -p ~/.vscode/extensions/wang-lang
 
 | Prefix | Description | Expands to |
 |--------|-------------|------------|
-| `pipe` | Pipeline expression | Multi-line pipeline with `\|>` and `->` |
+| `chain` | Method chaining | Multi-line method chaining |
 | `class` | Class definition | Full class with constructor and methods |
 | `imp` | Import statement | `import { name } from "module"` |
 | `afn` | Async function | `async function name(params) { }` |
@@ -150,8 +150,8 @@ const view = new EditorView({
 import { process } from "./workflow.wang"
 
 let results = data
-  |> filter(_, active)
-  -> process`
+  .filter(active)
+  .map(process)`
 })
 ```
 
@@ -163,7 +163,7 @@ All syntax highlighters support:
 
 - **Keywords**: `let`, `const`, `var`, `if`, `else`, `for`, `while`, `class`, `function`, etc.
 - **Operators**: All arithmetic, logical, comparison, and assignment operators
-- **Pipeline Operators**: `|>` (pipe) and `->` (arrow) with special highlighting
+- **Method Chaining**: Method calls and property access with proper highlighting
 - **Comments**: Line (`//`) and block (`/* */`) comments
 - **Strings**: Single, double quotes, and template literals with interpolation
 - **Numbers**: Integers, floats, hex numbers, scientific notation
@@ -171,7 +171,7 @@ All syntax highlighters support:
 
 ### Wang-Specific Features
 
-1. **Pipeline Operators** - Special highlighting for `|>` and `->`
+1. **Method Chaining** - Special highlighting for method calls and property access
 2. **Template Literals** - Full support with `${expression}` interpolation
 3. **Optional Chaining** - Highlights `?.` operator
 4. **Spread Operator** - Highlights `...` in arrays and objects
@@ -213,7 +213,7 @@ Create a custom theme in your `settings.json`:
   "editor.tokenColorCustomizations": {
     "textMateRules": [
       {
-        "scope": "keyword.operator.pipeline.wang",
+        "scope": "keyword.operator.wang",
         "settings": {
           "foreground": "#ff79c6",
           "fontStyle": "bold"
@@ -229,7 +229,7 @@ Create a custom theme in your `settings.json`:
 Apply custom styles with CSS:
 
 ```css
-.cm-wang-pipeline { color: #ff79c6; font-weight: bold; }
+.cm-wang-operator { color: #ff79c6; font-weight: bold; }
 .cm-wang-keyword { color: #8be9fd; }
 .cm-wang-string { color: #50fa7b; }
 .cm-wang-comment { color: #6272a4; font-style: italic; }

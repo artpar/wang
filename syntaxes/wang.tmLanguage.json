@@ -11,7 +11,6 @@
     { "include": "#operators" },
     { "include": "#punctuation" },
     { "include": "#identifiers" },
-    { "include": "#pipeline-operators" }
   ],
   "repository": {
     "comments": {
@@ -130,10 +129,6 @@
           "match": "\\\\."
         }
       ]
-    },
-    "pipeline-operators": {
-      "name": "keyword.operator.pipeline.wang",
-      "match": "(\\|>|->)"
     },
     "operators": {
       "patterns": [

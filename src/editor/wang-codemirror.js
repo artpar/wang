@@ -47,10 +47,6 @@ export const wangLanguage = StreamLanguage.define({
       return 'number';
     }
 
-    // Pipeline operators (Wang-specific)
-    if (stream.match('|>') || stream.match('->')) {
-      return 'operator special';
-    }
 
     // Operators
     if (

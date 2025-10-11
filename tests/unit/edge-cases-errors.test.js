@@ -391,11 +391,11 @@ describe('Edge Cases: Error Handling and Propagation', () => {
       ]);
     });
 
-    it('should handle errors in pipeline operations', async () => {
+    it('should handle errors in nested function calls', async () => {
       const code = `
                 let result
                 try {
-                    result = 10 |> safeDivide(_, 0) |> safeDivide(_, 2)
+                    result = safeDivide(safeDivide(10, 0), 2)
                 } catch (e) {
                     result = 'caught: ' + e.message
                 }

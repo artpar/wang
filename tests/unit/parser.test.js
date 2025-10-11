@@ -101,18 +101,7 @@ describe('Wang Parser', () => {
     expect(arr.elements).toHaveLength(0);
   });
 
-  it('should parse pipeline expression', () => {
-    const ctx = new TestContext();
-    const results = ctx.parse('data |> filter(_, active) |> sort()');
-
-    // Note: Currently returns 2 identical parses due to harmless grammar ambiguity
-    expect(results.length).toBeLessThanOrEqual(2);
-
-    const ast = results[0];
-    const expr = ast.body[0].expression;
-    expect(expr.type).toBe('PipelineExpression');
-    expect(expr.operator).toBe('|>');
-  });
+  // Pipeline expression test removed - not JavaScript compatible
 
   it('should parse class declaration', () => {
     const ctx = new TestContext();

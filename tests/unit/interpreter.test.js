@@ -289,18 +289,7 @@ describe('Wang Interpreter', () => {
     });
   });
 
-  describe('Pipeline Operators', () => {
-    it('should handle pipeline expressions', async () => {
-      const ctx = new TestContext();
-      ctx.addFunction('double', (x) => x * 2);
-      ctx.addFunction('addOne', (x) => x + 1);
-
-      const result = await ctx.execute(`
-        5 |> double(_) |> addOne(_)
-      `);
-      expect(result).toBe(11);
-    });
-  });
+  // Pipeline operators removed - not JavaScript compatible
 
   describe('Modules', () => {
     it('should handle import/export', async () => {

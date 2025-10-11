@@ -296,19 +296,7 @@ describe('Wang Metadata API', () => {
       expect(metadata.execution.loopIterations.get('while_loop_1')).toBe(5);
     });
 
-    it('should track pipeline operations', () => {
-      const node1 = { location: { startLine: 5, startColumn: 0 } };
-      const node2 = { location: { startLine: 6, startColumn: 0 } };
-
-      collector.onPipeline('|>', [1, 2, 3], [2, 3], node1);
-      collector.onPipeline('|>', [2, 3], [4, 6], node1);
-      collector.onPipeline('->', [4, 6], 'stored', node2);
-
-      expect(metadata.execution.pipelineOperations).toHaveLength(3);
-      expect(metadata.execution.pipelineOperations[0].operator).toBe('|>');
-      expect(metadata.execution.pipelineOperations[2].operator).toBe('->');
-      expect(metadata.execution.pipelineOperations[1].outputType).toBe('object');
-    });
+    // Pipeline operations tracking test removed - pipelines not supported
 
     it('should track errors', () => {
       const errorNode = { location: { startLine: 15, startColumn: 5 } };
@@ -507,18 +495,18 @@ describe('Wang Metadata API', () => {
       collector.onVariableAccess('x', 'read');
       collector.onVariableAccess('y', 'write', 10);
       collector.onBranch('if', true, true, null);
-      collector.onPipeline('|>', [1], [2], null);
+      // Pipeline operation removed - no longer counting as a call
 
       collector.onExecutionEnd();
 
       const summary = metadata.getExecutionSummary();
 
       expect(summary.state).toBe('completed');
-      expect(summary.totalCalls).toBe(1);
+      expect(summary.totalCalls).toBe(1);  // Only func1 call counts
       expect(summary.variableReads).toBe(1);
       expect(summary.variableWrites).toBe(1);
       expect(summary.branchesExecuted).toBe(1);
-      expect(summary.pipelineOperations).toBe(1);
+      expect(summary.pipelineOperations).toBe(0);  // Pipelines removed from Wang
     });
 
     it('should get current state', () => {

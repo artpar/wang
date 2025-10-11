@@ -3,10 +3,6 @@
 **Version:** 0.21.0  
 **Test Coverage:** 655/657 tests (99.7%)  
 **CSP Safe:** ✅ No eval(), new Function()  
-**New in 0.21.0:** 🔀 Multiline conditional expressions and statements  
-**New in 0.15.14:** 📝 Multi-line function calls and parameters  
-**New in 0.11.1:** 🔧 Direct JavaScript object injection via setVariable()  
-**New in 0.9.0:** 🔍 Full Regular Expression Support  
 
 ## Overview
 
@@ -419,38 +415,20 @@ x = x + 1  // Simple increment: x becomes 6
 x = x + 1  // x becomes 7
 ```
 
-### Pipeline Operators
+### Method Chaining (JavaScript Compatible)
 
-#### Pipe Operator (`|>`)
-Passes result as first argument with `_` placeholder:
-
-```wang
+```javascript
+// Chain array methods directly
 [1, 2, 3, 4, 5]
-  |> filter(_, n => n > 2)     // [3, 4, 5]
-  |> map(_, n => n * 2)        // [6, 8, 10]
-  |> reduce(_, (sum, n) => sum + n, 0) // 24
+  .filter(n => n > 2)     // [3, 4, 5]
+  .map(n => n * 2)        // [6, 8, 10]
+  .reduce((sum, n) => sum + n, 0) // 24
 
-// Method chaining with pipe
+// Method chaining with objects
 data
-  |> processor.filter(_)
-  |> processor.transform(_)
-  |> processor.validate(_)
-```
-
-#### Arrow Operator (`->`)
-Passes result to function or operation:
-
-```wang
-[1, 2, 3]
-  |> map(_, n => n * 2)
-  -> store.save("results")     // Save to store
-  -> log("Saved successfully") // Log message
-
-// Function composition
-value
-  |> transform(_)
-  -> validate
-  -> save
+  .filter(item => item.active)
+  .transform(options)
+  .validate()
 ```
 
 ### Data Types & Structures
@@ -609,12 +587,12 @@ const emails = text.match(/\w+@\w+\.\w+/g);     // ["user@domain.com"]
 const hasPhone = /\(\d{3}\)/.test(text);        // true
 const cleaned = text.replace(/\d+/g, "XXX");    // Replace digits
 
-// Integration with pipelines
+// Integration with method chaining
 const logData = "ERROR: Failed login\nINFO: Success\nERROR: Timeout"
 const errorCount = logData
-  |> split(_, /\n/)
-  |> filter(_, line => line.match(/ERROR:/))
-  |> length(_);  // 2
+  .split(/\n/)
+  .filter(line => line.match(/ERROR:/))
+  .length;  // 2
 ```
 
 **Division vs Regex Disambiguation:**  
@@ -808,7 +786,7 @@ class CustomResolver extends ModuleResolver {
 
 ## Standard Library (New in v0.6.0!)
 
-Wang includes 70+ built-in functions that are automatically available globally - no imports needed! All functions follow snake_case naming, are immutable, and work seamlessly with pipeline operators.
+Wang includes 70+ built-in functions that are automatically available globally - no imports needed! All functions follow snake_case naming and are immutable.
 
 ### Array Operations
 
@@ -982,15 +960,14 @@ decode_base64(str)         // Decode base64 to string
 
 ### Examples
 
-#### Data Pipeline
+#### Data Processing
 ```javascript
-// Process user data
-users
-  |> filter(_, user => user.active)
-  |> unique_by(_, "email")
-  |> sort_by(_, "created_at")
-  |> map(_, user => pick(user, ["id", "name", "email"]))
-  |> take(_, 10)
+// Process user data using functions
+let filtered = filter(users, user => user.active)
+let unique = unique_by(filtered, "email")
+let sorted = sort_by(unique, "created_at")
+let mapped = map(sorted, user => pick(user, ["id", "name", "email"]))
+let result = take(mapped, 10)
 ```
 
 #### Object Manipulation
@@ -1003,20 +980,20 @@ let config = {
   }
 }
 
-let prod = config
-  |> set(_, "server.host", "api.example.com")
-  |> set(_, "server.port", 443)
-  |> merge(_, { ssl: true })
+let prod = merge(
+  set(set(config, "server.host", "api.example.com"), "server.port", 443),
+  { ssl: true }
+)
 ```
 
 #### String Processing
 ```javascript
 // Clean and format text
-"  Hello WORLD  "
-  |> trim
-  |> lower
-  |> capitalize
-  |> replace_all(_, "world", "Wang")
+let text = "  Hello WORLD  "
+let trimmed = trim(text)
+let lowered = lower(trimmed)
+let capitalized = capitalize(lowered)
+let result = replace_all(capitalized, "world", "Wang")
 // Result: "Hello wang"
 ```
 
@@ -1102,7 +1079,9 @@ const interpreter = new WangInterpreter({
 // Execute Wang code
 const result = await interpreter.execute(`
   let data = [1, 2, 3]
-  data |> map(_, x => x * 2) |> reduce(_, (sum, x) => sum + x, 0)
+  let mapped = data.map(x => x * 2)
+  let sum = mapped.reduce((sum, x) => sum + x, 0)
+  return sum
 `)
 console.log(result) // 12
 ```
@@ -1180,8 +1159,8 @@ await interpreter.execute(`
   
   for (let profile of profiles) {
     let data = {
-      name: profile |> querySelector(_, ".name") |> getText(_),
-      title: profile |> querySelector(_, ".title") |> getText(_)
+      name: getText(querySelector(profile, ".name")),
+      title: getText(querySelector(profile, ".title"))
     }
     
     // Click save button if profile is active
@@ -1380,7 +1359,8 @@ const validator = new WangValidator();
 // Validate syntax
 const result = validator.validate(`
   let x = 10
-  x |> processData |> log
+  let processed = processData(x)
+  log(processed)
 `);
 
 if (!result.valid) {
@@ -1442,9 +1422,9 @@ console.log(context.variables.get('variableName'));
 ```javascript
 // Good: Clear module boundaries
 export function processData(data) {
-  return validateData(data)
-    |> transformData(_)
-    |> optimizeData(_);
+  let validated = validateData(data)
+  let transformed = transformData(validated)
+  return optimizeData(transformed)
 }
 
 function validateData(data) { /* ... */ }
@@ -1470,11 +1450,11 @@ async function safeOperation() {
 
 ### Performance
 ```javascript
-// Good: Use pipelines for data transformation
+// Good: Use method chaining for data transformation
 data
-  |> filter(_, item => item.active)
-  |> map(_, item => transformItem(item))
-  |> reduce(_, (acc, item) => acc + item.value, 0);
+  .filter(item => item.active)
+  .map(item => transformItem(item))
+  .reduce((acc, item) => acc + item.value, 0);
 
 // Good: Batch async operations
 const promises = items.map(item => processAsync(item));
@@ -1500,7 +1480,7 @@ const interpreter = new WangInterpreter({
   onVariableAccess: (name, type, value) => collector.onVariableAccess(name, type, value),
   onModuleResolve: (from, requested, resolved) => collector.onModuleResolve(from, requested, resolved),
   onBranch: (type, condition, result, node) => collector.onBranch(type, condition, result, node),
-  onPipeline: (operator, input, output, node) => collector.onPipeline(operator, input, output, node),
+  // Method chaining tracked through standard call expressions
   onError: (error, node) => collector.onError(error, node)
 });
 
@@ -1531,7 +1511,7 @@ const metadata = collector.getMetadata();
 - Function call tracking with stack depth
 - Variable read/write access patterns
 - Control flow branches taken
-- Pipeline operation transformations
+- Function call transformations
 - Loop iteration counts
 - Error tracking with context
 
@@ -1621,13 +1601,13 @@ const config = await interpreter.execute(`
 // config = { env: "production", port: 3000, debug: false }
 ```
 
-#### Pipeline Result
+#### Array Processing
 ```javascript
 const processed = await interpreter.execute(`
-  [1, 2, 3, 4, 5]
-    |> filter(_, n => n > 2)
-    |> map(_, n => n * 2)
-    |> reduce(_, (sum, n) => sum + n, 0)
+  let data = [1, 2, 3, 4, 5]
+  let filtered = data.filter(n => n > 2)
+  let mapped = filtered.map(n => n * 2)
+  return mapped.reduce((sum, n) => sum + n, 0)
 `);
 // processed = 24
 ```
