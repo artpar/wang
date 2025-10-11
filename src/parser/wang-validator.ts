@@ -29,11 +29,11 @@ export class WangValidator {
   validate(code: string, options: ParserOptions = {}): ValidationResult {
     try {
       const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-      
+
       // Set a reasonable limit for code size to prevent OOM
       const MAX_CODE_LENGTH = 50000; // ~50KB of code
       const MAX_AMBIGUITY = 1000; // Maximum number of parse trees
-      
+
       if (code.length > MAX_CODE_LENGTH) {
         return {
           valid: false,
@@ -45,11 +45,11 @@ export class WangValidator {
           },
         };
       }
-      
+
       // Use a timeout to prevent infinite parsing
       const startTime = Date.now();
       const PARSE_TIMEOUT = 5000; // 5 seconds
-      
+
       try {
         parser.feed(code);
       } catch (parseError: any) {
@@ -58,7 +58,8 @@ export class WangValidator {
           return {
             valid: false,
             error: {
-              message: 'Parse timeout: Code structure is too complex for the parser to handle efficiently.',
+              message:
+                'Parse timeout: Code structure is too complex for the parser to handle efficiently.',
               line: 1,
               column: 1,
               suggestion: 'Try breaking complex nested expressions into separate statements',
@@ -86,7 +87,8 @@ export class WangValidator {
             message: `Code is too ambiguous: ${parser.results.length} possible interpretations found (maximum: ${MAX_AMBIGUITY}).`,
             line: 1,
             column: 1,
-            suggestion: 'Simplify complex expressions, especially nested ternary operators and object literals with logical OR operators',
+            suggestion:
+              'Simplify complex expressions, especially nested ternary operators and object literals with logical OR operators',
           },
         };
       }
@@ -101,14 +103,19 @@ export class WangValidator {
       };
     } catch (error: any) {
       // Check for stack overflow or memory errors
-      if (error.message && (error.message.includes('Maximum call stack') || error.message.includes('out of memory'))) {
+      if (
+        error.message &&
+        (error.message.includes('Maximum call stack') || error.message.includes('out of memory'))
+      ) {
         return {
           valid: false,
           error: {
-            message: 'Parser ran out of memory: Code contains expressions that are too complex to parse.',
+            message:
+              'Parser ran out of memory: Code contains expressions that are too complex to parse.',
             line: 1,
             column: 1,
-            suggestion: 'Break down complex nested expressions, especially combinations of ternary operators, logical OR, and object literals',
+            suggestion:
+              'Break down complex nested expressions, especially combinations of ternary operators, logical OR, and object literals',
           },
         };
       }

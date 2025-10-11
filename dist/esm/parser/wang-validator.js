@@ -78,7 +78,8 @@ export class WangValidator {
         }
         catch (error) {
             // Check for stack overflow or memory errors
-            if (error.message && (error.message.includes('Maximum call stack') || error.message.includes('out of memory'))) {
+            if (error.message &&
+                (error.message.includes('Maximum call stack') || error.message.includes('out of memory'))) {
                 return {
                     valid: false,
                     error: {
