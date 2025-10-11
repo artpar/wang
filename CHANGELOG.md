@@ -1,27 +1,8 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-### Added
-- **Runtime Version Logging**: Automatic logging of Wang runtime version on first execution
-  - Logs `Wang Language Runtime v{version}` when interpreter executes code for the first time
-  - Version automatically injected from package.json during build process
-  - Added build-time version injection script for all output formats (ESM, CJS, Browser)
-  - Version logged once per interpreter instance to avoid spam
-  - Helps with debugging and support by clearly identifying runtime version
-
-### Removed
-- **Pipeline Operators**: Removed `|>` and `->` operators to align with JavaScript standards
-  - All pipeline functionality has been removed from the language
-  - Use standard JavaScript method chaining and functional programming patterns instead
-  - Documentation updated to reflect JavaScript-aligned syntax only
-  - Test suite cleaned up to remove pipeline operator tests
-  - This change brings Wang fully in line with ES6+ JavaScript syntax
+### [0.21.7](https://github.com/artpar/wang/compare/v0.21.6...v0.21.7) (2025-10-11)
 
 ## [0.21.0] - 2025-01-05
 
