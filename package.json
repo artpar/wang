@@ -1,6 +1,6 @@
 {
   "name": "wang-lang",
-  "version": "0.21.8",
+  "version": "0.21.9",
   "description": "A CSP-safe workflow programming language for browser automation",
   "keywords": [
     "workflow",
