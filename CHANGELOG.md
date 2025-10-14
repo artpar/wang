@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.21.9] - 2025-01-14
+
+### Added
+- **Constructor Support**: Removed artificial constructor limitation - all native constructors now work
+  - Dynamic constructor detection using multiple heuristics (prototype patterns, native code signatures)
+  - Browser API constructors work seamlessly: `KeyboardEvent`, `MouseEvent`, `CustomEvent`, etc.
+  - Backward compatible with existing Wang classes and whitelisted constructors
+  - Comprehensive test suite with 9 new tests covering all constructor scenarios
+  - Maintains CSP-safe execution (no eval/new Function usage)
+
+### Improved
+- **Developer Experience**: No more hardcoded constructor whitelist - any injected native constructor works
+- **Browser Integration**: Perfect compatibility with browser automation workflows using DOM events
+
 ## [0.21.8] - 2024-10-11
 
 ### Fixed

@@ -804,7 +804,7 @@ Wang supports all core JavaScript features for workflow automation:
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await, error handling
-- **Built-ins**: Error constructor, type conversion functions, array methods
+- **Built-ins**: Error constructor, type conversion functions, array methods, native constructor support (KeyboardEvent, MouseEvent, etc.)
 
 ### ⚠️ Intentionally Unsupported Features
 

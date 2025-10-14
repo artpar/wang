@@ -138,8 +138,6 @@ After testing 66+ progressive complexity cases, Wang's parser successfully handl
 2. **Runtime features** - Parser accepts but runtime may lack:
    - `console` object (use `log()` instead)
    - Array prototype methods (`.slice()`, `.join()`)
-   - `Promise` constructor
-   - `Date` constructor
 3. **Minor syntax gaps**:
    - Method shorthand
    - Void operator

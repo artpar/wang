@@ -117,10 +117,20 @@ interpreter.setVariable('Math', Math)
 interpreter.setVariable('JSON', JSON)
 interpreter.setVariable('customAPI', myAPIObject)
 
+// Browser API constructors work seamlessly (v0.21.9+)
+interpreter.setVariable('KeyboardEvent', KeyboardEvent)
+interpreter.setVariable('MouseEvent', MouseEvent)
+interpreter.setVariable('CustomEvent', CustomEvent)
+
 // Execute Wang code
 await interpreter.execute(`
   import { processData } from "myModule"
   let result = processData(myData)
+  
+  // Create browser events like in native JavaScript
+  let keyEvent = new KeyboardEvent("keydown", { key: "Enter" })
+  let mouseEvent = new MouseEvent("click", { clientX: 100, clientY: 200 })
+  
   log(result)
 `)
 ```
@@ -253,6 +263,7 @@ Wang achieves **638/640 tests passing** with comprehensive coverage of:
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await with comprehensive error handling
 - **Built-ins**: Error constructor, type conversion functions, array methods
+- **Native Constructors**: Dynamic detection supports any native constructor (Date, Error, Array, KeyboardEvent, MouseEvent, etc.)
 - **Modern Operators**: Optional chaining (`?.`) with computed member access (`?.[expression]`), nullish coalescing (`??`)
 - **Multiline Expressions** (v0.21.0+): Complex conditionals and expressions can span multiple lines with proper indentation
 
