@@ -2331,6 +2331,45 @@ class WangInterpreter {
                 return undefined;
         }
     }
+    /**
+     * Determines if a function is a native JavaScript constructor that should be called with 'new'.
+     * Uses multiple heuristics to distinguish native constructors from Wang-defined classes.
+     */
+    isNativeConstructor(fn) {
+        // Check for common patterns of native constructors
+        if (fn === Date ||
+            fn === Error ||
+            fn === Array ||
+            fn === Object ||
+            fn === RegExp ||
+            fn === Map ||
+            fn === Set ||
+            fn === Promise) {
+            return true;
+        }
+        // Check if it's an async function (Wang classes are async)
+        if (fn.constructor.name === 'AsyncFunction') {
+            return false;
+        }
+        // Check for prototype pattern typical of native constructors
+        if (fn.prototype && fn.prototype.constructor === fn) {
+            // Additional check: native constructors typically have non-configurable prototype
+            const descriptor = Object.getOwnPropertyDescriptor(fn, 'prototype');
+            if (descriptor && !descriptor.writable) {
+                return true;
+            }
+            // Check if it's a browser API constructor (like KeyboardEvent, MouseEvent, etc.)
+            const fnString = fn.toString();
+            if (fnString.includes('[native code]')) {
+                return true;
+            }
+            // Additional heuristic: if function has prototype.constructor pattern
+            // and is not async, it's likely a native-style constructor
+            return true;
+        }
+        // Default to false for safety - assume it's a Wang class
+        return false;
+    }
     async evaluateNewExpression(node) {
         const constructor = await this.evaluateNode(node.callee);
         if (typeof constructor !== 'function') {
@@ -2342,20 +2381,13 @@ class WangInterpreter {
         for (const arg of node.arguments) {
             args.push(await this.evaluateNode(arg));
         }
-        // Handle built-in constructors specially
-        if (constructor === Date ||
-            constructor === Error ||
-            constructor === Array ||
-            constructor === Object ||
-            constructor === RegExp ||
-            constructor === Map ||
-            constructor === Set ||
-            constructor === Promise) {
+        // Use dynamic detection to determine if this is a native constructor
+        if (this.isNativeConstructor(constructor)) {
             // Call with new for native constructors
             return new constructor(...args);
         }
-        // Call the constructor function directly (it handles instance creation)
-        // Since our class constructor returns a promise, we need to await it
+        // For Wang-defined classes, call the constructor function directly 
+        // (it handles instance creation and returns a promise)
         const instance = await constructor(...args);
         return instance;
     }

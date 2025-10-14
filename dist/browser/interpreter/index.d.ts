@@ -92,6 +92,11 @@ export declare class WangInterpreter {
     private evaluateMemberExpression;
     private getStringMethod;
     private getArrayMethod;
+    /**
+     * Determines if a function is a native JavaScript constructor that should be called with 'new'.
+     * Uses multiple heuristics to distinguish native constructors from Wang-defined classes.
+     */
+    private isNativeConstructor;
     private evaluateNewExpression;
     private evaluateArrayExpression;
     private evaluateObjectExpression;
