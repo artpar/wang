@@ -46,6 +46,22 @@ export declare class WangInterpreter {
     private getStackTrace;
     private getNodeLocation;
     private enhanceErrorWithContext;
+    /**
+     * Enhanced error context for member expression calls that includes object inspection
+     */
+    private enhanceErrorWithMemberContext;
+    /**
+     * Get information about an object for error reporting
+     */
+    private getObjectInfo;
+    /**
+     * Find method names similar to the target name (for "did you mean" suggestions)
+     */
+    private findSimilarNames;
+    /**
+     * Calculate Levenshtein distance between two strings
+     */
+    private levenshteinDistance;
     private bindBuiltins;
     bindFunction(name: string, fn: Function): void;
     setVariable(name: string, value: any): void;
@@ -90,6 +106,11 @@ export declare class WangInterpreter {
     private evaluateUpdateExpression;
     private evaluateConditionalExpression;
     private evaluateMemberExpression;
+    /**
+     * Extract a human-readable name from a member expression AST node
+     * Examples: obj.method -> "obj.method", this.prop -> "this.prop", arr[0] -> "arr[0]"
+     */
+    private getMemberExpressionName;
     private getStringMethod;
     private getArrayMethod;
     /**

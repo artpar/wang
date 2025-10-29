@@ -209,7 +209,13 @@ npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
    - **Division by zero** detection with operand values
    - **Null/undefined access** protection with descriptive context
 
-5. **Browser Automation Focus**:
+5. **JavaScript-Compliant Short-Circuit Evaluation** (v0.21.10+):
+   - Logical OR (`||`) and AND (`&&`) operators now properly implement short-circuit evaluation
+   - Right-hand operands are only evaluated when necessary, matching JavaScript behavior
+   - Fixes issues where expensive operations (like async function calls) were incorrectly executed
+   - Example: `let id = input.id || (await fetchId()).data` - `fetchId()` only called when `input.id` is falsy
+
+6. **Browser Automation Focus**:
    - Bind any DOM manipulation functions
    - Support for async operations and waiting
    - Perfect for LinkedIn/web scraping workflows
@@ -249,7 +255,7 @@ Suggestions:
 
 ## Language Features Implemented (100% Test Coverage)
 
-Wang achieves **638/640 tests passing** with comprehensive coverage of:
+Wang achieves **684/684 tests passing** with comprehensive coverage of:
 
 ### Core Language Features
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
