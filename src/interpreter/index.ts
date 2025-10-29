@@ -168,7 +168,12 @@ export class WangInterpreter {
   /**
    * Enhanced error context for member expression calls that includes object inspection
    */
-  private enhanceErrorWithMemberContext(error: WangError, node: any, object: any, memberExprInfo?: { objectName: string; propertyName: string; fullName: string }): void {
+  private enhanceErrorWithMemberContext(
+    error: WangError,
+    node: any,
+    object: any,
+    memberExprInfo?: { objectName: string; propertyName: string; fullName: string },
+  ): void {
     // Start with standard error context
     this.enhanceErrorWithContext(error, node);
 
@@ -178,29 +183,34 @@ export class WangInterpreter {
       const originalMessage = error.message;
       error.message = originalMessage.replace(
         /Type mismatch in calling '.*?':/,
-        `Type mismatch in calling method '${memberExprInfo.propertyName}' on object '${memberExprInfo.objectName}':`
+        `Type mismatch in calling method '${memberExprInfo.propertyName}' on object '${memberExprInfo.objectName}':`,
       );
     }
 
     // Add object inspection if object exists
     if (object !== null && object !== undefined) {
       const objectInfo = this.getObjectInfo(object);
-      
+
       // Add object type information to suggestions
       if (!error.context.suggestions) {
         error.context.suggestions = [];
       }
-      
+
       // Insert object-specific suggestions at the beginning
       const memberSpecificSuggestions = [
         `Check if the method '${memberExprInfo?.propertyName || 'method'}' exists on the ${objectInfo.type}`,
       ];
 
       if (objectInfo.availableMethods.length > 0) {
-        memberSpecificSuggestions.push(`Available methods on '${memberExprInfo?.objectName || 'object'}': ${objectInfo.availableMethods.slice(0, 8).join(', ')}`);
-        
+        memberSpecificSuggestions.push(
+          `Available methods on '${memberExprInfo?.objectName || 'object'}': ${objectInfo.availableMethods.slice(0, 8).join(', ')}`,
+        );
+
         // Look for similar method names
-        const similarMethods = this.findSimilarNames(memberExprInfo?.propertyName || '', objectInfo.availableMethods);
+        const similarMethods = this.findSimilarNames(
+          memberExprInfo?.propertyName || '',
+          objectInfo.availableMethods,
+        );
         if (similarMethods.length > 0) {
           memberSpecificSuggestions.push(`Did you mean: ${similarMethods.slice(0, 3).join(', ')}?`);
         }
@@ -214,7 +224,11 @@ export class WangInterpreter {
   /**
    * Get information about an object for error reporting
    */
-  private getObjectInfo(obj: any): { type: string; availableMethods: string[]; properties: string[] } {
+  private getObjectInfo(obj: any): {
+    type: string;
+    availableMethods: string[];
+    properties: string[];
+  } {
     const type = Array.isArray(obj) ? 'array' : typeof obj;
     const availableMethods: string[] = [];
     const properties: string[] = [];
@@ -222,8 +236,7 @@ export class WangInterpreter {
     if (obj !== null && obj !== undefined) {
       // Get own properties
       const ownProps = Object.getOwnPropertyNames(obj);
-      const ownDescs = Object.getOwnPropertyDescriptors(obj);
-      
+
       for (const prop of ownProps) {
         if (typeof obj[prop] === 'function') {
           availableMethods.push(prop);
@@ -234,15 +247,47 @@ export class WangInterpreter {
 
       // Get prototype methods for common types
       if (Array.isArray(obj)) {
-        const arrayMethods = ['push', 'pop', 'shift', 'unshift', 'slice', 'splice', 'concat', 'join', 'forEach', 'map', 'filter', 'reduce', 'find', 'includes', 'indexOf', 'sort', 'reverse'];
-        arrayMethods.forEach(method => {
+        const arrayMethods = [
+          'push',
+          'pop',
+          'shift',
+          'unshift',
+          'slice',
+          'splice',
+          'concat',
+          'join',
+          'forEach',
+          'map',
+          'filter',
+          'reduce',
+          'find',
+          'includes',
+          'indexOf',
+          'sort',
+          'reverse',
+        ];
+        arrayMethods.forEach((method) => {
           if (typeof (obj as any)[method] === 'function' && !availableMethods.includes(method)) {
             availableMethods.push(method);
           }
         });
       } else if (typeof obj === 'string') {
-        const stringMethods = ['charAt', 'charCodeAt', 'concat', 'includes', 'indexOf', 'slice', 'split', 'substring', 'toLowerCase', 'toUpperCase', 'trim', 'replace', 'match'];
-        stringMethods.forEach(method => {
+        const stringMethods = [
+          'charAt',
+          'charCodeAt',
+          'concat',
+          'includes',
+          'indexOf',
+          'slice',
+          'split',
+          'substring',
+          'toLowerCase',
+          'toUpperCase',
+          'trim',
+          'replace',
+          'match',
+        ];
+        stringMethods.forEach((method) => {
           if (typeof (obj as any)[method] === 'function' && !availableMethods.includes(method)) {
             availableMethods.push(method);
           }
@@ -253,7 +298,11 @@ export class WangInterpreter {
         while (proto && proto !== Object.prototype) {
           const protoProps = Object.getOwnPropertyNames(proto);
           for (const prop of protoProps) {
-            if (typeof proto[prop] === 'function' && prop !== 'constructor' && !availableMethods.includes(prop)) {
+            if (
+              typeof proto[prop] === 'function' &&
+              prop !== 'constructor' &&
+              !availableMethods.includes(prop)
+            ) {
               availableMethods.push(prop);
             }
           }
@@ -284,7 +333,10 @@ export class WangInterpreter {
         score = 3;
       }
       // Check for similar starting letters
-      else if (name_lower.startsWith(target_lower.charAt(0)) && target_lower.startsWith(name_lower.charAt(0))) {
+      else if (
+        name_lower.startsWith(target_lower.charAt(0)) &&
+        target_lower.startsWith(name_lower.charAt(0))
+      ) {
         score = 2;
       }
       // Check Levenshtein distance for short strings
@@ -300,9 +352,7 @@ export class WangInterpreter {
       }
     }
 
-    return matches
-      .sort((a, b) => b.score - a.score)
-      .map(m => m.name);
+    return matches.sort((a, b) => b.score - a.score).map((m) => m.name);
   }
 
   /**
@@ -327,7 +377,7 @@ export class WangInterpreter {
           matrix[i][j] = Math.min(
             matrix[i - 1][j - 1] + 1,
             matrix[i][j - 1] + 1,
-            matrix[i - 1][j] + 1
+            matrix[i - 1][j] + 1,
           );
         }
       }
@@ -829,7 +879,7 @@ export class WangInterpreter {
           const left = this.evaluateNodeSync(node.left);
           return left && this.evaluateNodeSync(node.right);
         }
-        
+
         // For all other operators, evaluate both operands
         const left = this.evaluateNodeSync(node.left);
         const right = this.evaluateNodeSync(node.right);
@@ -952,8 +1002,8 @@ export class WangInterpreter {
         }
 
         if (typeof callee !== 'function') {
-          const error = new TypeMismatchError('function', callee, 'calling \'member expression\'');
-          
+          const error = new TypeMismatchError('function', callee, "calling 'member expression'");
+
           // Use enhanced error context for member expressions
           if (node.callee.type === 'MemberExpression') {
             const memberExprInfo = this.getMemberExpressionName(node.callee);
@@ -964,7 +1014,7 @@ export class WangInterpreter {
             error.message = error.message.replace(/calling '.*?'/, `calling '${calleeName}'`);
             this.enhanceErrorWithContext(error, node);
           }
-          
+
           throw error;
         }
 
@@ -2101,8 +2151,8 @@ export class WangInterpreter {
     }
 
     if (typeof callee !== 'function') {
-      const error = new TypeMismatchError('function', callee, 'calling \'member expression\'');
-      
+      const error = new TypeMismatchError('function', callee, "calling 'member expression'");
+
       // Use enhanced error context for member expressions
       if (node.callee.type === 'MemberExpression') {
         const memberExprInfo = this.getMemberExpressionName(node.callee);
@@ -2113,7 +2163,7 @@ export class WangInterpreter {
         error.message = error.message.replace(/calling '.*?'/, `calling '${calleeName}'`);
         this.enhanceErrorWithContext(error, node);
       }
-      
+
       throw error;
     }
 
@@ -2165,13 +2215,13 @@ export class WangInterpreter {
     // Handle logical operators with short-circuit evaluation
     if (node.operator === '||') {
       const left = await this.evaluateNode(node.left);
-      return left || await this.evaluateNode(node.right);
+      return left || (await this.evaluateNode(node.right));
     }
     if (node.operator === '&&') {
       const left = await this.evaluateNode(node.left);
-      return left && await this.evaluateNode(node.right);
+      return left && (await this.evaluateNode(node.right));
     }
-    
+
     // For all other operators, evaluate both operands
     const left = await this.evaluateNode(node.left);
     const right = await this.evaluateNode(node.right);
@@ -2546,7 +2596,11 @@ export class WangInterpreter {
    * Extract a human-readable name from a member expression AST node
    * Examples: obj.method -> "obj.method", this.prop -> "this.prop", arr[0] -> "arr[0]"
    */
-  private getMemberExpressionName(node: any): { objectName: string; propertyName: string; fullName: string } {
+  private getMemberExpressionName(node: any): {
+    objectName: string;
+    propertyName: string;
+    fullName: string;
+  } {
     let objectName = 'unknown';
     let propertyName = 'unknown';
 
@@ -2582,8 +2636,10 @@ export class WangInterpreter {
       }
     }
 
-    const fullName = node.computed ? `${objectName}[${propertyName}]` : `${objectName}.${propertyName}`;
-    
+    const fullName = node.computed
+      ? `${objectName}[${propertyName}]`
+      : `${objectName}.${propertyName}`;
+
     return { objectName, propertyName, fullName };
   }
 
