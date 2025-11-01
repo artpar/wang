@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.2](https://github.com/artpar/wang/compare/v0.24.1...v0.24.2) (2025-11-01)
+
+
+### Bug Fixes
+
+* auto-format code with prettier ([623b71e](https://github.com/artpar/wang/commit/623b71e166345a53a923ca341302ce76f88b3aa5))
+* clean up debug files and resolve linting issues for npm publish ([3659f8b](https://github.com/artpar/wang/commit/3659f8b521c57b414ff8865490f21f95a316f7ad))
+* critical variable scope and compound assignment bugs for 100% JS compatibility ([780597f](https://github.com/artpar/wang/commit/780597f7c06eb3b4cee2eb2b288a4c939c8dc3c3))
+
 ### [0.24.1](https://github.com/artpar/wang/compare/v0.23.0...v0.24.1) (2025-11-01)
 
 ### Critical Bug Fixes
