@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.1](https://github.com/artpar/wang/compare/v0.23.0...v0.24.1) (2025-11-01)
+
+
+### Features
+
+* fix NodeList forEach compatibility and enhanced error context ([fb53111](https://github.com/artpar/wang/commit/fb531118fff317f4450cbc82533683a40671facb))
+
+
+### Bug Fixes
+
+* resolve eslint issues for npm publish ([a655a95](https://github.com/artpar/wang/commit/a655a95ecf47a2b7eae0635d36e5f04833afc050))
+
 ## [0.24.0] - 2025-01-02
 
 ### Added
