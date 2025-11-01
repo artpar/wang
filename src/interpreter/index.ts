@@ -522,26 +522,21 @@ export class WangInterpreter {
         if (typeof fn !== 'function') {
           throw new TypeError(`${fn} is not a function`);
         }
-        
+
         // Capture array length at start to match JavaScript behavior
         const originalLength = arr.length;
-        
+
         for (let i = 0; i < originalLength; i++) {
           // Skip holes in sparse arrays (match JavaScript behavior)
-          if (!arr.hasOwnProperty(i)) {
+          if (!Object.prototype.hasOwnProperty.call(arr, i)) {
             continue;
           }
-          
-          try {
-            // Call the callback function with proper error handling
-            const result: any = fn(arr[i], i, arr);
-            // Only await if it's a promise (for async callbacks)
-            if (result && result instanceof Promise) {
-              await result;
-            }
-          } catch (error) {
-            // Propagate errors from callbacks to match JavaScript behavior
-            throw error;
+
+          // Call the callback function with proper error handling
+          const result: any = fn(arr[i], i, arr);
+          // Only await if it's a promise (for async callbacks)
+          if (result && result instanceof Promise) {
+            await result;
           }
         }
       },
@@ -953,7 +948,9 @@ export class WangInterpreter {
           case 'in':
             // Check if property exists in object
             if (right == null) {
-              throw new TypeError('Cannot use "in" operator to search for property in null or undefined');
+              throw new TypeError(
+                'Cannot use "in" operator to search for property in null or undefined',
+              );
             }
             return String(left) in Object(right);
           case 'instanceof':
@@ -2312,7 +2309,9 @@ export class WangInterpreter {
       case 'in':
         // Check if property exists in object
         if (right == null) {
-          throw new TypeError('Cannot use "in" operator to search for property in null or undefined');
+          throw new TypeError(
+            'Cannot use "in" operator to search for property in null or undefined',
+          );
         }
         return String(left) in Object(right);
       case 'instanceof':
@@ -2925,27 +2924,22 @@ export class WangInterpreter {
           if (typeof fn !== 'function') {
             throw new TypeError(`${fn} is not a function`);
           }
-          
+
           // Capture array length at start to match JavaScript behavior
           // (items added during iteration should not be processed)
           const originalLength = arr.length;
-          
+
           for (let i = 0; i < originalLength; i++) {
             // Skip holes in sparse arrays (match JavaScript behavior)
-            if (!arr.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(arr, i)) {
               continue;
             }
-            
-            try {
-              // Call the callback function with proper error handling
-              const result: any = fn(arr[i], i, arr);
-              // Only await if it's a promise (for async callbacks)
-              if (result && result instanceof Promise) {
-                await result;
-              }
-            } catch (error) {
-              // Propagate errors from callbacks to match JavaScript behavior
-              throw error;
+
+            // Call the callback function with proper error handling
+            const result: any = fn(arr[i], i, arr);
+            // Only await if it's a promise (for async callbacks)
+            if (result && result instanceof Promise) {
+              await result;
             }
           }
           return undefined; // forEach returns undefined
