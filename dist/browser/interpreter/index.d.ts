@@ -101,6 +101,9 @@ export declare class WangInterpreter {
     private assignPattern;
     private evaluateFunctionDeclaration;
     private canExecuteSynchronously;
+    private canExecuteSynchronouslyForCallback;
+    private canStatementExecuteSynchronouslyForCallback;
+    private canExpressionExecuteSynchronouslyForCallback;
     private canStatementExecuteSynchronously;
     private canExpressionExecuteSynchronously;
     private createFunction;

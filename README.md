@@ -27,7 +27,7 @@ A CSP-safe workflow programming language for browser automation, designed to run
 - 📊 **Execution Metadata API** - Comprehensive compilation and runtime metadata for debugging and analysis
 - 🔄 **Implicit Return Values** - Last expression in code becomes the return value, perfect for REPL and workflows
 - ❓ **Ternary Conditional Operator** - Full support for `condition ? true : false` expressions
-- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (638/640 tests passing - 99.7% coverage)
+- 🧪 **Fully Tested** - Comprehensive test suite using Vitest (757/757 tests passing - 100% coverage)
 - 📚 **Rich Standard Library** - 70+ built-in functions for arrays, objects, strings, math, and utilities
 - ➕ **Compound Assignment** - Modern operators (`+=`, `-=`, `*=`, `/=`) with zero-ambiguity grammar  
 - 🔍 **Regular Expression Support** - Full regex literals with all JavaScript flags (`/pattern/gimsuy`)

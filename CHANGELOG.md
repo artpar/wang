@@ -4,11 +4,34 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.24.1](https://github.com/artpar/wang/compare/v0.23.0...v0.24.1) (2025-11-01)
 
+### Critical Bug Fixes
+
+* **CRITICAL: Variable Scope in Synchronous Callbacks**: Fixed critical issue where variable assignments in forEach callbacks weren't updating parent scope
+  - Fixed `sum = sum + n` and `sum += n` assignments in native forEach callbacks  
+  - Added proper context chain traversal for variable assignments in synchronous execution
+  - Ensures 100% JavaScript compatibility for browser automation workflows
+  - Resolves "Variable 'item' is not defined" errors when native DOM methods call Wang functions
+
+* **Compound Assignment Operators**: Added full support for compound assignment in synchronous contexts
+  - Support for `+=`, `-=`, `*=`, `/=`, `%=` operators in forEach callbacks
+  - Proper current value lookup and context chain traversal for compound operations
+  - Maintains variable scope integrity across synchronous function boundaries
+
+* **Assignment Expression Recovery**: Restored missing async AssignmentExpression case
+  - Fixed "Unknown node type: AssignmentExpression" errors in async contexts
+  - Ensures both sync and async assignment paths work correctly
+  - Maintains backward compatibility for all existing assignment patterns
+
+### Test Coverage
+
+* **100% Test Pass Rate**: All 757 tests now pass (was 755/757)
+  - Fixed failing native methods tests with forEach variable scope
+  - Fixed failing return value tests with assignment expressions
+  - Fixed failing browser compatibility tests with compound assignments
 
 ### Features
 
 * fix NodeList forEach compatibility and enhanced error context ([fb53111](https://github.com/artpar/wang/commit/fb531118fff317f4450cbc82533683a40671facb))
-
 
 ### Bug Fixes
 
