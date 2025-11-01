@@ -129,47 +129,47 @@ export class WangInterpreter {
     const variables: Record<string, any> = {};
     const userVariables: Record<string, any> = {};
     const globalVariables: Record<string, any> = {};
-    
+
     let context: ExecutionContext | null = this.currentContext;
-    
+
     // Traverse up the context chain
     while (context) {
       for (const [key, value] of context.variables) {
         // Skip if already collected or is internal variable
-        if (variables.hasOwnProperty(key) || key.startsWith('__')) {
+        if (Object.prototype.hasOwnProperty.call(variables, key) || key.startsWith('__')) {
           continue;
         }
-        
+
         const formattedValue = this.formatVariableValue(value);
-        
+
         // Categorize variables: user vs global
         if (this.isGlobalVariable(key)) {
           globalVariables[key] = formattedValue;
         } else {
           userVariables[key] = formattedValue;
         }
-        
+
         variables[key] = formattedValue;
       }
       context = context.parent || null;
     }
-    
+
     // Prioritize user variables, then add globals up to limit of 10
     const result: Record<string, any> = {};
     let count = 0;
-    
+
     // Add user variables first
     for (const [key, value] of Object.entries(userVariables)) {
       if (count++ >= 10) break;
       result[key] = value;
     }
-    
+
     // Add global variables if there's space
     for (const [key, value] of Object.entries(globalVariables)) {
       if (count++ >= 10) break;
       result[key] = value;
     }
-    
+
     return result;
   }
   
