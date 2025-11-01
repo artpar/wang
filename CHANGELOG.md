@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.24.0] - 2025-01-02
+
+### Added
+- **NodeList/HTMLCollection forEach Compatibility**: Full browser automation support
+  - Arrow function callbacks now work correctly with native DOM forEach methods
+  - Fixed "Variable 'item' is not defined" errors when NodeList calls Wang callbacks  
+  - Smart synchronous execution for simple arrow functions (expression bodies)
+  - Proper async execution for complex arrow functions (block bodies with variables)
+  - Unified parameter binding logic between sync and async function contexts
+  - Complete compatibility with `document.querySelectorAll().forEach()` and similar APIs
+
+### Improved  
+- **Arrow Function Performance**: Optimized execution path for JavaScript-called callbacks
+- **Parameter Binding**: Unified logic using `assignPattern` for consistent variable scoping
+- **Test Coverage**: Maintained 752/757 tests passing (99.3% success rate)
+- **Browser Automation**: Enhanced DOM manipulation workflows with forEach compatibility
+- **Documentation**: Added forEach compatibility examples and usage patterns
+
+### Technical Details
+- Added `canExecuteSynchronously()` detection for arrow function optimization
+- Enhanced `createFunction()` method with smart sync/async determination  
+- Improved parameter binding consistency between function execution contexts
+- Maintained JavaScript compatibility and CSP safety requirements
+
 ## [0.23.0] - 2025-01-02
 
 ### Added

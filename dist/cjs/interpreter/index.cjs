@@ -9,7 +9,7 @@ const memory_1 = require("../resolvers/memory.cjs");
 const errors_1 = require("../utils/errors.cjs");
 const index_1 = require("../stdlib/index.cjs");
 // Version will be replaced during build
-const VERSION = '0.23.0';
+const VERSION = '0.24.0';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 const wang_grammar_js_1 = require("../generated/wang-grammar.cjs");
@@ -81,6 +81,81 @@ class WangInterpreter {
         }
         return {};
     }
+    /**
+     * Collect variables from the entire context chain, prioritizing user variables over globals
+     */
+    collectVariablesFromContextChain() {
+        const variables = {};
+        const userVariables = {};
+        const globalVariables = {};
+        let context = this.currentContext;
+        // Traverse up the context chain
+        while (context) {
+            for (const [key, value] of context.variables) {
+                // Skip if already collected or is internal variable
+                if (variables.hasOwnProperty(key) || key.startsWith('__')) {
+                    continue;
+                }
+                const formattedValue = this.formatVariableValue(value);
+                // Categorize variables: user vs global
+                if (this.isGlobalVariable(key)) {
+                    globalVariables[key] = formattedValue;
+                }
+                else {
+                    userVariables[key] = formattedValue;
+                }
+                variables[key] = formattedValue;
+            }
+            context = context.parent || null;
+        }
+        // Prioritize user variables, then add globals up to limit of 10
+        const result = {};
+        let count = 0;
+        // Add user variables first
+        for (const [key, value] of Object.entries(userVariables)) {
+            if (count++ >= 10)
+                break;
+            result[key] = value;
+        }
+        // Add global variables if there's space
+        for (const [key, value] of Object.entries(globalVariables)) {
+            if (count++ >= 10)
+                break;
+            result[key] = value;
+        }
+        return result;
+    }
+    /**
+     * Format a variable value for error context display
+     */
+    formatVariableValue(value) {
+        try {
+            return value === undefined
+                ? 'undefined'
+                : value === null
+                    ? 'null'
+                    : typeof value === 'function'
+                        ? '[Function]'
+                        : typeof value === 'object'
+                            ? '[Object]'
+                            : String(value).substring(0, 50);
+        }
+        catch {
+            return '[Error getting value]';
+        }
+    }
+    /**
+     * Check if a variable is a global/built-in variable
+     */
+    isGlobalVariable(key) {
+        const globalVars = new Set([
+            'Error', 'Infinity', 'NaN', 'undefined', 'Date', 'RegExp', 'Array',
+            'Function', 'String', 'Number', 'Boolean', 'Object', 'Math', 'JSON',
+            'Promise', 'Set', 'Map', 'WeakSet', 'WeakMap', 'Symbol', 'Proxy',
+            'Reflect', 'console', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'
+        ]);
+        return globalVars.has(key);
+    }
     enhanceErrorWithContext(error, node) {
         // Add location information
         if (node) {
@@ -98,29 +173,8 @@ class WangInterpreter {
                 error.message = `[${this.currentModulePath}] ${error.message}`;
             }
         }
-        // Add current variables in scope (limit to avoid huge dumps)
-        const variables = {};
-        let count = 0;
-        for (const [key, value] of this.currentContext.variables) {
-            if (count++ >= 10)
-                break;
-            try {
-                variables[key] =
-                    value === undefined
-                        ? 'undefined'
-                        : value === null
-                            ? 'null'
-                            : typeof value === 'function'
-                                ? '[Function]'
-                                : typeof value === 'object'
-                                    ? '[Object]'
-                                    : String(value).substring(0, 50);
-            }
-            catch {
-                variables[key] = '[Error getting value]';
-            }
-        }
-        error.context.variables = variables;
+        // Add variables in scope from entire context chain (limit to avoid huge dumps)
+        error.context.variables = this.collectVariablesFromContextChain();
     }
     /**
      * Enhanced error context for member expression calls that includes object inspection
@@ -411,20 +465,14 @@ class WangInterpreter {
             const originalLength = arr.length;
             for (let i = 0; i < originalLength; i++) {
                 // Skip holes in sparse arrays (match JavaScript behavior)
-                if (!arr.hasOwnProperty(i)) {
+                if (!Object.prototype.hasOwnProperty.call(arr, i)) {
                     continue;
                 }
-                try {
-                    // Call the callback function with proper error handling
-                    const result = fn(arr[i], i, arr);
-                    // Only await if it's a promise (for async callbacks)
-                    if (result && result instanceof Promise) {
-                        await result;
-                    }
-                }
-                catch (error) {
-                    // Propagate errors from callbacks to match JavaScript behavior
-                    throw error;
+                // Call the callback function with proper error handling
+                const result = fn(arr[i], i, arr);
+                // Only await if it's a promise (for async callbacks)
+                if (result && result instanceof Promise) {
+                    await result;
                 }
             }
         });
@@ -1236,6 +1284,62 @@ class WangInterpreter {
         const fn = this.createFunction(node);
         this.currentContext.functions.set(node.id.name, fn);
     }
+    canExecuteSynchronously(body) {
+        // Expression bodies can generally be executed synchronously
+        if (body.type !== 'BlockStatement') {
+            return true;
+        }
+        // For block statements, check if all statements can be executed synchronously
+        for (const stmt of body.body) {
+            if (!this.canStatementExecuteSynchronously(stmt)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    canStatementExecuteSynchronously(stmt) {
+        switch (stmt.type) {
+            case 'ExpressionStatement':
+                return this.canExpressionExecuteSynchronously(stmt.expression);
+            case 'ReturnStatement':
+                return stmt.argument ? this.canExpressionExecuteSynchronously(stmt.argument) : true;
+            case 'VariableDeclaration':
+                // Variable declarations need async evaluation
+                return false;
+            case 'IfStatement':
+                return this.canExpressionExecuteSynchronously(stmt.test) &&
+                    this.canStatementExecuteSynchronously(stmt.consequent) &&
+                    (!stmt.alternate || this.canStatementExecuteSynchronously(stmt.alternate));
+            default:
+                // Be conservative - assume other statement types need async evaluation
+                return false;
+        }
+    }
+    canExpressionExecuteSynchronously(expr) {
+        switch (expr.type) {
+            case 'Identifier':
+            case 'Literal':
+            case 'BooleanLiteral':
+            case 'NumericLiteral':
+            case 'StringLiteral':
+                return true;
+            case 'BinaryExpression':
+            case 'LogicalExpression':
+                return this.canExpressionExecuteSynchronously(expr.left) &&
+                    this.canExpressionExecuteSynchronously(expr.right);
+            case 'UnaryExpression':
+                return this.canExpressionExecuteSynchronously(expr.argument);
+            case 'MemberExpression':
+                return this.canExpressionExecuteSynchronously(expr.object) &&
+                    (!expr.computed || this.canExpressionExecuteSynchronously(expr.property));
+            case 'CallExpression':
+                // Most function calls need async evaluation
+                return false;
+            default:
+                // Be conservative
+                return false;
+        }
+    }
     createFunction(node) {
         const params = node.params || [];
         const body = node.body;
@@ -1247,8 +1351,9 @@ class WangInterpreter {
         const capturedThis = node.type === 'ArrowFunctionExpression'
             ? this.currentContext.variables.get('this')
             : undefined;
-        // For non-async arrow functions with expression bodies, create synchronous functions
-        if (!isAsync && node.type === 'ArrowFunctionExpression' && body.type !== 'BlockStatement') {
+        // For non-async arrow functions, try to create synchronous functions when possible
+        // This includes expression bodies and simple block bodies without async operations
+        if (!isAsync && node.type === 'ArrowFunctionExpression' && this.canExecuteSynchronously(body)) {
             const fn = (...args) => {
                 // Create new context for function with captured parent context
                 const fnContext = this.createContext(capturedContext);
@@ -1257,27 +1362,46 @@ class WangInterpreter {
                 // Execute function body
                 const previousContext = this.currentContext;
                 this.currentContext = fnContext;
-                // Bind parameters in the new context
+                // Bind parameters in the new context using the same logic as async functions
                 for (let i = 0; i < params.length; i++) {
                     const param = params[i];
                     if (param.type === 'RestElement') {
                         fnContext.variables.set(param.argument.name || param.argument, args.slice(i));
-                    }
-                    else if (param.type === 'Identifier') {
-                        fnContext.variables.set(param.name, args[i]);
+                        break;
                     }
                     else if (param.type === 'AssignmentPattern') {
                         // Handle default parameters
                         const value = args[i] !== undefined ? args[i] : this.evaluateNodeSync(param.right);
-                        if (param.left.type === 'Identifier') {
-                            fnContext.variables.set(param.left.name, value);
-                        }
+                        this.assignPattern(param.left, value);
+                    }
+                    else {
+                        // Use assignPattern for consistent parameter binding
+                        this.assignPattern(param, args[i]);
                     }
                 }
                 try {
-                    // For arrow functions with expression body, evaluate and return the expression synchronously
-                    const result = this.evaluateNodeSync(body);
-                    return result;
+                    if (body.type === 'BlockStatement') {
+                        // For block body, execute statements synchronously
+                        this.hoistVarDeclarations(body.body);
+                        let lastValue;
+                        for (const stmt of body.body) {
+                            try {
+                                lastValue = this.evaluateNodeSync(stmt);
+                            }
+                            catch (e) {
+                                if (e?.type === 'return') {
+                                    return e.value;
+                                }
+                                throw e;
+                            }
+                        }
+                        return lastValue;
+                    }
+                    else {
+                        // For expression body, evaluate and return the expression synchronously
+                        const result = this.evaluateNodeSync(body);
+                        return result;
+                    }
                 }
                 finally {
                     this.currentContext = previousContext;
@@ -2530,20 +2654,14 @@ class WangInterpreter {
                     const originalLength = arr.length;
                     for (let i = 0; i < originalLength; i++) {
                         // Skip holes in sparse arrays (match JavaScript behavior)
-                        if (!arr.hasOwnProperty(i)) {
+                        if (!Object.prototype.hasOwnProperty.call(arr, i)) {
                             continue;
                         }
-                        try {
-                            // Call the callback function with proper error handling
-                            const result = fn(arr[i], i, arr);
-                            // Only await if it's a promise (for async callbacks)
-                            if (result && result instanceof Promise) {
-                                await result;
-                            }
-                        }
-                        catch (error) {
-                            // Propagate errors from callbacks to match JavaScript behavior
-                            throw error;
+                        // Call the callback function with proper error handling
+                        const result = fn(arr[i], i, arr);
+                        // Only await if it's a promise (for async callbacks)
+                        if (result && result instanceof Promise) {
+                            await result;
                         }
                     }
                     return undefined; // forEach returns undefined

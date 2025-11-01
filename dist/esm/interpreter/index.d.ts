@@ -45,6 +45,18 @@ export declare class WangInterpreter {
     protected createContext(parent?: ExecutionContext): ExecutionContext;
     private getStackTrace;
     private getNodeLocation;
+    /**
+     * Collect variables from the entire context chain, prioritizing user variables over globals
+     */
+    private collectVariablesFromContextChain;
+    /**
+     * Format a variable value for error context display
+     */
+    private formatVariableValue;
+    /**
+     * Check if a variable is a global/built-in variable
+     */
+    private isGlobalVariable;
     private enhanceErrorWithContext;
     /**
      * Enhanced error context for member expression calls that includes object inspection
@@ -88,6 +100,9 @@ export declare class WangInterpreter {
     private evaluateVariableDeclaration;
     private assignPattern;
     private evaluateFunctionDeclaration;
+    private canExecuteSynchronously;
+    private canStatementExecuteSynchronously;
+    private canExpressionExecuteSynchronously;
     private createFunction;
     private evaluateClassDeclaration;
     private evaluateBlock;

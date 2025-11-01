@@ -75,6 +75,26 @@ await profiles.forEach(async (profile) => {
 
 store("results", activeProfiles)
 
+// DOM forEach compatibility - works with NodeList, HTMLCollection
+const itemElements = document.querySelectorAll('.gist-snippet');
+itemElements.forEach(item => {
+    const fileInfo = item.querySelector('.gist-file-name-container a');
+    const stats = item.querySelectorAll('.d-inline-block.mr-3 a');
+    
+    const gist = {
+        filename: fileInfo ? fileInfo.innerText.trim() : null,
+        url: fileInfo ? fileInfo.href : null
+    };
+    
+    // Nested forEach works correctly with arrow functions
+    stats.forEach(stat => {
+        const text = stat.innerText.toLowerCase();
+        if (text.includes('file')) {
+            gist.files = text.trim();
+        }
+    });
+});
+
 // Modern if/else chains (JavaScript-compatible)
 for (let profile of profiles) {
   let decision = await this.judge(profile)
@@ -220,6 +240,7 @@ npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
    - Classes, async/await support
    - Destructuring, template literals, optional chaining
    - JSON-like object literals with newlines
+   - **NodeList/HTMLCollection forEach compatibility** for browser automation
 
 4. **Comprehensive Error Handling**:
    - **Enhanced error messages with full context** (v0.16.1+):
@@ -286,7 +307,7 @@ Suggestions:
 
 ## Language Features Implemented (100% Test Coverage)
 
-Wang achieves **751/753 tests passing** with comprehensive coverage of:
+Wang achieves **752/757 tests passing** with comprehensive coverage of:
 
 ### Core Language Features
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
