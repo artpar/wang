@@ -67,7 +67,16 @@ let activeProfiles = profiles
   .map(extractProfile);
 store("results", activeProfiles)
 
-// Classes and interfaces
+// Modern if/else chains (JavaScript-compatible)
+for (let profile of profiles) {
+  let decision = await this.judge(profile)
+  if (decision === "save") profile.querySelector(".save-btn").click();
+  else if (decision === "skip") continue;
+  else if (decision === "flag") profile.classList.add("flagged");
+  else console.log("Unknown decision:", decision);
+}
+
+// Classes and interfaces  
 class LinkedInWorkflow extends Workflow {
   async process(profiles) {
     for (let profile of profiles) {

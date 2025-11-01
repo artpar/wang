@@ -1591,13 +1591,17 @@ var grammar = {
     {"name": "IfStatement$ebnf$1", "symbols": ["IfStatement$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "IfStatement$ebnf$2", "symbols": []},
     {"name": "IfStatement$ebnf$2", "symbols": ["IfStatement$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "IfStatement$ebnf$3$subexpression$1", "symbols": [{"literal":"else"}, "Statement"]},
+    {"name": "IfStatement$ebnf$3$subexpression$1$ebnf$1", "symbols": ["StatementTerminator"], "postprocess": id},
+    {"name": "IfStatement$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "IfStatement$ebnf$3$subexpression$1$ebnf$2", "symbols": []},
+    {"name": "IfStatement$ebnf$3$subexpression$1$ebnf$2", "symbols": ["IfStatement$ebnf$3$subexpression$1$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "IfStatement$ebnf$3$subexpression$1", "symbols": ["IfStatement$ebnf$3$subexpression$1$ebnf$1", "IfStatement$ebnf$3$subexpression$1$ebnf$2", {"literal":"else"}, "Statement"]},
     {"name": "IfStatement$ebnf$3", "symbols": ["IfStatement$ebnf$3$subexpression$1"], "postprocess": id},
     {"name": "IfStatement$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "IfStatement", "symbols": [{"literal":"if"}, {"literal":"("}, "IfStatement$ebnf$1", "Expression", "IfStatement$ebnf$2", {"literal":")"}, "Statement", "IfStatement$ebnf$3"], "postprocess":  d => createNode('IfStatement', {
           test: d[3],
           consequent: d[6],
-          alternate: d[7] ? d[7][1] : null
+          alternate: d[7] ? d[7][3] : null
         }) },
     {"name": "WhileStatement$ebnf$1", "symbols": []},
     {"name": "WhileStatement$ebnf$1", "symbols": ["WhileStatement$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},

@@ -440,11 +440,11 @@ ControlStatement ->
   | ContinueStatement {% id %}
 
 IfStatement ->
-    "if" "(" %NL:* Expression %NL:* ")" Statement ("else" Statement):?
+    "if" "(" %NL:* Expression %NL:* ")" Statement (StatementTerminator:? %NL:* "else" Statement):?
     {% d => createNode('IfStatement', {
       test: d[3],
       consequent: d[6],
-      alternate: d[7] ? d[7][1] : null
+      alternate: d[7] ? d[7][3] : null
     }) %}
 
 WhileStatement ->

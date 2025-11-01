@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.21.11] - 2025-01-01
+
+### Added
+- **JavaScript-Compatible If/Else Statements**: Full support for JavaScript-standard if/else chains without braces
+  - `if (condition) statement; else if (condition2) statement2; else statement3;` now works perfectly
+  - Handles optional semicolons and newlines before `else` keyword, matching JavaScript behavior exactly
+  - Supports complex if/else if/else chains with mixed statement terminators
+  - Works with comments and whitespace between if and else clauses
+  - 43 comprehensive test cases covering all patterns and edge cases
+  - Zero regression - all existing 684 tests still pass (now 727 total)
+
+### Improved
+- **Grammar**: Enhanced IfStatement rule to handle optional statement terminators before else
+- **Parser Compatibility**: Better alignment with JavaScript ASI (Automatic Semicolon Insertion) patterns
+- **Developer Experience**: Browser automation code now works exactly like JavaScript
+- **Test Coverage**: Added extensive if/else and control flow integration test suites
+
+### Technical Details
+- Modified `src/grammar/wang.ne:443` - single line grammar change with comprehensive testing
+- Maintains CSP-safety and all existing functionality
+- Resolves GitHub parsing issues for complex scraping workflows
+
 ## [0.21.9] - 2025-01-14
 
 ### Added

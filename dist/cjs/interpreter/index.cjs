@@ -167,7 +167,6 @@ class WangInterpreter {
         if (obj !== null && obj !== undefined) {
             // Get own properties
             const ownProps = Object.getOwnPropertyNames(obj);
-            const ownDescs = Object.getOwnPropertyDescriptors(obj);
             for (const prop of ownProps) {
                 if (typeof obj[prop] === 'function') {
                     availableMethods.push(prop);
@@ -178,16 +177,48 @@ class WangInterpreter {
             }
             // Get prototype methods for common types
             if (Array.isArray(obj)) {
-                const arrayMethods = ['push', 'pop', 'shift', 'unshift', 'slice', 'splice', 'concat', 'join', 'forEach', 'map', 'filter', 'reduce', 'find', 'includes', 'indexOf', 'sort', 'reverse'];
-                arrayMethods.forEach(method => {
+                const arrayMethods = [
+                    'push',
+                    'pop',
+                    'shift',
+                    'unshift',
+                    'slice',
+                    'splice',
+                    'concat',
+                    'join',
+                    'forEach',
+                    'map',
+                    'filter',
+                    'reduce',
+                    'find',
+                    'includes',
+                    'indexOf',
+                    'sort',
+                    'reverse',
+                ];
+                arrayMethods.forEach((method) => {
                     if (typeof obj[method] === 'function' && !availableMethods.includes(method)) {
                         availableMethods.push(method);
                     }
                 });
             }
             else if (typeof obj === 'string') {
-                const stringMethods = ['charAt', 'charCodeAt', 'concat', 'includes', 'indexOf', 'slice', 'split', 'substring', 'toLowerCase', 'toUpperCase', 'trim', 'replace', 'match'];
-                stringMethods.forEach(method => {
+                const stringMethods = [
+                    'charAt',
+                    'charCodeAt',
+                    'concat',
+                    'includes',
+                    'indexOf',
+                    'slice',
+                    'split',
+                    'substring',
+                    'toLowerCase',
+                    'toUpperCase',
+                    'trim',
+                    'replace',
+                    'match',
+                ];
+                stringMethods.forEach((method) => {
                     if (typeof obj[method] === 'function' && !availableMethods.includes(method)) {
                         availableMethods.push(method);
                     }
@@ -199,7 +230,9 @@ class WangInterpreter {
                 while (proto && proto !== Object.prototype) {
                     const protoProps = Object.getOwnPropertyNames(proto);
                     for (const prop of protoProps) {
-                        if (typeof proto[prop] === 'function' && prop !== 'constructor' && !availableMethods.includes(prop)) {
+                        if (typeof proto[prop] === 'function' &&
+                            prop !== 'constructor' &&
+                            !availableMethods.includes(prop)) {
                             availableMethods.push(prop);
                         }
                     }
@@ -226,7 +259,8 @@ class WangInterpreter {
                 score = 3;
             }
             // Check for similar starting letters
-            else if (name_lower.startsWith(target_lower.charAt(0)) && target_lower.startsWith(name_lower.charAt(0))) {
+            else if (name_lower.startsWith(target_lower.charAt(0)) &&
+                target_lower.startsWith(name_lower.charAt(0))) {
                 score = 2;
             }
             // Check Levenshtein distance for short strings
@@ -240,9 +274,7 @@ class WangInterpreter {
                 matches.push({ name, score });
             }
         }
-        return matches
-            .sort((a, b) => b.score - a.score)
-            .map(m => m.name);
+        return matches.sort((a, b) => b.score - a.score).map((m) => m.name);
     }
     /**
      * Calculate Levenshtein distance between two strings
@@ -774,7 +806,7 @@ class WangInterpreter {
                     callee = this.evaluateNodeSync(node.callee);
                 }
                 if (typeof callee !== 'function') {
-                    const error = new errors_1.TypeMismatchError('function', callee, 'calling \'member expression\'');
+                    const error = new errors_1.TypeMismatchError('function', callee, "calling 'member expression'");
                     // Use enhanced error context for member expressions
                     if (node.callee.type === 'MemberExpression') {
                         const memberExprInfo = this.getMemberExpressionName(node.callee);
@@ -1829,7 +1861,7 @@ class WangInterpreter {
             callee = await this.evaluateNode(node.callee);
         }
         if (typeof callee !== 'function') {
-            const error = new errors_1.TypeMismatchError('function', callee, 'calling \'member expression\'');
+            const error = new errors_1.TypeMismatchError('function', callee, "calling 'member expression'");
             // Use enhanced error context for member expressions
             if (node.callee.type === 'MemberExpression') {
                 const memberExprInfo = this.getMemberExpressionName(node.callee);
@@ -1885,11 +1917,11 @@ class WangInterpreter {
         // Handle logical operators with short-circuit evaluation
         if (node.operator === '||') {
             const left = await this.evaluateNode(node.left);
-            return left || await this.evaluateNode(node.right);
+            return left || (await this.evaluateNode(node.right));
         }
         if (node.operator === '&&') {
             const left = await this.evaluateNode(node.left);
-            return left && await this.evaluateNode(node.right);
+            return left && (await this.evaluateNode(node.right));
         }
         // For all other operators, evaluate both operands
         const left = await this.evaluateNode(node.left);
@@ -2265,7 +2297,9 @@ class WangInterpreter {
                 propertyName = node.property.name || 'unknown';
             }
         }
-        const fullName = node.computed ? `${objectName}[${propertyName}]` : `${objectName}.${propertyName}`;
+        const fullName = node.computed
+            ? `${objectName}[${propertyName}]`
+            : `${objectName}.${propertyName}`;
         return { objectName, propertyName, fullName };
     }
     getStringMethod(str, methodName) {
