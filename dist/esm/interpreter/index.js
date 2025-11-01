@@ -6,7 +6,7 @@ import { InMemoryModuleResolver } from '../resolvers/memory.js';
 import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/errors.js';
 import { stdlib } from '../stdlib/index.js';
 // Version will be replaced during build
-const VERSION = '0.21.10';
+const VERSION = '0.21.11';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 import { grammar, nearley } from '../generated/wang-grammar.js';
@@ -348,6 +348,19 @@ export class WangInterpreter {
         this.currentContext.variables.set('Date', Date);
         // RegExp constructor support
         this.currentContext.variables.set('RegExp', RegExp);
+        // Array constructor support
+        this.currentContext.variables.set('Array', Array);
+        // Function constructor support
+        this.currentContext.variables.set('Function', Function);
+        // String, Number, Boolean constructor support
+        this.currentContext.variables.set('String', String);
+        this.currentContext.variables.set('Number', Number);
+        this.currentContext.variables.set('Boolean', Boolean);
+        // Object constructor and methods support - preserve constructor function
+        const ObjectWithMethods = Object;
+        // Add static methods to the constructor
+        ObjectWithMethods.is = Object.is;
+        this.currentContext.variables.set('Object', ObjectWithMethods);
         // Promise support
         this.currentContext.variables.set('Promise', {
             all: (promises) => Promise.all(promises),
@@ -387,8 +400,29 @@ export class WangInterpreter {
             return accumulator;
         });
         this.bindFunction('forEach', async (arr, fn) => {
-            for (let i = 0; i < arr.length; i++) {
-                await fn(arr[i], i, arr);
+            // Validate callback function (match JavaScript TypeError)
+            if (typeof fn !== 'function') {
+                throw new TypeError(`${fn} is not a function`);
+            }
+            // Capture array length at start to match JavaScript behavior
+            const originalLength = arr.length;
+            for (let i = 0; i < originalLength; i++) {
+                // Skip holes in sparse arrays (match JavaScript behavior)
+                if (!arr.hasOwnProperty(i)) {
+                    continue;
+                }
+                try {
+                    // Call the callback function with proper error handling
+                    const result = fn(arr[i], i, arr);
+                    // Only await if it's a promise (for async callbacks)
+                    if (result && result instanceof Promise) {
+                        await result;
+                    }
+                }
+                catch (error) {
+                    // Propagate errors from callbacks to match JavaScript behavior
+                    throw error;
+                }
             }
         });
         this.bindFunction('find', async (arr, predicate) => {
@@ -718,6 +752,18 @@ export class WangInterpreter {
                         return left > right;
                     case '>=':
                         return left >= right;
+                    case 'in':
+                        // Check if property exists in object
+                        if (right == null) {
+                            throw new TypeError('Cannot use "in" operator to search for property in null or undefined');
+                        }
+                        return String(left) in Object(right);
+                    case 'instanceof':
+                        // Check if object is instance of constructor
+                        if (typeof right !== 'function') {
+                            throw new TypeError('Right-hand side of instanceof is not a constructor');
+                        }
+                        return left instanceof right;
                     default:
                         throw new WangError(`Unknown binary operator: ${node.operator}`, {
                             type: 'RuntimeError',
@@ -1954,6 +2000,18 @@ export class WangInterpreter {
                 return left >= right;
             case '??':
                 return left ?? right;
+            case 'in':
+                // Check if property exists in object
+                if (right == null) {
+                    throw new TypeError('Cannot use "in" operator to search for property in null or undefined');
+                }
+                return String(left) in Object(right);
+            case 'instanceof':
+                // Check if object is instance of constructor
+                if (typeof right !== 'function') {
+                    throw new TypeError('Right-hand side of instanceof is not a constructor');
+                }
+                return left instanceof right;
             default:
                 throw new WangError(`Unknown binary operator: ${node.operator}`, { type: 'RuntimeError' });
         }
@@ -2460,11 +2518,29 @@ export class WangInterpreter {
                 };
             case 'forEach':
                 return async (fn) => {
-                    // Execute the callback for each element
-                    if (typeof fn === 'function') {
-                        for (let i = 0; i < arr.length; i++) {
-                            // Call directly with values to avoid closure issues
-                            await fn(arr[i], i, arr);
+                    // Validate callback function (match JavaScript TypeError)
+                    if (typeof fn !== 'function') {
+                        throw new TypeError(`${fn} is not a function`);
+                    }
+                    // Capture array length at start to match JavaScript behavior
+                    // (items added during iteration should not be processed)
+                    const originalLength = arr.length;
+                    for (let i = 0; i < originalLength; i++) {
+                        // Skip holes in sparse arrays (match JavaScript behavior)
+                        if (!arr.hasOwnProperty(i)) {
+                            continue;
+                        }
+                        try {
+                            // Call the callback function with proper error handling
+                            const result = fn(arr[i], i, arr);
+                            // Only await if it's a promise (for async callbacks)
+                            if (result && result instanceof Promise) {
+                                await result;
+                            }
+                        }
+                        catch (error) {
+                            // Propagate errors from callbacks to match JavaScript behavior
+                            throw error;
                         }
                     }
                     return undefined; // forEach returns undefined

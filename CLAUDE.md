@@ -61,10 +61,18 @@ import { ProfileExtractor } from "./modules/extractor.wang"
 let profiles = querySelectorAll(".profile-card")
 const API_URL = "https://api.example.com"
 
-// Method chaining and functional programming
+// Method chaining and functional programming with forEach
 let activeProfiles = profiles
   .filter(p => p.active)
   .map(extractProfile);
+
+// JavaScript-compatible forEach with async support
+await profiles.forEach(async (profile) => {
+  if (profile.active) {
+    await processProfile(profile);
+  }
+});
+
 store("results", activeProfiles)
 
 // Modern if/else chains (JavaScript-compatible)
@@ -76,16 +84,23 @@ for (let profile of profiles) {
   else console.log("Unknown decision:", decision);
 }
 
-// Classes and interfaces  
+// Classes with type checking and property validation
 class LinkedInWorkflow extends Workflow {
   async process(profiles) {
-    for (let profile of profiles) {
-      let decision = await this.judge(profile)
-      if (decision === "save") {
-        let saveBtn = profile.querySelector(".save-btn")
-        saveBtn.click()
+    await profiles.forEach(async (profile) => {
+      // Use 'in' operator for property checking
+      if ("active" in profile && profile.active) {
+        let decision = await this.judge(profile);
+        
+        // Use 'instanceof' for type validation  
+        if (decision instanceof String && decision === "save") {
+          let saveBtn = profile.querySelector(".save-btn");
+          if (saveBtn instanceof Element) {
+            saveBtn.click();
+          }
+        }
       }
-    }
+    });
   }
 }
 
@@ -224,7 +239,14 @@ npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
    - Fixes issues where expensive operations (like async function calls) were incorrectly executed
    - Example: `let id = input.id || (await fetchId()).data` - `fetchId()` only called when `input.id` is falsy
 
-6. **Browser Automation Focus**:
+6. **Enhanced Array Methods and Binary Operators** (v0.21.12+):
+   - **forEach Method**: Full JavaScript compatibility with async support, error propagation, and sparse array handling
+   - **'in' Operator**: Property existence checking with proper null/undefined handling and prototype chain support
+   - **'instanceof' Operator**: Type validation with comprehensive constructor support and proper error handling
+   - **Global Constructors**: Added Function, String, Number, Boolean constructors for complete JavaScript compatibility
+   - **66 new comprehensive tests** ensuring robust forEach behavior for real-world use cases like DOM manipulation and async operations
+
+7. **Browser Automation Focus**:
    - Bind any DOM manipulation functions
    - Support for async operations and waiting
    - Perfect for LinkedIn/web scraping workflows
@@ -264,7 +286,7 @@ Suggestions:
 
 ## Language Features Implemented (100% Test Coverage)
 
-Wang achieves **684/684 tests passing** with comprehensive coverage of:
+Wang achieves **751/753 tests passing** with comprehensive coverage of:
 
 ### Core Language Features
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
@@ -272,12 +294,14 @@ Wang achieves **684/684 tests passing** with comprehensive coverage of:
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
 - **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `switch`, `try/catch/finally`
 - **Operators**: All standard JavaScript arithmetic, comparison, and logical operators
+- **Binary Operators**: `in` operator for property checking, `instanceof` operator for type validation
 
 ### Modern JavaScript Syntax
 - **Data Types**: Objects, arrays, destructuring, template literals, spread/rest parameters, JSON-like multiline objects
 - **Modules**: Named imports/exports (`import { name } from "module"`)
 - **Async**: Promises, async/await with comprehensive error handling
 - **Built-ins**: Error constructor, type conversion functions, array methods
+- **Array Methods**: Full JavaScript-compatible `forEach` with async support, error propagation, and sparse array handling
 - **Native Constructors**: Dynamic detection supports any native constructor (Date, Error, Array, KeyboardEvent, MouseEvent, etc.)
 - **Modern Operators**: Optional chaining (`?.`) with computed member access (`?.[expression]`), nullish coalescing (`??`)
 - **Multiline Expressions** (v0.21.0+): Complex conditionals and expressions can span multiple lines with proper indentation

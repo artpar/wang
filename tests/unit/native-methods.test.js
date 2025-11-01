@@ -290,6 +290,193 @@ describe('Native Array Methods', () => {
     expect(result).toBe(6);
   });
 
+  it('should handle errors in forEach callbacks', async () => {
+    await expect(interpreter.execute(`
+      let arr = [1, 2, 3];
+      await arr.forEach((item) => {
+        if (item === 2) throw new Error("Test error");
+      });
+    `)).rejects.toThrow("Test error");
+  });
+
+  it('should properly scope variables in forEach callbacks', async () => {
+    const result = await interpreter.execute(`
+      let results = [];
+      let items = [{id: 1}, {id: 2}, {id: 3}];
+      await items.forEach((item, index) => {
+        results.push({ itemId: item.id, idx: index });
+      });
+      return results;
+    `);
+    expect(result).toEqual([
+      { itemId: 1, idx: 0 },
+      { itemId: 2, idx: 1 },
+      { itemId: 3, idx: 2 }
+    ]);
+  });
+
+  it('should handle async operations in forEach callbacks', async () => {
+    const result = await interpreter.execute(`
+      let results = [];
+      let items = [1, 2, 3];
+      await items.forEach(async (item) => {
+        // Simulate async operation
+        await Promise.resolve();
+        results.push(item * 2);
+      });
+      return results;
+    `);
+    expect(result).toEqual([2, 4, 6]);
+  });
+
+  it('should handle nested forEach operations', async () => {
+    const result = await interpreter.execute(`
+      let results = [];
+      let matrix = [[1, 2], [3, 4], [5, 6]];
+      await matrix.forEach((row, rowIndex) => {
+        row.forEach((value, colIndex) => {
+          results.push({ row: rowIndex, col: colIndex, value: value });
+        });
+      });
+      return results;
+    `);
+    expect(result).toEqual([
+      { row: 0, col: 0, value: 1 },
+      { row: 0, col: 1, value: 2 },
+      { row: 1, col: 0, value: 3 },
+      { row: 1, col: 1, value: 4 },
+      { row: 2, col: 0, value: 5 },
+      { row: 2, col: 1, value: 6 }
+    ]);
+  });
+
+  it('should work with DOM-like element processing', async () => {
+    // Set up mock DOM elements for testing
+    interpreter.setVariable('document', {
+      querySelectorAll: () => [
+        { 
+          querySelector: (selector) => {
+            if (selector.includes('file-name')) {
+              return { innerText: 'file1.js', href: 'http://example.com/1' };
+            }
+            return null;
+          }
+        },
+        { 
+          querySelector: (selector) => {
+            if (selector.includes('file-name')) {
+              return { innerText: 'file2.js', href: 'http://example.com/2' };
+            }
+            return null;
+          }
+        }
+      ]
+    });
+    
+    const result = await interpreter.execute(`
+      const gistItems = [];
+      const itemElements = document.querySelectorAll('.gist-snippet');
+      
+      await itemElements.forEach(item => {
+        const fileInfo = item.querySelector('.gist-file-name-container a');
+        gistItems.push({
+          filename: fileInfo ? fileInfo.innerText.trim() : null,
+          url: fileInfo ? fileInfo.href : null
+        });
+      });
+      
+      return { gists: gistItems };
+    `);
+    
+    expect(result.gists).toHaveLength(2);
+    expect(result.gists[0].filename).toBe('file1.js');
+    expect(result.gists[0].url).toBe('http://example.com/1');
+    expect(result.gists[1].filename).toBe('file2.js');
+    expect(result.gists[1].url).toBe('http://example.com/2');
+  });
+
+  // forEach Edge Cases Tests
+  it('should validate callback functions and throw TypeError for non-functions', async () => {
+    await expect(interpreter.execute(`
+      let arr = [1, 2, 3];
+      arr.forEach("not a function");
+    `)).rejects.toThrow("not a function is not a function");
+
+    await expect(interpreter.execute(`
+      let arr = [1, 2, 3];
+      arr.forEach(undefined);
+    `)).rejects.toThrow("undefined is not a function");
+  });
+
+  it('should not process items added during forEach iteration', async () => {
+    const result = await interpreter.execute(`
+      let arr = [1, 2, 3, 4, 5];
+      let results = [];
+      arr.forEach((item, index) => {
+        results.push(item);
+        if (index === 1) {
+          arr.push(6); // Should not be processed
+        }
+      });
+      return { results, finalArray: arr };
+    `);
+    
+    expect(result.results).toEqual([1, 2, 3, 4, 5]); // Only original items processed
+    expect(result.finalArray).toEqual([1, 2, 3, 4, 5, 6]); // But array was modified
+  });
+
+  it('should handle large arrays efficiently', async () => {
+    const start = Date.now();
+    const result = await interpreter.execute(`
+      let arr = new Array(1000).fill(0).map((_, i) => i);
+      let sum = 0;
+      arr.forEach(item => {
+        sum += item;
+      });
+      return sum;
+    `);
+    const end = Date.now();
+    
+    expect(result).toBe(499500); // Sum of 0 to 999
+    expect(end - start).toBeLessThan(1000); // Should complete quickly
+  });
+
+  it('should handle circular references in forEach', async () => {
+    const result = await interpreter.execute(`
+      let obj1 = { name: "obj1" };
+      let obj2 = { name: "obj2" };
+      obj1.ref = obj2;
+      obj2.ref = obj1; // Circular reference
+      
+      let arr = [obj1, obj2];
+      let results = [];
+      arr.forEach((item) => {
+        results.push(item.name);
+      });
+      return results;
+    `);
+    
+    expect(result).toEqual(['obj1', 'obj2']);
+  });
+
+  it('should handle memory-intensive operations in forEach', async () => {
+    const result = await interpreter.execute(`
+      let arr = [1, 2, 3];
+      let results = [];
+      arr.forEach((item) => {
+        // Create object with many properties
+        let obj = {};
+        for (let i = 0; i < 100; i++) {
+          obj["prop" + i] = "value" + i;
+        }
+        results.push(Object.keys(obj).length);
+      });
+      return results;
+    `);
+    
+    expect(result).toEqual([100, 100, 100]);
+  });
+
   it('should support array.sort() method', async () => {
     const result = await interpreter.execute(`
       let numbers = [3, 1, 4, 1, 5, 9, 2, 6]
