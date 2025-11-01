@@ -1084,7 +1084,7 @@ export class WangInterpreter {
           const prop = node.left.computed
             ? this.evaluateNodeSync(node.left.property)
             : node.left.property.name;
-          
+
           if (node.operator === '=') {
             const value = this.evaluateNodeSync(node.right);
             obj[prop] = value;
@@ -1094,7 +1094,7 @@ export class WangInterpreter {
             const currentValue = obj[prop];
             const rightValue = this.evaluateNodeSync(node.right);
             let newValue;
-            
+
             switch (node.operator) {
               case '+=':
                 newValue = currentValue + rightValue;
@@ -1114,13 +1114,13 @@ export class WangInterpreter {
               default:
                 throw new WangError(`Unsupported assignment operator: ${node.operator}`);
             }
-            
+
             obj[prop] = newValue;
             return newValue;
           }
         } else if (node.left.type === 'Identifier') {
           const name = node.left.name;
-          
+
           if (node.operator === '=') {
             // Simple assignment
             const value = this.evaluateNodeSync(node.right);
@@ -1139,7 +1139,7 @@ export class WangInterpreter {
               }
               ctx = ctx.parent;
             }
-            
+
             if (!found) {
               // Variable not found in any scope, create in current scope
               this.currentContext.variables.set(name, value);
@@ -1150,7 +1150,7 @@ export class WangInterpreter {
             const currentValue = this.evaluateIdentifier({ type: 'Identifier', name });
             const rightValue = this.evaluateNodeSync(node.right);
             let newValue;
-            
+
             switch (node.operator) {
               case '+=':
                 newValue = currentValue + rightValue;
@@ -1170,7 +1170,7 @@ export class WangInterpreter {
               default:
                 throw new WangError(`Unsupported assignment operator: ${node.operator}`);
             }
-            
+
             // Find the right context to set the variable
             let ctx: ExecutionContext | undefined = this.currentContext;
             let found = false;
@@ -1186,7 +1186,7 @@ export class WangInterpreter {
               }
               ctx = ctx.parent;
             }
-            
+
             if (!found) {
               // Variable not found in any scope, create in current scope
               this.currentContext.variables.set(name, newValue);
@@ -1349,11 +1349,6 @@ export class WangInterpreter {
           }
         }
         return undefined;
-
-      case 'ArrowFunctionExpression':
-      case 'FunctionExpression':
-        // Create a synchronous function for arrow/function expressions in sync context
-        return this.createSyncFunction(node);
 
       // PipelineExpression removed - not JavaScript compatible
 
@@ -1739,7 +1734,7 @@ export class WangInterpreter {
   private canExecuteSynchronouslyForCallback(body: any): boolean {
     // More permissive synchronous execution check for callback functions (like forEach callbacks)
     // This allows common patterns to execute synchronously for 100% JS behavior
-    
+
     if (body.type !== 'BlockStatement') {
       return true; // Expression bodies are always sync
     }
@@ -1759,7 +1754,9 @@ export class WangInterpreter {
       case 'ExpressionStatement':
         return this.canExpressionExecuteSynchronouslyForCallback(stmt.expression);
       case 'ReturnStatement':
-        return stmt.argument ? this.canExpressionExecuteSynchronouslyForCallback(stmt.argument) : true;
+        return stmt.argument
+          ? this.canExpressionExecuteSynchronouslyForCallback(stmt.argument)
+          : true;
       case 'VariableDeclaration':
         // Allow variable declarations with callback-safe expressions
         return stmt.declarations.every((decl: any) => {
@@ -1805,10 +1802,11 @@ export class WangInterpreter {
         // Be more permissive for callback contexts - allow method calls and forEach
         if (expr.callee.type === 'MemberExpression') {
           const obj = this.canExpressionExecuteSynchronouslyForCallback(expr.callee.object);
-          const args = expr.arguments.every((arg: any) => 
-            // Allow arrow functions in forEach calls (this is the key change)
-            arg.type === 'ArrowFunctionExpression' || 
-            this.canExpressionExecuteSynchronouslyForCallback(arg)
+          const args = expr.arguments.every(
+            (arg: any) =>
+              // Allow arrow functions in forEach calls (this is the key change)
+              arg.type === 'ArrowFunctionExpression' ||
+              this.canExpressionExecuteSynchronouslyForCallback(arg),
           );
           return obj && args;
         }
@@ -1818,11 +1816,11 @@ export class WangInterpreter {
           if (prop.type === 'SpreadElement') {
             return this.canExpressionExecuteSynchronouslyForCallback(prop.argument);
           }
-          const keyCanSync = prop.computed 
+          const keyCanSync = prop.computed
             ? this.canExpressionExecuteSynchronouslyForCallback(prop.key)
             : true;
-          const valueCanSync = prop.shorthand 
-            ? true 
+          const valueCanSync = prop.shorthand
+            ? true
             : this.canExpressionExecuteSynchronouslyForCallback(prop.value);
           return keyCanSync && valueCanSync;
         });
@@ -1898,8 +1896,7 @@ export class WangInterpreter {
       case 'CallExpression':
         // Allow synchronous execution for method calls on identifiers (e.g., obj.method())
         // This covers common patterns like item.querySelector(), element.getAttribute(), etc.
-        if (expr.callee.type === 'MemberExpression' && 
-            expr.callee.object.type === 'Identifier') {
+        if (expr.callee.type === 'MemberExpression' && expr.callee.object.type === 'Identifier') {
           // Check if all arguments can be executed synchronously
           return expr.arguments.every((arg: any) => this.canExpressionExecuteSynchronously(arg));
         }
@@ -1912,10 +1909,10 @@ export class WangInterpreter {
             return this.canExpressionExecuteSynchronously(prop.argument);
           }
           // For regular properties, check both key and value
-          const keyCanSync = prop.computed 
+          const keyCanSync = prop.computed
             ? this.canExpressionExecuteSynchronously(prop.key)
             : true; // Non-computed keys are always sync
-          const valueCanSync = prop.shorthand 
+          const valueCanSync = prop.shorthand
             ? true // Shorthand properties just reference identifiers
             : this.canExpressionExecuteSynchronously(prop.value);
           return keyCanSync && valueCanSync;
@@ -1962,8 +1959,12 @@ export class WangInterpreter {
     // Be more aggressive for simple arrow functions to achieve 100% JS behavior
     const canExecSync = this.canExecuteSynchronously(body);
     const canExecSyncForCallback = this.canExecuteSynchronouslyForCallback(body);
-    
-    if (!isAsync && node.type === 'ArrowFunctionExpression' && (canExecSync || canExecSyncForCallback)) {
+
+    if (
+      !isAsync &&
+      node.type === 'ArrowFunctionExpression' &&
+      (canExecSync || canExecSyncForCallback)
+    ) {
       const fn = (...args: any[]) => {
         // Create new context for function with captured parent context
         const fnContext = this.createContext(capturedContext);
@@ -2023,7 +2024,7 @@ export class WangInterpreter {
     // For async functions or functions with block statements, create a CSP-safe wrapper
     // that handles both synchronous and asynchronous execution patterns
     const interpreter = this;
-    
+
     // CRITICAL CSP-SAFE FIX: Create a hybrid function that works with native callbacks
     const fn = function (this: any, ...args: any[]) {
       // Create new context for function with captured parent context
@@ -2046,7 +2047,7 @@ export class WangInterpreter {
       // HYBRID EXECUTION: Bind parameters synchronously, then execute async
       const previousContext = interpreter.currentContext;
       interpreter.currentContext = fnContext;
-      
+
       // Bind parameters immediately in the current synchronous execution
       for (let i = 0; i < params.length; i++) {
         const param = params[i];
@@ -2067,16 +2068,16 @@ export class WangInterpreter {
           }
         }
       }
-      
+
       // Restore context after synchronous parameter binding
       interpreter.currentContext = previousContext;
-      
+
       // Create and immediately execute the async function with pre-bound parameters
       const executeAsync = async () => {
         // CRITICAL: Set the context again inside async execution
         const asyncPreviousContext = interpreter.currentContext;
         interpreter.currentContext = fnContext;
-        
+
         try {
           // Handle default parameters that need async evaluation
           for (let i = 0; i < params.length; i++) {
@@ -2109,11 +2110,11 @@ export class WangInterpreter {
           interpreter.currentContext = asyncPreviousContext;
         }
       };
-      
+
       // Execute and return the promise
       return executeAsync();
     };
-    
+
     return fn;
   }
 

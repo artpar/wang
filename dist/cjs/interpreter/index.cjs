@@ -9,7 +9,7 @@ const memory_1 = require("../resolvers/memory.cjs");
 const errors_1 = require("../utils/errors.cjs");
 const index_1 = require("../stdlib/index.cjs");
 // Version will be replaced during build
-const VERSION = '0.24.1';
+const VERSION = '0.24.2';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 const wang_grammar_js_1 = require("../generated/wang-grammar.cjs");
