@@ -172,7 +172,7 @@ export class WangInterpreter {
 
     return result;
   }
-  
+
   /**
    * Format a variable value for error context display
    */
@@ -191,16 +191,39 @@ export class WangInterpreter {
       return '[Error getting value]';
     }
   }
-  
+
   /**
    * Check if a variable is a global/built-in variable
    */
   private isGlobalVariable(key: string): boolean {
     const globalVars = new Set([
-      'Error', 'Infinity', 'NaN', 'undefined', 'Date', 'RegExp', 'Array', 
-      'Function', 'String', 'Number', 'Boolean', 'Object', 'Math', 'JSON',
-      'Promise', 'Set', 'Map', 'WeakSet', 'WeakMap', 'Symbol', 'Proxy',
-      'Reflect', 'console', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'
+      'Error',
+      'Infinity',
+      'NaN',
+      'undefined',
+      'Date',
+      'RegExp',
+      'Array',
+      'Function',
+      'String',
+      'Number',
+      'Boolean',
+      'Object',
+      'Math',
+      'JSON',
+      'Promise',
+      'Set',
+      'Map',
+      'WeakSet',
+      'WeakMap',
+      'Symbol',
+      'Proxy',
+      'Reflect',
+      'console',
+      'setTimeout',
+      'setInterval',
+      'clearTimeout',
+      'clearInterval',
     ]);
     return globalVars.has(key);
   }
@@ -1565,17 +1588,17 @@ export class WangInterpreter {
     if (body.type !== 'BlockStatement') {
       return true;
     }
-    
+
     // For block statements, check if all statements can be executed synchronously
     for (const stmt of body.body) {
       if (!this.canStatementExecuteSynchronously(stmt)) {
         return false;
       }
     }
-    
+
     return true;
   }
-  
+
   private canStatementExecuteSynchronously(stmt: any): boolean {
     switch (stmt.type) {
       case 'ExpressionStatement':
@@ -1586,15 +1609,17 @@ export class WangInterpreter {
         // Variable declarations need async evaluation
         return false;
       case 'IfStatement':
-        return this.canExpressionExecuteSynchronously(stmt.test) &&
-               this.canStatementExecuteSynchronously(stmt.consequent) &&
-               (!stmt.alternate || this.canStatementExecuteSynchronously(stmt.alternate));
+        return (
+          this.canExpressionExecuteSynchronously(stmt.test) &&
+          this.canStatementExecuteSynchronously(stmt.consequent) &&
+          (!stmt.alternate || this.canStatementExecuteSynchronously(stmt.alternate))
+        );
       default:
         // Be conservative - assume other statement types need async evaluation
         return false;
     }
   }
-  
+
   private canExpressionExecuteSynchronously(expr: any): boolean {
     switch (expr.type) {
       case 'Identifier':
@@ -1605,13 +1630,17 @@ export class WangInterpreter {
         return true;
       case 'BinaryExpression':
       case 'LogicalExpression':
-        return this.canExpressionExecuteSynchronously(expr.left) &&
-               this.canExpressionExecuteSynchronously(expr.right);
+        return (
+          this.canExpressionExecuteSynchronously(expr.left) &&
+          this.canExpressionExecuteSynchronously(expr.right)
+        );
       case 'UnaryExpression':
         return this.canExpressionExecuteSynchronously(expr.argument);
       case 'MemberExpression':
-        return this.canExpressionExecuteSynchronously(expr.object) &&
-               (!expr.computed || this.canExpressionExecuteSynchronously(expr.property));
+        return (
+          this.canExpressionExecuteSynchronously(expr.object) &&
+          (!expr.computed || this.canExpressionExecuteSynchronously(expr.property))
+        );
       case 'CallExpression':
         // Most function calls need async evaluation
         return false;

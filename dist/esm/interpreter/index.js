@@ -90,7 +90,7 @@ export class WangInterpreter {
         while (context) {
             for (const [key, value] of context.variables) {
                 // Skip if already collected or is internal variable
-                if (variables.hasOwnProperty(key) || key.startsWith('__')) {
+                if (Object.prototype.hasOwnProperty.call(variables, key) || key.startsWith('__')) {
                     continue;
                 }
                 const formattedValue = this.formatVariableValue(value);
