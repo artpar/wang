@@ -6,7 +6,7 @@ import { InMemoryModuleResolver } from '../resolvers/memory.js';
 import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/errors.js';
 import { stdlib } from '../stdlib/index.js';
 // Version will be replaced during build
-const VERSION = '0.24.2';
+const VERSION = '0.24.4';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 import { grammar, nearley } from '../generated/wang-grammar.js';
