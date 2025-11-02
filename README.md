@@ -972,6 +972,7 @@ class WangInterpreter {
     
   bindFunction(name: string, fn: Function): void
   setVariable(name: string, value: any): void  // v0.11.1+
+  getVariable(name: string): any  // Get variable from global context
 }
 ```
 
@@ -1051,6 +1052,12 @@ await interpreter.execute(`
   let keys = Object.keys(myAPI)
   console.log("API URL:", myAPI.baseURL)
 `)
+
+// Retrieve variables from interpreter
+const mathObject = interpreter.getVariable('Math')
+const myAPI = interpreter.getVariable('myAPI')
+console.log('Math object available:', !!mathObject)
+console.log('API base URL:', myAPI?.baseURL)
 ```
 
 ### WangValidator

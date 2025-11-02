@@ -776,6 +776,10 @@ export class WangInterpreter {
     this.globalContext.variables.set(name, value);
   }
 
+  getVariable(name: string): any {
+    return this.globalContext.variables.get(name);
+  }
+
   async execute(code: string, context?: ExecutionContext): Promise<any>;
   async execute(
     code: string,

@@ -77,6 +77,7 @@ export declare class WangInterpreter {
     private bindBuiltins;
     bindFunction(name: string, fn: Function): void;
     setVariable(name: string, value: any): void;
+    getVariable(name: string): any;
     execute(code: string, context?: ExecutionContext): Promise<any>;
     execute(code: string, context: ExecutionContext | undefined, options: {
         withMetadata: true;

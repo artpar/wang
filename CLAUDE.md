@@ -161,6 +161,10 @@ interpreter.setVariable('Math', Math)
 interpreter.setVariable('JSON', JSON)
 interpreter.setVariable('customAPI', myAPIObject)
 
+// Retrieve variables from interpreter
+const mathObject = interpreter.getVariable('Math')
+const customAPI = interpreter.getVariable('customAPI')
+
 // Browser API constructors work seamlessly (v0.21.9+)
 interpreter.setVariable('KeyboardEvent', KeyboardEvent)
 interpreter.setVariable('MouseEvent', MouseEvent)

@@ -618,6 +618,9 @@ class WangInterpreter {
     setVariable(name, value) {
         this.globalContext.variables.set(name, value);
     }
+    getVariable(name) {
+        return this.globalContext.variables.get(name);
+    }
     async execute(code, context, options) {
         // Log Wang runtime version on first execution
         if (!WangInterpreter.versionLogged) {
@@ -1121,10 +1124,6 @@ class WangInterpreter {
                     }
                 }
                 return undefined;
-            case 'ArrowFunctionExpression':
-            case 'FunctionExpression':
-                // Create a synchronous function for arrow/function expressions in sync context
-                return this.createSyncFunction(node);
             // PipelineExpression removed - not JavaScript compatible
             default:
                 throw new errors_1.WangError(`Cannot evaluate node type synchronously: ${node.type}`, {
@@ -1471,7 +1470,9 @@ class WangInterpreter {
             case 'ExpressionStatement':
                 return this.canExpressionExecuteSynchronouslyForCallback(stmt.expression);
             case 'ReturnStatement':
-                return stmt.argument ? this.canExpressionExecuteSynchronouslyForCallback(stmt.argument) : true;
+                return stmt.argument
+                    ? this.canExpressionExecuteSynchronouslyForCallback(stmt.argument)
+                    : true;
             case 'VariableDeclaration':
                 // Allow variable declarations with callback-safe expressions
                 return stmt.declarations.every((decl) => {
@@ -1595,8 +1596,7 @@ class WangInterpreter {
             case 'CallExpression':
                 // Allow synchronous execution for method calls on identifiers (e.g., obj.method())
                 // This covers common patterns like item.querySelector(), element.getAttribute(), etc.
-                if (expr.callee.type === 'MemberExpression' &&
-                    expr.callee.object.type === 'Identifier') {
+                if (expr.callee.type === 'MemberExpression' && expr.callee.object.type === 'Identifier') {
                     // Check if all arguments can be executed synchronously
                     return expr.arguments.every((arg) => this.canExpressionExecuteSynchronously(arg));
                 }
@@ -1653,7 +1653,9 @@ class WangInterpreter {
         // Be more aggressive for simple arrow functions to achieve 100% JS behavior
         const canExecSync = this.canExecuteSynchronously(body);
         const canExecSyncForCallback = this.canExecuteSynchronouslyForCallback(body);
-        if (!isAsync && node.type === 'ArrowFunctionExpression' && (canExecSync || canExecSyncForCallback)) {
+        if (!isAsync &&
+            node.type === 'ArrowFunctionExpression' &&
+            (canExecSync || canExecSyncForCallback)) {
             const fn = (...args) => {
                 // Create new context for function with captured parent context
                 const fnContext = this.createContext(capturedContext);
