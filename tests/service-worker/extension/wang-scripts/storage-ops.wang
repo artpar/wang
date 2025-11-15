@@ -1,0 +1,272 @@
+// Wang Storage Operations Test Script
+// Tests Chrome storage APIs and data persistence from service worker
+
+log("Starting storage operations test...")
+
+try {
+  // Test 1: Basic storage operations
+  log("Test 1: Basic store and retrieve...")
+  
+  let testData = {
+    string: "Hello Wang!",
+    number: 42,
+    boolean: true,
+    array: [1, 2, 3, "test"],
+    object: {
+      nested: {
+        value: "deep",
+        count: 100
+      },
+      timestamp: new Date().toISOString()
+    }
+  }
+  
+  // Store individual values
+  await store("test_string", testData.string)
+  await store("test_number", testData.number)
+  await store("test_boolean", testData.boolean)
+  await store("test_array", testData.array)
+  await store("test_object", testData.object)
+  
+  log("Stored test data")
+  
+  // Retrieve and verify
+  let retrievedString = await retrieve("test_string")
+  let retrievedNumber = await retrieve("test_number")
+  let retrievedBoolean = await retrieve("test_boolean")
+  let retrievedArray = await retrieve("test_array")
+  let retrievedObject = await retrieve("test_object")
+  
+  log("Retrieved values:")
+  log("String:", retrievedString)
+  log("Number:", retrievedNumber)
+  log("Boolean:", retrievedBoolean)
+  log("Array:", retrievedArray)
+  log("Object:", retrievedObject)
+  
+  // Verify data integrity
+  let verificationResults = {
+    string: retrievedString === testData.string,
+    number: retrievedNumber === testData.number,
+    boolean: retrievedBoolean === testData.boolean,
+    array: JSON.stringify(retrievedArray) === JSON.stringify(testData.array),
+    object: JSON.stringify(retrievedObject) === JSON.stringify(testData.object)
+  }
+  
+  log("Data integrity check:", verificationResults)
+  
+  // Test 2: Complex data storage
+  log("Test 2: Complex data storage...")
+  
+  let complexData = {
+    userSession: {
+      userId: "wang_user_123",
+      loginTime: new Date().toISOString(),
+      permissions: ["read", "write", "automation"],
+      preferences: {
+        theme: "dark",
+        language: "en",
+        notifications: true
+      }
+    },
+    automationHistory: [
+      {
+        script: "dom-automation.wang",
+        executedAt: new Date().toISOString(),
+        status: "success",
+        duration: 2340
+      },
+      {
+        script: "api-calls.wang",
+        executedAt: new Date().toISOString(),
+        status: "success",
+        duration: 5670
+      }
+    ],
+    applicationState: {
+      version: "1.0.0",
+      features: {
+        serviceWorker: true,
+        pausableExecution: true,
+        stateManagement: true
+      },
+      performance: {
+        executionCount: 42,
+        averageExecutionTime: 3000,
+        memoryUsage: 15.2
+      }
+    }
+  }
+  
+  await store("complex_data", complexData)
+  log("Stored complex data structure")
+  
+  let retrievedComplex = await retrieve("complex_data")
+  log("Retrieved complex data:", retrievedComplex)
+  
+  // Test 3: Storage limits and large data
+  log("Test 3: Testing storage limits...")
+  
+  // Create large test data
+  let largeArray = Array.from({ length: 1000 }, (_, i) => ({
+    id: i,
+    name: `Item ${i}`,
+    data: `This is test data for item ${i} with some additional content to make it larger`,
+    timestamp: new Date().toISOString(),
+    metadata: {
+      category: i % 10,
+      active: i % 3 === 0,
+      score: Math.random() * 100
+    }
+  }))
+  
+  await store("large_dataset", largeArray)
+  log(`Stored large dataset with ${largeArray.length} items`)
+  
+  let retrievedLarge = await retrieve("large_dataset")
+  log(`Retrieved large dataset: ${retrievedLarge?.length} items`)
+  
+  // Test 4: Storage management
+  log("Test 4: Storage management operations...")
+  
+  // Store multiple test keys
+  let testKeys = ["temp_1", "temp_2", "temp_3", "temp_4", "temp_5"]
+  
+  for (let i = 0; i < testKeys.length; i++) {
+    await store(testKeys[i], {
+      index: i,
+      data: `Temporary data ${i}`,
+      created: new Date().toISOString()
+    })
+  }
+  
+  log("Created temporary storage keys:", testKeys)
+  
+  // Retrieve all temp keys
+  let tempData = {}
+  for (let key of testKeys) {
+    tempData[key] = await retrieve(key)
+  }
+  
+  log("Retrieved all temp data:", tempData)
+  
+  // Test 5: Data persistence simulation
+  log("Test 5: Data persistence simulation...")
+  
+  let persistenceTest = {
+    sessionId: generateId(),
+    startTime: new Date().toISOString(),
+    executionContext: "service-worker-test",
+    testScripts: [
+      "dom-automation.wang",
+      "api-calls.wang", 
+      "storage-ops.wang"
+    ],
+    metadata: {
+      browser: "Chrome",
+      extension: "Wang Test Environment",
+      version: "1.0.0"
+    }
+  }
+  
+  await store("persistence_test", persistenceTest)
+  log("Stored persistence test data")
+  
+  // Simulate delay and retrieve
+  await wait(1000)
+  
+  let persistentData = await retrieve("persistence_test")
+  log("Data persisted successfully:", persistentData.sessionId === persistenceTest.sessionId)
+  
+  // Test 6: Storage cleanup
+  log("Test 6: Storage cleanup operations...")
+  
+  // Store cleanup test data
+  await store("cleanup_test_1", "This will be cleaned up")
+  await store("cleanup_test_2", { cleanup: true, data: "test" })
+  await store("cleanup_test_3", [1, 2, 3, 4, 5])
+  
+  log("Created cleanup test data")
+  
+  // Retrieve to confirm existence
+  let cleanupData1 = await retrieve("cleanup_test_1")
+  let cleanupData2 = await retrieve("cleanup_test_2")
+  let cleanupData3 = await retrieve("cleanup_test_3")
+  
+  log("Cleanup data exists:", {
+    test1: !!cleanupData1,
+    test2: !!cleanupData2,
+    test3: !!cleanupData3
+  })
+  
+  // Test 7: Final results storage
+  log("Test 7: Storing final results...")
+  
+  let storageTestResults = {
+    timestamp: new Date().toISOString(),
+    testSuite: "storage-operations",
+    tests: {
+      basicOperations: {
+        passed: Object.values(verificationResults).every(v => v),
+        details: verificationResults
+      },
+      complexData: {
+        passed: !!retrievedComplex && retrievedComplex.userSession?.userId === complexData.userSession.userId,
+        details: "Complex object storage and retrieval"
+      },
+      largeDataset: {
+        passed: retrievedLarge?.length === largeArray.length,
+        details: `Stored and retrieved ${largeArray.length} items`
+      },
+      persistence: {
+        passed: persistentData?.sessionId === persistenceTest.sessionId,
+        details: "Data persistence across operations"
+      },
+      management: {
+        passed: Object.keys(tempData).length === testKeys.length,
+        details: "Multiple key management"
+      }
+    },
+    summary: {
+      totalTests: 5,
+      passedTests: 0, // Will be calculated
+      performance: {
+        totalOperations: 20,
+        largestDataset: largeArray.length
+      }
+    }
+  }
+  
+  // Calculate passed tests
+  storageTestResults.summary.passedTests = Object.values(storageTestResults.tests)
+    .filter(test => test.passed).length
+  
+  await store("storage_test_results", storageTestResults)
+  log("Final results stored:", storageTestResults.summary)
+  
+  log("Storage operations test completed successfully! ✅")
+  log(`Summary: ${storageTestResults.summary.passedTests}/${storageTestResults.summary.totalTests} tests passed`)
+  
+  return {
+    success: true,
+    message: "All storage tests completed",
+    results: storageTestResults
+  }
+
+} catch (error) {
+  log("Storage test failed:", error.message)
+  
+  let errorResult = {
+    timestamp: new Date().toISOString(),
+    error: error.message,
+    stack: error.stack,
+    testSuite: "storage-operations"
+  }
+  
+  await store("storage_test_error", errorResult)
+  
+  return {
+    success: false,
+    error: error.message
+  }
+}

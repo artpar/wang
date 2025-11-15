@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wang Service Worker Test Environment</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 600px;
+      height: 500px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      background: #2d2d30;
+      padding: 10px 15px;
+      border-bottom: 1px solid #3e3e42;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #cccccc;
+    }
+    
+    .status {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #0e639c;
+      color: white;
+    }
+    
+    .status.running {
+      background: #f9a825;
+    }
+    
+    .status.error {
+      background: #d32f2f;
+    }
+    
+    .status.paused {
+      background: #ed6c02;
+    }
+    
+    .toolbar {
+      background: #252526;
+      padding: 8px 15px;
+      border-bottom: 1px solid #3e3e42;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .btn {
+      background: #0e639c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn:hover {
+      background: #1177bb;
+    }
+    
+    .btn:disabled {
+      background: #3c3c3c;
+      cursor: not-allowed;
+      color: #888;
+    }
+    
+    .btn.secondary {
+      background: #5a5a5a;
+    }
+    
+    .btn.secondary:hover {
+      background: #6a6a6a;
+    }
+    
+    .btn.danger {
+      background: #d32f2f;
+    }
+    
+    .btn.danger:hover {
+      background: #e53935;
+    }
+    
+    .script-selector {
+      flex: 1;
+      background: #3c3c3c;
+      color: #d4d4d4;
+      border: 1px solid #5a5a5a;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .editor-container {
+      flex: 1;
+      position: relative;
+      border-bottom: 1px solid #3e3e42;
+    }
+    
+    .code-editor {
+      width: 100%;
+      height: 100%;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border: none;
+      padding: 10px;
+      font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+      font-size: 13px;
+      line-height: 1.4;
+      resize: none;
+      outline: none;
+    }
+    
+    .output-panel {
+      height: 150px;
+      background: #0c0c0c;
+      border-top: 1px solid #3e3e42;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .output-header {
+      background: #2d2d30;
+      padding: 6px 15px;
+      border-bottom: 1px solid #3e3e42;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .output-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .log-entry {
+      margin-bottom: 4px;
+      white-space: pre-wrap;
+    }
+    
+    .log-entry.log {
+      color: #d4d4d4;
+    }
+    
+    .log-entry.error {
+      color: #f48771;
+    }
+    
+    .log-entry.warn {
+      color: #dcdcaa;
+    }
+    
+    .log-entry.result {
+      color: #4fc1ff;
+      font-weight: bold;
+    }
+    
+    .log-timestamp {
+      color: #888;
+      font-size: 11px;
+      margin-right: 8px;
+    }
+    
+    .tabs {
+      display: flex;
+      background: #252526;
+      border-bottom: 1px solid #3e3e42;
+    }
+    
+    .tab {
+      padding: 8px 15px;
+      background: none;
+      border: none;
+      color: #cccccc;
+      font-size: 12px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      background: #1e1e1e;
+      border-bottom-color: #0e639c;
+    }
+    
+    .tab:hover {
+      background: #2a2a2a;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .state-viewer {
+      padding: 10px;
+      font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+    }
+    
+    .state-section {
+      margin-bottom: 15px;
+    }
+    
+    .state-section h3 {
+      color: #4fc1ff;
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+    
+    .state-section pre {
+      background: #0c0c0c;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #3e3e42;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    
+    .execution-info {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: #888;
+    }
+    
+    .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #3e3e42;
+      border-top: 2px solid #0e639c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    
+    .spinner.active {
+      display: inline-block;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Wang Service Worker Test</h1>
+    <div class="status" id="status">Ready</div>
+  </div>
+  
+  <div class="toolbar">
+    <button class="btn" id="run-btn">
+      <span class="spinner" id="run-spinner"></span>
+      Run
+    </button>
+    <button class="btn secondary" id="pause-btn" disabled>Pause</button>
+    <button class="btn secondary" id="resume-btn" disabled>Resume</button>
+    <button class="btn danger" id="clear-btn">Clear</button>
+    
+    <select class="script-selector" id="script-selector">
+      <option value="">Select Example Script...</option>
+      <option value="dom-automation.wang">DOM Automation</option>
+      <option value="api-calls.wang">API Calls</option>
+      <option value="storage-ops.wang">Storage Operations</option>
+      <option value="scheduled-tasks.wang">Scheduled Tasks</option>
+    </select>
+    
+    <button class="btn secondary" id="load-script-btn">Load</button>
+  </div>
+  
+  <div class="main-content">
+    <div class="editor-container">
+      <textarea 
+        class="code-editor" 
+        id="code-editor" 
+        placeholder="// Write your Wang code here...
+// Example:
+let message = 'Hello from Wang Service Worker!'
+log(message)
+
+// DOM operations (requires active tab)
+// let title = await querySelector('h1')
+// log('Page title:', title?.textContent)
+
+// Storage operations
+// await store('test_key', 'test_value')
+// let value = await retrieve('test_key')
+// log('Retrieved:', value)"
+      ></textarea>
+    </div>
+    
+    <div class="output-panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="console">Console</button>
+        <button class="tab" data-tab="state">State</button>
+        <button class="tab" data-tab="history">History</button>
+      </div>
+      
+      <div class="tab-content active" id="console-tab">
+        <div class="output-header">
+          <span>Console Output</span>
+          <div class="execution-info">
+            <span id="execution-time"></span>
+            <span id="execution-status"></span>
+          </div>
+        </div>
+        <div class="output-content" id="console-output"></div>
+      </div>
+      
+      <div class="tab-content" id="state-tab">
+        <div class="state-viewer">
+          <div class="state-section">
+            <h3>Variables</h3>
+            <pre id="variables-display">{}</pre>
+          </div>
+          <div class="state-section">
+            <h3>Call Stack</h3>
+            <pre id="callstack-display">[]</pre>
+          </div>
+          <div class="state-section">
+            <h3>Execution State</h3>
+            <pre id="execution-state-display">{}</pre>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="history-tab">
+        <div class="output-header">
+          <span>Execution History</span>
+          <button class="btn secondary" id="clear-history-btn">Clear History</button>
+        </div>
+        <div class="output-content" id="history-output"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

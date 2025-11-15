@@ -1,0 +1,301 @@
+// Wang Scheduled Tasks Test Script
+// Tests Chrome alarms API and background task scheduling from service worker
+
+log("Starting scheduled tasks test...")
+
+try {
+  // Test 1: Basic task scheduling
+  log("Test 1: Basic task scheduling...")
+  
+  let taskId = generateId()
+  let scheduledTask = `
+    log("Scheduled task ${taskId} executed at", new Date().toISOString())
+    await store("task_${taskId}_executed", {
+      taskId: "${taskId}",
+      executedAt: new Date().toISOString(),
+      status: "completed"
+    })
+  `
+  
+  // Schedule a task to run in 1 minute (minimum Chrome alarm delay)
+  await scheduleTask(`test_task_${taskId}`, 1, scheduledTask)
+  log(`Scheduled task with ID: ${taskId}`)
+  
+  await store(`task_${taskId}_scheduled`, {
+    taskId: taskId,
+    scheduledAt: new Date().toISOString(),
+    willExecuteAt: new Date(Date.now() + 60000).toISOString(),
+    taskCode: scheduledTask
+  })
+  
+  // Test 2: Multiple task scheduling
+  log("Test 2: Multiple task scheduling...")
+  
+  let multiTasks = []
+  for (let i = 0; i < 3; i++) {
+    let multiTaskId = `multi_${i}_${generateId()}`
+    let multiTaskCode = `
+      log("Multi-task ${multiTaskId} (${i + 1}/3) executed")
+      await store("multi_task_${multiTaskId}_result", {
+        taskId: "${multiTaskId}",
+        index: ${i},
+        executedAt: new Date().toISOString(),
+        message: "Multi-task execution successful"
+      })
+    `
+    
+    // Schedule tasks at 1, 2, and 3 minute intervals
+    await scheduleTask(multiTaskId, i + 1, multiTaskCode)
+    
+    multiTasks.push({
+      taskId: multiTaskId,
+      scheduledAt: new Date().toISOString(),
+      delayMinutes: i + 1,
+      willExecuteAt: new Date(Date.now() + (i + 1) * 60000).toISOString()
+    })
+    
+    log(`Scheduled multi-task ${i + 1}: ${multiTaskId}`)
+  }
+  
+  await store("multi_tasks_scheduled", multiTasks)
+  
+  // Test 3: Task management and monitoring
+  log("Test 3: Task management simulation...")
+  
+  let taskManager = {
+    session: generateId(),
+    createdAt: new Date().toISOString(),
+    scheduledTasks: [
+      ...multiTasks,
+      {
+        taskId: taskId,
+        scheduledAt: new Date().toISOString(),
+        delayMinutes: 1
+      }
+    ],
+    totalTasks: multiTasks.length + 1,
+    monitoring: {
+      enabled: true,
+      checkInterval: 30, // seconds
+      lastCheck: new Date().toISOString()
+    }
+  }
+  
+  await store("task_manager_state", taskManager)
+  log("Task manager state stored:", taskManager.session)
+  
+  // Test 4: Recurring task simulation
+  log("Test 4: Recurring task pattern...")
+  
+  let recurringTaskCode = `
+    let executionCount = await retrieve("recurring_task_count") || 0
+    executionCount += 1
+    
+    log("Recurring task execution #" + executionCount)
+    
+    await store("recurring_task_count", executionCount)
+    await store("recurring_task_last_run", {
+      count: executionCount,
+      timestamp: new Date().toISOString(),
+      message: "Recurring task completed successfully"
+    })
+    
+    // Schedule next execution if count < 5
+    if (executionCount < 5) {
+      await scheduleTask("recurring_task_" + Date.now(), 1, \`${recurringTaskCode}\`)
+      log("Scheduled next recurring task execution")
+    } else {
+      log("Recurring task sequence completed")
+      await store("recurring_task_final", {
+        totalExecutions: executionCount,
+        completedAt: new Date().toISOString(),
+        status: "sequence_complete"
+      })
+    }
+  `
+  
+  // Start the recurring task sequence
+  await store("recurring_task_count", 0)
+  await scheduleTask("recurring_task_start", 1, recurringTaskCode)
+  log("Started recurring task sequence")
+  
+  // Test 5: Task data collection
+  log("Test 5: Data collection tasks...")
+  
+  let dataCollectionTasks = [
+    {
+      name: "api_status_check",
+      code: `
+        let status = await apiCall("http://localhost:3000/api/status")
+        await store("scheduled_api_status_" + Date.now(), {
+          timestamp: new Date().toISOString(),
+          status: status,
+          taskType: "api_monitoring"
+        })
+        log("API status collected via scheduled task")
+      `,
+      delay: 2
+    },
+    {
+      name: "random_data_collection",
+      code: `
+        let randomData = await apiCall("http://localhost:3000/api/random")
+        await store("scheduled_random_data_" + Date.now(), {
+          timestamp: new Date().toISOString(),
+          data: randomData,
+          taskType: "data_collection"
+        })
+        log("Random data collected via scheduled task")
+      `,
+      delay: 3
+    },
+    {
+      name: "storage_cleanup",
+      code: `
+        log("Performing scheduled storage cleanup...")
+        // Note: In real implementation, would clean up old data
+        await store("cleanup_performed_" + Date.now(), {
+          timestamp: new Date().toISOString(),
+          action: "storage_cleanup",
+          taskType: "maintenance"
+        })
+        log("Storage cleanup completed")
+      `,
+      delay: 4
+    }
+  ]
+  
+  let scheduledDataTasks = []
+  for (let task of dataCollectionTasks) {
+    let taskId = `${task.name}_${generateId()}`
+    await scheduleTask(taskId, task.delay, task.code)
+    
+    scheduledDataTasks.push({
+      taskId: taskId,
+      name: task.name,
+      scheduledAt: new Date().toISOString(),
+      delay: task.delay,
+      willExecuteAt: new Date(Date.now() + task.delay * 60000).toISOString()
+    })
+    
+    log(`Scheduled data collection task: ${task.name}`)
+  }
+  
+  await store("data_collection_tasks", scheduledDataTasks)
+  
+  // Test 6: Task monitoring and status
+  log("Test 6: Task monitoring setup...")
+  
+  let monitoringData = {
+    session: generateId(),
+    startedAt: new Date().toISOString(),
+    totalScheduled: taskManager.totalTasks + multiTasks.length + 1 + scheduledDataTasks.length,
+    categories: {
+      basic: 1,
+      multi: 3,
+      recurring: 1,
+      dataCollection: scheduledDataTasks.length
+    },
+    nextCheck: new Date(Date.now() + 30000).toISOString(), // 30 seconds
+    monitoring: {
+      enabled: true,
+      checkKeys: [
+        `task_${taskId}_executed`,
+        "recurring_task_final",
+        "scheduled_api_status_*",
+        "scheduled_random_data_*",
+        "cleanup_performed_*"
+      ]
+    }
+  }
+  
+  await store("task_monitoring_data", monitoringData)
+  log("Task monitoring setup completed")
+  
+  // Test 7: Summary and results
+  log("Test 7: Generating test summary...")
+  
+  let scheduledTasksResults = {
+    timestamp: new Date().toISOString(),
+    testSuite: "scheduled-tasks",
+    session: monitoringData.session,
+    summary: {
+      totalTasksScheduled: monitoringData.totalScheduled,
+      taskCategories: monitoringData.categories,
+      schedulingTimeframe: "1-4 minutes from now",
+      monitoringEnabled: true
+    },
+    scheduledTasks: {
+      basic: {
+        taskId: taskId,
+        executeAt: new Date(Date.now() + 60000).toISOString(),
+        description: "Basic single task execution"
+      },
+      multiTasks: multiTasks,
+      recurringTask: {
+        started: true,
+        maxExecutions: 5,
+        description: "Self-scheduling recurring task"
+      },
+      dataCollectionTasks: scheduledDataTasks
+    },
+    monitoring: {
+      sessionId: monitoringData.session,
+      checkInterval: 30,
+      statusKeys: monitoringData.monitoring.checkKeys
+    },
+    instructions: {
+      verification: "Check storage after scheduled times for task execution results",
+      keys: [
+        `task_${taskId}_executed`,
+        "multi_task_*_result",
+        "recurring_task_final",
+        "scheduled_*"
+      ]
+    }
+  }
+  
+  await store("scheduled_tasks_test_results", scheduledTasksResults)
+  log("Scheduled tasks test results stored")
+  
+  // Store immediate verification data
+  await store("scheduled_tasks_verification", {
+    timestamp: new Date().toISOString(),
+    testCompleted: true,
+    tasksScheduled: monitoringData.totalScheduled,
+    verificationWindow: "Next 5 minutes",
+    expectedResults: monitoringData.totalScheduled,
+    checkAfter: new Date(Date.now() + 300000).toISOString() // 5 minutes
+  })
+  
+  log("Scheduled tasks test completed successfully! ✅")
+  log(`Summary: ${monitoringData.totalScheduled} tasks scheduled across ${Object.keys(monitoringData.categories).length} categories`)
+  log("Note: Tasks will execute in the background. Check storage in 1-5 minutes for results.")
+  
+  return {
+    success: true,
+    message: "All scheduled tasks configured",
+    results: {
+      tasksScheduled: monitoringData.totalScheduled,
+      session: monitoringData.session,
+      checkAfter: "1-5 minutes"
+    }
+  }
+
+} catch (error) {
+  log("Scheduled tasks test failed:", error.message)
+  
+  let errorResult = {
+    timestamp: new Date().toISOString(),
+    error: error.message,
+    stack: error.stack,
+    testSuite: "scheduled-tasks"
+  }
+  
+  await store("scheduled_tasks_error", errorResult)
+  
+  return {
+    success: false,
+    error: error.message
+  }
+}

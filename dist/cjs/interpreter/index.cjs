@@ -9,7 +9,7 @@ const memory_1 = require("../resolvers/memory.cjs");
 const errors_1 = require("../utils/errors.cjs");
 const index_1 = require("../stdlib/index.cjs");
 // Version will be replaced during build
-const VERSION = '0.24.4';
+const VERSION = '0.24.5';
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
 const wang_grammar_js_1 = require("../generated/wang-grammar.cjs");
@@ -24,6 +24,7 @@ class WangInterpreter {
         this.moduleResolver = options.moduleResolver || new memory_1.InMemoryModuleResolver();
         this.globalContext = options.globalContext || this.createContext();
         this.currentContext = this.globalContext;
+        this.abortSignal = options.abortSignal;
         // Bind built-in functions
         this.bindBuiltins();
         // Bind custom functions
@@ -44,6 +45,14 @@ class WangInterpreter {
             moduleCache: new Map(),
             modulePath: this.currentModulePath,
         };
+    }
+    /**
+     * Check if the abort signal has been triggered and throw AbortError if so
+     */
+    checkAbort() {
+        if (this.abortSignal?.aborted) {
+            throw new errors_1.AbortError();
+        }
     }
     getStackTrace() {
         return this.callStack.map((frame) => {
@@ -1139,6 +1148,8 @@ class WangInterpreter {
     async evaluateNode(node) {
         if (!node)
             return undefined;
+        // Check if execution has been aborted
+        this.checkAbort();
         switch (node.type) {
             case 'Program':
                 return this.evaluateProgram(node);
@@ -2061,6 +2072,8 @@ class WangInterpreter {
                 throw error;
             }
             for (const item of iterable) {
+                // Check for abort before each iteration
+                this.checkAbort();
                 if (node.left.type === 'VariableDeclaration') {
                     this.assignPattern(node.left.declarations[0].id, item);
                 }
@@ -2086,6 +2099,8 @@ class WangInterpreter {
                 throw error;
             }
             for (const key in obj) {
+                // Check for abort before each iteration
+                this.checkAbort();
                 if (node.left.type === 'VariableDeclaration') {
                     this.assignPattern(node.left.declarations[0].id, key);
                 }
@@ -2108,6 +2123,8 @@ class WangInterpreter {
             if (node.init)
                 await this.evaluateNode(node.init);
             while (node.test ? await this.evaluateNode(node.test) : true) {
+                // Check for abort before each iteration
+                this.checkAbort();
                 try {
                     await this.evaluateNode(node.body);
                 }
@@ -2129,6 +2146,8 @@ class WangInterpreter {
     }
     async evaluateWhileStatement(node) {
         while (await this.evaluateNode(node.test)) {
+            // Check for abort before each iteration
+            this.checkAbort();
             try {
                 await this.evaluateNode(node.body);
             }
@@ -2145,6 +2164,8 @@ class WangInterpreter {
     }
     async evaluateDoWhileStatement(node) {
         do {
+            // Check for abort before each iteration
+            this.checkAbort();
             try {
                 await this.evaluateNode(node.body);
             }
@@ -2400,6 +2421,8 @@ class WangInterpreter {
         };
         this.callStack.push(stackFrame);
         try {
+            // Check for abort before executing function
+            this.checkAbort();
             return await callee.apply(thisContext, processedArgs);
         }
         finally {
@@ -2977,6 +3000,8 @@ class WangInterpreter {
                     // (items added during iteration should not be processed)
                     const originalLength = arr.length;
                     for (let i = 0; i < originalLength; i++) {
+                        // Check for abort before each callback
+                        interpreter.checkAbort();
                         // Skip holes in sparse arrays (match JavaScript behavior)
                         if (!Object.prototype.hasOwnProperty.call(arr, i)) {
                             continue;

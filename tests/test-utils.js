@@ -7,10 +7,11 @@ import nearley from 'nearley';
 import grammar from '../dist/esm/generated/wang-grammar.js';
 
 export class TestContext {
-  constructor() {
+  constructor(options = {}) {
     this.resolver = new InMemoryModuleResolver();
     this.interpreter = null;
     this.customFunctions = {};
+    this.abortSignal = options.abortSignal;
   }
 
   addModule(name, code) {
@@ -25,6 +26,7 @@ export class TestContext {
     this.interpreter = new WangInterpreter({
       moduleResolver: this.resolver,
       functions: this.customFunctions,
+      abortSignal: this.abortSignal,
     });
     return this.interpreter;
   }

@@ -5,7 +5,7 @@
 
 import { ModuleResolver } from '../resolvers/base';
 import { InMemoryModuleResolver } from '../resolvers/memory';
-import { WangError, UndefinedVariableError, TypeMismatchError } from '../utils/errors';
+import { WangError, UndefinedVariableError, TypeMismatchError, AbortError } from '../utils/errors';
 import { stdlib } from '../stdlib/index';
 
 // Version will be replaced during build
@@ -40,6 +40,7 @@ export interface InterpreterOptions {
   moduleResolver?: ModuleResolver;
   functions?: Record<string, Function>;
   globalContext?: ExecutionContext;
+  abortSignal?: AbortSignal;
 }
 
 export class WangInterpreter {
@@ -53,6 +54,7 @@ export class WangInterpreter {
   protected callStack: CallStackFrame[] = [];
   protected currentModulePath: string = '<main>';
   protected nodeStack: any[] = [];
+  protected abortSignal?: AbortSignal;
 
   // Track if version has been logged for this session
   private static versionLogged: boolean = false;
@@ -61,6 +63,7 @@ export class WangInterpreter {
     this.moduleResolver = options.moduleResolver || new InMemoryModuleResolver();
     this.globalContext = options.globalContext || this.createContext();
     this.currentContext = this.globalContext;
+    this.abortSignal = options.abortSignal;
 
     // Bind built-in functions
     this.bindBuiltins();
@@ -83,6 +86,15 @@ export class WangInterpreter {
       moduleCache: new Map(),
       modulePath: this.currentModulePath,
     };
+  }
+
+  /**
+   * Check if the abort signal has been triggered and throw AbortError if so
+   */
+  protected checkAbort(): void {
+    if (this.abortSignal?.aborted) {
+      throw new AbortError();
+    }
   }
 
   private getStackTrace(): string[] {
@@ -1371,6 +1383,9 @@ export class WangInterpreter {
   protected async evaluateNode(node: any): Promise<any> {
     if (!node) return undefined;
 
+    // Check if execution has been aborted
+    this.checkAbort();
+
     switch (node.type) {
       case 'Program':
         return this.evaluateProgram(node);
@@ -2401,6 +2416,9 @@ export class WangInterpreter {
         throw error;
       }
       for (const item of iterable) {
+        // Check for abort before each iteration
+        this.checkAbort();
+
         if (node.left.type === 'VariableDeclaration') {
           this.assignPattern(node.left.declarations[0].id, item);
         }
@@ -2423,6 +2441,9 @@ export class WangInterpreter {
         throw error;
       }
       for (const key in obj) {
+        // Check for abort before each iteration
+        this.checkAbort();
+
         if (node.left.type === 'VariableDeclaration') {
           this.assignPattern(node.left.declarations[0].id, key);
         }
@@ -2441,6 +2462,9 @@ export class WangInterpreter {
       // Regular for loop
       if (node.init) await this.evaluateNode(node.init);
       while (node.test ? await this.evaluateNode(node.test) : true) {
+        // Check for abort before each iteration
+        this.checkAbort();
+
         try {
           await this.evaluateNode(node.body);
         } catch (e: any) {
@@ -2459,6 +2483,9 @@ export class WangInterpreter {
 
   private async evaluateWhileStatement(node: any): Promise<any> {
     while (await this.evaluateNode(node.test)) {
+      // Check for abort before each iteration
+      this.checkAbort();
+
       try {
         await this.evaluateNode(node.body);
       } catch (e: any) {
@@ -2474,6 +2501,9 @@ export class WangInterpreter {
 
   private async evaluateDoWhileStatement(node: any): Promise<any> {
     do {
+      // Check for abort before each iteration
+      this.checkAbort();
+
       try {
         await this.evaluateNode(node.body);
       } catch (e: any) {
@@ -2750,6 +2780,9 @@ export class WangInterpreter {
 
     this.callStack.push(stackFrame);
     try {
+      // Check for abort before executing function
+      this.checkAbort();
+
       return await callee.apply(thisContext, processedArgs);
     } finally {
       this.callStack.pop();
@@ -3428,6 +3461,9 @@ export class WangInterpreter {
           const originalLength = arr.length;
 
           for (let i = 0; i < originalLength; i++) {
+            // Check for abort before each callback
+            interpreter.checkAbort();
+
             // Skip holes in sparse arrays (match JavaScript behavior)
             if (!Object.prototype.hasOwnProperty.call(arr, i)) {
               continue;

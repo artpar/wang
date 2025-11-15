@@ -1,0 +1,26 @@
+{
+  "name": "wang-test-server",
+  "version": "1.0.0",
+  "description": "Test server for Wang service worker automation testing",
+  "main": "test-server.js",
+  "scripts": {
+    "start": "node test-server.js",
+    "dev": "nodemon test-server.js",
+    "test": "node test-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "wang",
+    "test-server",
+    "automation",
+    "service-worker"
+  ],
+  "author": "Wang Test Team",
+  "license": "MIT"
+}

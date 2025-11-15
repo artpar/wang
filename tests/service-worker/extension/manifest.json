@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Wang Service Worker Test Environment",
+  "version": "1.0.0",
+  "description": "Test environment for Wang language execution in Chrome service worker",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "alarms",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:*/*",
+    "https://localhost:*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Wang Test Environment"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["wang-scripts/*.wang"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  }
+}

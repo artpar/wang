@@ -26,6 +26,7 @@ export interface InterpreterOptions {
     moduleResolver?: ModuleResolver;
     functions?: Record<string, Function>;
     globalContext?: ExecutionContext;
+    abortSignal?: AbortSignal;
 }
 export declare class WangInterpreter {
     protected moduleResolver: ModuleResolver;
@@ -40,9 +41,14 @@ export declare class WangInterpreter {
     protected callStack: CallStackFrame[];
     protected currentModulePath: string;
     protected nodeStack: any[];
+    protected abortSignal?: AbortSignal;
     private static versionLogged;
     constructor(options?: InterpreterOptions);
     protected createContext(parent?: ExecutionContext): ExecutionContext;
+    /**
+     * Check if the abort signal has been triggered and throw AbortError if so
+     */
+    protected checkAbort(): void;
     private getStackTrace;
     private getNodeLocation;
     /**

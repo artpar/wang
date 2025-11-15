@@ -1,0 +1,296 @@
+{
+  "timestamp": "2025-11-11T08:55:55.565Z",
+  "duration": 41,
+  "summary": {
+    "total": 6,
+    "passed": 5,
+    "failed": 1,
+    "successRate": 83
+  },
+  "details": {
+    "wangBundle": true,
+    "apiEndpoints": [
+      {
+        "endpoint": "http://localhost:3000/api/test",
+        "status": "ok",
+        "data": {
+          "success": true,
+          "message": "Wang API test successful!",
+          "timestamp": "2025-11-11T08:55:55.549Z",
+          "callCount": 5,
+          "server": "Wang Test Server"
+        }
+      },
+      {
+        "endpoint": "http://localhost:3000/api/status",
+        "status": "ok",
+        "data": {
+          "status": "healthy",
+          "uptime": 1622874,
+          "version": "1.0.0",
+          "timestamp": "2025-11-11T08:55:55.557Z",
+          "apiCalls": 6,
+          "users": 0,
+          "memory": {
+            "rss": 45809664,
+            "heapTotal": 9273344,
+            "heapUsed": 7721904,
+            "external": 2096749,
+            "arrayBuffers": 18635
+          }
+        }
+      },
+      {
+        "endpoint": "http://localhost:3000/api/users",
+        "status": "ok",
+        "data": {
+          "success": true,
+          "users": [],
+          "count": 0,
+          "timestamp": "2025-11-11T08:55:55.559Z"
+        }
+      },
+      {
+        "endpoint": "http://localhost:3000/api/random",
+        "status": "ok",
+        "data": {
+          "success": true,
+          "data": {
+            "id": 7238,
+            "name": "User 487",
+            "email": "user639@example.com",
+            "score": 97,
+            "active": true,
+            "category": "premium",
+            "timestamp": "2025-11-11T08:55:55.561Z"
+          }
+        }
+      }
+    ],
+    "scripts": [
+      {
+        "script": "dom-automation.wang",
+        "status": "error",
+        "error": "errorHandling is not defined"
+      },
+      {
+        "script": "api-calls.wang",
+        "status": "error",
+        "error": "errorHandling is not defined"
+      },
+      {
+        "script": "storage-ops.wang",
+        "status": "error",
+        "error": "errorHandling is not defined"
+      },
+      {
+        "script": "scheduled-tasks.wang",
+        "status": "error",
+        "error": "errorHandling is not defined"
+      }
+    ],
+    "environment": [
+      {
+        "test": "Promise support",
+        "status": "ok"
+      },
+      {
+        "test": "Async/await support",
+        "status": "ok"
+      },
+      {
+        "test": "JSON support",
+        "status": "ok"
+      },
+      {
+        "test": "Map support",
+        "status": "ok"
+      },
+      {
+        "test": "Date support",
+        "status": "ok"
+      },
+      {
+        "test": "Error support",
+        "status": "ok"
+      }
+    ],
+    "serviceWorker": true,
+    "wangCompatibility": {
+      "compatible": true,
+      "issues": []
+    }
+  },
+  "logs": [
+    {
+      "timestamp": "2025-11-11T08:55:55.523Z",
+      "message": "Starting direct Wang tests\\n"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.524Z",
+      "message": "Testing Wang browser bundle"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.524Z",
+      "message": "✅ Wang bundle found",
+      "size": "142.2KB"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.525Z",
+      "message": "✅ Bundle exports verified",
+      "expected": 3,
+      "found": 3,
+      "exports": [
+        "WangInterpreter",
+        "PausableWangInterpreter",
+        "InMemoryModuleResolver"
+      ]
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.525Z",
+      "message": "Testing server API endpoints"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.554Z",
+      "message": "✅ test API - OK",
+      "status": 200,
+      "hasData": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.558Z",
+      "message": "✅ status API - OK",
+      "status": 200,
+      "hasData": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.560Z",
+      "message": "✅ users API - OK",
+      "status": 200,
+      "hasData": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.561Z",
+      "message": "✅ random API - OK",
+      "status": 200,
+      "hasData": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.561Z",
+      "message": "Testing Wang script files"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.562Z",
+      "message": "✅ dom-automation.wang - Valid",
+      "lines": 1,
+      "hasLogging": true,
+      "hasAsync": true,
+      "hasErrorHandling": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.562Z",
+      "message": "❌ dom-automation.wang - Error",
+      "error": "errorHandling is not defined"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.562Z",
+      "message": "✅ api-calls.wang - Valid",
+      "lines": 1,
+      "hasLogging": true,
+      "hasAsync": true,
+      "hasErrorHandling": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.562Z",
+      "message": "❌ api-calls.wang - Error",
+      "error": "errorHandling is not defined"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ storage-ops.wang - Valid",
+      "lines": 1,
+      "hasLogging": true,
+      "hasAsync": true,
+      "hasErrorHandling": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "❌ storage-ops.wang - Error",
+      "error": "errorHandling is not defined"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ scheduled-tasks.wang - Valid",
+      "lines": 1,
+      "hasLogging": true,
+      "hasAsync": true,
+      "hasErrorHandling": true
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "❌ scheduled-tasks.wang - Error",
+      "error": "errorHandling is not defined"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "Testing Node.js environment simulation"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ Promise support - Working"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ Async/await support - Working"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ JSON support - Working"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ Map support - Working"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ Date support - Working"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ Error support - Working"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "Simulating service worker environment"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "✅ Service worker environment simulation ready"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.563Z",
+      "message": "Testing Wang interpreter directly"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.564Z",
+      "message": "Wang bundle analysis",
+      "size": "142.2KB",
+      "issues": 0,
+      "serviceWorkerCompatible": true,
+      "hasImportScripts": false,
+      "hasGlobalThis": true,
+      "hasSelf": false
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.564Z",
+      "message": "✅ Wang bundle appears service worker compatible"
+    },
+    {
+      "timestamp": "2025-11-11T08:55:55.564Z",
+      "message": "\\n🎉 Direct Test Summary",
+      "duration": "41ms",
+      "passed": 5,
+      "total": 6,
+      "successRate": "83%"
+    }
+  ]
+}

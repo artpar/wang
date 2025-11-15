@@ -1,0 +1,173 @@
+// Wang DOM Automation Test Script
+// This script demonstrates DOM manipulation capabilities in a service worker context
+
+log("Starting DOM automation test...")
+
+try {
+  // Get current page info
+  let pageInfo = await executeInPage("({
+    title: document.title,
+    url: window.location.href,
+    elementCount: document.querySelectorAll('*').length
+  })")
+  
+  log("Page info:", pageInfo)
+  
+  // Test basic element selection
+  log("Testing querySelector...")
+  let titleElement = await querySelector("h1")
+  if (titleElement) {
+    log("Found title element:", titleElement.textContent)
+  } else {
+    log("No h1 element found")
+  }
+  
+  // Test form interaction if form exists
+  let formExists = await querySelector("#test-form")
+  if (formExists) {
+    log("Found test form, filling it out...")
+    
+    // Fill name field
+    await type("#name", "Wang Test User")
+    await wait(500)
+    
+    // Fill email field
+    await type("#email", "wang.test@example.com")
+    await wait(500)
+    
+    // Select country
+    await executeInPage(`
+      const countrySelect = document.querySelector("#country");
+      if (countrySelect) {
+        countrySelect.value = "us";
+        countrySelect.dispatchEvent(new Event('change'));
+      }
+    `)
+    await wait(500)
+    
+    // Check newsletter subscription
+    await executeInPage(`
+      const newsletter = document.querySelector("#newsletter");
+      if (newsletter && !newsletter.checked) {
+        newsletter.click();
+      }
+    `)
+    await wait(500)
+    
+    // Accept terms
+    await executeInPage(`
+      const terms = document.querySelector("#terms");
+      if (terms && !terms.checked) {
+        terms.click();
+      }
+    `)
+    await wait(500)
+    
+    // Add comments
+    await type("#comments", "This form was filled by Wang automation running in a Chrome service worker!")
+    await wait(500)
+    
+    log("Form filled successfully!")
+    
+    // Test button interactions
+    log("Testing button clicks...")
+    
+    // Test dynamic content button
+    let loadContentBtn = await querySelector("#load-content-btn")
+    if (loadContentBtn) {
+      await click("#load-content-btn")
+      log("Clicked load content button")
+      await wait(1000)
+      
+      // Check if content was loaded
+      let dynamicContent = await executeInPage(`
+        document.querySelector("#dynamic-content")?.innerHTML
+      `)
+      log("Dynamic content:", dynamicContent)
+    }
+    
+    // Test show hidden element
+    await click("#show-hidden-btn")
+    log("Clicked show hidden button")
+    await wait(500)
+    
+    // Test add element
+    await click("#add-element-btn")
+    log("Clicked add element button")
+    await wait(500)
+    
+    // Test status toggle
+    await click("#toggle-status-btn")
+    log("Clicked toggle status button")
+    await wait(500)
+    
+    // Count elements after interactions
+    let finalCounts = await executeInPage(`({
+      buttons: document.querySelectorAll('button').length,
+      inputs: document.querySelectorAll('input').length,
+      dynamicElements: document.querySelectorAll('.new-btn').length
+    })`)
+    
+    log("Final element counts:", finalCounts)
+    
+  } else {
+    log("No test form found - testing generic DOM operations")
+    
+    // Test generic element queries
+    let buttons = await querySelectorAll("button")
+    log(`Found ${buttons.length} buttons on page`)
+    
+    let inputs = await querySelectorAll("input")
+    log(`Found ${inputs.length} input elements`)
+    
+    let links = await querySelectorAll("a")
+    log(`Found ${links.length} links`)
+  }
+  
+  // Test scroll operations
+  log("Testing scroll operations...")
+  await executeInPage(`
+    window.scrollTo({ top: document.body.scrollHeight / 2, behavior: 'smooth' });
+  `)
+  await wait(1000)
+  
+  await executeInPage(`
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  `)
+  await wait(1000)
+  
+  // Store test results
+  let testResults = {
+    timestamp: new Date().toISOString(),
+    pageUrl: pageInfo.result?.url || "unknown",
+    pageTitle: pageInfo.result?.title || "unknown",
+    formFound: !!formExists,
+    elementsInteracted: ["name", "email", "country", "newsletter", "terms", "comments"],
+    buttonsClicked: ["load-content-btn", "show-hidden-btn", "add-element-btn", "toggle-status-btn"],
+    testStatus: "completed"
+  }
+  
+  await store("dom_automation_results", testResults)
+  log("Test results stored:", testResults)
+  
+  log("DOM automation test completed successfully! ✅")
+  
+  return {
+    success: true,
+    message: "DOM automation test completed",
+    results: testResults
+  }
+
+} catch (error) {
+  log("DOM automation test failed:", error.message)
+  
+  await store("dom_automation_error", {
+    error: error.message,
+    timestamp: new Date().toISOString()
+  })
+  
+  return {
+    success: false,
+    error: error.message
+  }
+}

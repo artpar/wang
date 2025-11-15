@@ -1,0 +1,18 @@
+{
+  "sessionId": "2025-11-11T08-26-39-741Z",
+  "startTime": "2025-11-11T08:26:39.742Z",
+  "tests": [],
+  "summary": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0
+  },
+  "performance": {
+    "totalDuration": 0,
+    "averageExecutionTime": 0,
+    "slowestTest": null,
+    "fastestTest": null
+  },
+  "endTime": "2025-11-11T08:26:51.033Z"
+}

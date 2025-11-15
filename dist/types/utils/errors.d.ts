@@ -35,4 +35,7 @@ export declare class UndefinedVariableError extends WangError {
 export declare class FunctionNotFoundError extends WangError {
     constructor(funcName: string, availableFuncs: string[]);
 }
+export declare class AbortError extends WangError {
+    constructor();
+}
 //# sourceMappingURL=errors.d.ts.map

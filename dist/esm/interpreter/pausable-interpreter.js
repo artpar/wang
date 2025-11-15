@@ -47,6 +47,8 @@ export class PausableWangInterpreter extends WangInterpreter {
     }
     // Check if we should pause execution
     async checkPause() {
+        // Check abort first (higher priority than pause)
+        this.checkAbort();
         this.operationCounter++;
         if (this.operationCounter % this.pauseCheckInterval === 0) {
             // Allow other async operations to run

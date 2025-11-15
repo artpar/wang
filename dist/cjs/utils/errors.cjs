@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FunctionNotFoundError = exports.UndefinedVariableError = exports.TypeMismatchError = exports.CircularDependencyError = exports.ModuleNotFoundError = exports.WangError = void 0;
+exports.AbortError = exports.FunctionNotFoundError = exports.UndefinedVariableError = exports.TypeMismatchError = exports.CircularDependencyError = exports.ModuleNotFoundError = exports.WangError = void 0;
 class WangError extends Error {
     constructor(message, context = { type: 'RuntimeError' }, originalError) {
         super(message);
@@ -160,4 +160,22 @@ class FunctionNotFoundError extends WangError {
     }
 }
 exports.FunctionNotFoundError = FunctionNotFoundError;
+class AbortError extends WangError {
+    constructor() {
+        super('The operation was aborted', {
+            type: 'RuntimeError',
+            suggestions: [
+                'The AbortSignal was triggered during execution',
+                'Check if the abort signal was intentionally triggered',
+                'This error cannot be recovered from - the operation has been cancelled',
+            ],
+        });
+        this.name = 'AbortError';
+        // Maintain proper stack trace
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, AbortError);
+        }
+    }
+}
+exports.AbortError = AbortError;
 //# sourceMappingURL=errors.js.map

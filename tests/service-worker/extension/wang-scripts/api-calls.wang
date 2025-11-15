@@ -1,0 +1,191 @@
+// Wang API Calls Test Script
+// Tests network operations and API interactions from service worker
+
+log("Starting API calls test...")
+
+let apiBaseUrl = "http://localhost:3000/api"
+let results = []
+
+try {
+  // Test 1: Basic API call
+  log("Test 1: Basic API test...")
+  let basicTest = await apiCall(`${apiBaseUrl}/test`)
+  log("Basic API response:", basicTest)
+  results.push({ test: "basic", success: true, data: basicTest })
+  
+  // Test 2: Get users (initially empty)
+  log("Test 2: Get users...")
+  let users = await apiCall(`${apiBaseUrl}/users`)
+  log("Users response:", users)
+  results.push({ test: "get_users", success: true, data: users })
+  
+  // Test 3: Create a new user
+  log("Test 3: Creating new user...")
+  let newUser = await apiCall(`${apiBaseUrl}/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: "Wang Test User",
+      email: "wang@example.com",
+      role: "automation",
+      createdBy: "service-worker",
+      metadata: {
+        testRun: true,
+        timestamp: new Date().toISOString()
+      }
+    })
+  })
+  log("New user created:", newUser)
+  results.push({ test: "create_user", success: true, data: newUser })
+  
+  // Test 4: Get users again (should have new user)
+  log("Test 4: Get updated users list...")
+  let updatedUsers = await apiCall(`${apiBaseUrl}/users`)
+  log("Updated users:", updatedUsers)
+  results.push({ test: "get_users_updated", success: true, data: updatedUsers })
+  
+  // Test 5: Get specific user
+  if (newUser.user && newUser.user.id) {
+    log("Test 5: Get specific user...")
+    let specificUser = await apiCall(`${apiBaseUrl}/users/${newUser.user.id}`)
+    log("Specific user:", specificUser)
+    results.push({ test: "get_specific_user", success: true, data: specificUser })
+  }
+  
+  // Test 6: Random data endpoint
+  log("Test 6: Getting random data...")
+  let randomData = await apiCall(`${apiBaseUrl}/random`)
+  log("Random data:", randomData)
+  results.push({ test: "random_data", success: true, data: randomData })
+  
+  // Test 7: Echo endpoint
+  log("Test 7: Testing echo endpoint...")
+  let echoData = {
+    message: "Hello from Wang service worker!",
+    timestamp: new Date().toISOString(),
+    userAgent: "Wang/1.0 Service Worker",
+    testData: {
+      numbers: [1, 2, 3, 4, 5],
+      nested: { a: 1, b: 2 }
+    }
+  }
+  
+  let echoResponse = await apiCall(`${apiBaseUrl}/echo`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(echoData)
+  })
+  log("Echo response:", echoResponse)
+  results.push({ test: "echo", success: true, data: echoResponse })
+  
+  // Test 8: Delayed response
+  log("Test 8: Testing delayed response...")
+  let startTime = Date.now()
+  let delayedResponse = await apiCall(`${apiBaseUrl}/delay/2`)
+  let actualDelay = Date.now() - startTime
+  log(`Delayed response received after ${actualDelay}ms:`, delayedResponse)
+  results.push({ 
+    test: "delayed_response", 
+    success: true, 
+    data: delayedResponse,
+    actualDelay: actualDelay 
+  })
+  
+  // Test 9: Search endpoint
+  log("Test 9: Testing search...")
+  let searchResponse = await apiCall(`${apiBaseUrl}/search?q=wang&limit=5`)
+  log("Search results:", searchResponse)
+  results.push({ test: "search", success: true, data: searchResponse })
+  
+  // Test 10: Bulk data
+  log("Test 10: Testing bulk data retrieval...")
+  let bulkData = await apiCall(`${apiBaseUrl}/bulk/20`)
+  log(`Bulk data retrieved (${bulkData.data?.length} items):`, bulkData)
+  results.push({ 
+    test: "bulk_data", 
+    success: true, 
+    data: { ...bulkData, data: `${bulkData.data?.length} items` } 
+  })
+  
+  // Test 11: Server status
+  log("Test 11: Getting server status...")
+  let serverStatus = await apiCall(`${apiBaseUrl}/status`)
+  log("Server status:", serverStatus)
+  results.push({ test: "server_status", success: true, data: serverStatus })
+  
+  // Test 12: Error handling
+  log("Test 12: Testing error handling...")
+  try {
+    let errorResponse = await apiCall(`${apiBaseUrl}/error/404`)
+    results.push({ test: "error_404", success: false, expected: true, data: errorResponse })
+  } catch (error) {
+    log("Expected error caught:", error.message)
+    results.push({ test: "error_404", success: false, expected: true, error: error.message })
+  }
+  
+  // Test 13: Authentication simulation
+  log("Test 13: Testing authentication...")
+  let loginResponse = await apiCall(`${apiBaseUrl}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: "admin",
+      password: "password"
+    })
+  })
+  log("Login response:", loginResponse)
+  results.push({ test: "authentication", success: true, data: loginResponse })
+  
+  // Store all results
+  let finalResults = {
+    timestamp: new Date().toISOString(),
+    totalTests: results.length,
+    successfulTests: results.filter(r => r.success || r.expected).length,
+    failedTests: results.filter(r => !r.success && !r.expected).length,
+    testDetails: results,
+    summary: {
+      basicApiCall: !!results.find(r => r.test === "basic"),
+      userCrud: !!(results.find(r => r.test === "create_user") && results.find(r => r.test === "get_specific_user")),
+      dataRetrieval: !!(results.find(r => r.test === "random_data") && results.find(r => r.test === "bulk_data")),
+      errorHandling: !!results.find(r => r.test === "error_404"),
+      authentication: !!results.find(r => r.test === "authentication")
+    }
+  }
+  
+  await store("api_test_results", finalResults)
+  log("API test results stored:", finalResults.summary)
+  
+  log("API calls test completed successfully! ✅")
+  log(`Summary: ${finalResults.successfulTests}/${finalResults.totalTests} tests passed`)
+  
+  return {
+    success: true,
+    message: "All API tests completed",
+    results: finalResults
+  }
+
+} catch (error) {
+  log("API test failed with error:", error.message)
+  
+  let errorResult = {
+    timestamp: new Date().toISOString(),
+    error: error.message,
+    stack: error.stack,
+    completedTests: results.length,
+    results: results
+  }
+  
+  await store("api_test_error", errorResult)
+  
+  return {
+    success: false,
+    error: error.message,
+    completedTests: results.length
+  }
+}

@@ -1,0 +1,2335 @@
+{
+  "timestamp": "2025-11-12T07:01:14.804Z",
+  "testType": "script-execution",
+  "duration": 9681,
+  "summary": {
+    "total": 4,
+    "successful": 4,
+    "failed": 0,
+    "successRate": 100
+  },
+  "scripts": [
+    {
+      "script": "dom-automation.wang",
+      "status": "success",
+      "duration": 7551,
+      "logCount": 35,
+      "storageCount": 1,
+      "logs": [
+        {
+          "timestamp": "2025-11-12T07:01:05.134Z",
+          "level": "log",
+          "args": [
+            "Starting DOM automation test..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.135Z",
+          "level": "log",
+          "args": [
+            "executeInPage: ({\n    title: document.title,\n    url: window.loca..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "Page info:",
+            "{\"result\":\"Mock execution result\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "Testing querySelector..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "querySelector: h1"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "Found title element:",
+            "Mock Element"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "querySelector: #test-form"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "Found test form, filling it out..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.136Z",
+          "level": "log",
+          "args": [
+            "Type: #name = \"Wang Test User\""
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:05.639Z",
+          "level": "log",
+          "args": [
+            "Type: #email = \"wang.test@example.com\""
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:06.141Z",
+          "level": "log",
+          "args": [
+            "executeInPage: \n      const countrySelect = document.querySelecto..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:06.646Z",
+          "level": "log",
+          "args": [
+            "executeInPage: \n      const newsletter = document.querySelector(\"..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:07.148Z",
+          "level": "log",
+          "args": [
+            "executeInPage: \n      const terms = document.querySelector(\"#term..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:07.649Z",
+          "level": "log",
+          "args": [
+            "Type: #comments = \"This form was filled by Wang automation running in a Chrome service worker!\""
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:08.149Z",
+          "level": "log",
+          "args": [
+            "Form filled successfully!"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:08.149Z",
+          "level": "log",
+          "args": [
+            "Testing button clicks..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:08.149Z",
+          "level": "log",
+          "args": [
+            "querySelector: #load-content-btn"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:08.150Z",
+          "level": "log",
+          "args": [
+            "Click: #load-content-btn"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:08.150Z",
+          "level": "log",
+          "args": [
+            "Clicked load content button"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:09.151Z",
+          "level": "log",
+          "args": [
+            "executeInPage: \n        document.querySelector(\"#dynamic-content\"..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:09.151Z",
+          "level": "log",
+          "args": [
+            "Dynamic content:",
+            "{\"result\":\"Mock execution result\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:09.151Z",
+          "level": "log",
+          "args": [
+            "Click: #show-hidden-btn"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:09.151Z",
+          "level": "log",
+          "args": [
+            "Clicked show hidden button"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:09.651Z",
+          "level": "log",
+          "args": [
+            "Click: #add-element-btn"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:09.653Z",
+          "level": "log",
+          "args": [
+            "Clicked add element button"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:10.154Z",
+          "level": "log",
+          "args": [
+            "Click: #toggle-status-btn"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:10.154Z",
+          "level": "log",
+          "args": [
+            "Clicked toggle status button"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:10.661Z",
+          "level": "log",
+          "args": [
+            "executeInPage: ({\n      buttons: document.querySelectorAll('butto..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:10.661Z",
+          "level": "log",
+          "args": [
+            "Final element counts:",
+            "{\"result\":\"Mock execution result\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:10.661Z",
+          "level": "log",
+          "args": [
+            "Testing scroll operations..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:10.661Z",
+          "level": "log",
+          "args": [
+            "executeInPage: \n    window.scrollTo({ top: document.body.scrollHe..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:11.663Z",
+          "level": "log",
+          "args": [
+            "executeInPage: \n    window.scrollTo({ top: 0, behavior: 'smooth' ..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:12.670Z",
+          "level": "log",
+          "args": [
+            "Stored: dom_automation_results = {\"timestamp\":\"2025-11-12T07:01:12.668Z\",\"pageUrl\":\"unknown\",\"pageTitle\":\"unknown\",\"formFound\":true,\"elementsInteracted\":[\"name\",\"email\",\"country\",\"newsletter\",\"terms\",\"comments\"],\"buttonsClicked\":[\"load-content-btn\",\"show-hidden-btn\",\"add-element-btn\",\"toggle-status-btn\"],\"testStatus\":\"completed\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:12.670Z",
+          "level": "log",
+          "args": [
+            "Test results stored:",
+            "{\"timestamp\":\"2025-11-12T07:01:12.668Z\",\"pageUrl\":\"unknown\",\"pageTitle\":\"unknown\",\"formFound\":true,\"elementsInteracted\":[\"name\",\"email\",\"country\",\"newsletter\",\"terms\",\"comments\"],\"buttonsClicked\":[\"load-content-btn\",\"show-hidden-btn\",\"add-element-btn\",\"toggle-status-btn\"],\"testStatus\":\"completed\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:12.670Z",
+          "level": "log",
+          "args": [
+            "DOM automation test completed successfully! ✅"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "message": "DOM automation test completed",
+        "results": {
+          "timestamp": "2025-11-12T07:01:12.668Z",
+          "pageUrl": "unknown",
+          "pageTitle": "unknown",
+          "formFound": true,
+          "elementsInteracted": [
+            "name",
+            "email",
+            "country",
+            "newsletter",
+            "terms",
+            "comments"
+          ],
+          "buttonsClicked": [
+            "load-content-btn",
+            "show-hidden-btn",
+            "add-element-btn",
+            "toggle-status-btn"
+          ],
+          "testStatus": "completed"
+        }
+      }
+    },
+    {
+      "script": "api-calls.wang",
+      "status": "success",
+      "duration": 36,
+      "logCount": 43,
+      "storageCount": 2,
+      "logs": [
+        {
+          "timestamp": "2025-11-12T07:01:13.204Z",
+          "level": "log",
+          "args": [
+            "Starting API calls test..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.205Z",
+          "level": "log",
+          "args": [
+            "Test 1: Basic API test..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.206Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/test"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.206Z",
+          "level": "log",
+          "args": [
+            "Basic API response:",
+            "{\"success\":true,\"message\":\"Mock API response\",\"timestamp\":\"2025-11-12T07:01:13.206Z\",\"callCount\":1}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.206Z",
+          "level": "log",
+          "args": [
+            "Test 2: Get users..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.206Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/users"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.206Z",
+          "level": "log",
+          "args": [
+            "Users response:",
+            "{\"success\":true,\"users\":[],\"count\":0}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.206Z",
+          "level": "log",
+          "args": [
+            "Test 3: Creating new user..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "API Call: POST http://localhost:3000/api/users"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "New user created:",
+            "{\"success\":true,\"user\":{\"id\":1,\"name\":\"Wang Test User\",\"email\":\"wang@example.com\",\"role\":\"automation\",\"createdBy\":\"service-worker\",\"metadata\":{\"testRun\":true,\"timestamp\":\"2025-11-12T07:01:13.207Z\"}},\"message\":\"User created successfully\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "Test 4: Get updated users list..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/users"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "Updated users:",
+            "{\"success\":true,\"users\":[],\"count\":0}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "Test 5: Get specific user..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/users/1"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "Specific user:",
+            "{\"success\":true,\"users\":[],\"count\":0}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.207Z",
+          "level": "log",
+          "args": [
+            "Test 6: Getting random data..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/random"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Random data:",
+            "{\"success\":true,\"data\":{\"id\":1,\"value\":0.5918037305009558,\"timestamp\":\"2025-11-12T07:01:13.208Z\"}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Test 7: Testing echo endpoint..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "API Call: POST http://localhost:3000/api/echo"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Echo response:",
+            "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/echo\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Test 8: Testing delayed response..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/delay/2"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Delayed response received after 0ms:",
+            "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/delay/2\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Test 9: Testing search..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/search?q=wang&limit=5"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Search results:",
+            "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/search?q=wang&limit=5\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.208Z",
+          "level": "log",
+          "args": [
+            "Test 10: Testing bulk data retrieval..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/bulk/20"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "Bulk data retrieved (undefined items):",
+            "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/bulk/20\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "Test 11: Getting server status..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/status"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "Server status:",
+            "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/status\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "Test 12: Testing error handling..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "API Call: GET http://localhost:3000/api/error/404"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "Test 13: Testing authentication..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "API Call: POST http://localhost:3000/api/login"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "level": "log",
+          "args": [
+            "Login response:",
+            "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/login\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.211Z",
+          "level": "log",
+          "args": [
+            "Stored: api_test_results = {\"timestamp\":\"2025-11-12T07:01:13.209Z\",\"totalTests\":13,\"successfulTests\":13,\"failedTests\":0,\"testDetails\":[{\"test\":\"basic\",\"success\":true,\"data\":{\"success\":true,\"message\":\"Mock API response\",\"timestamp\":\"2025-11-12T07:01:13.206Z\",\"callCount\":1}},{\"test\":\"get_users\",\"success\":true,\"data\":{\"success\":true,\"users\":[],\"count\":0}},{\"test\":\"create_user\",\"success\":true,\"data\":{\"success\":true,\"user\":{\"id\":1,\"name\":\"Wang Test User\",\"email\":\"wang@example.com\",\"role\":\"automation\",\"createdBy\":\"service-worker\",\"metadata\":{\"testRun\":true,\"timestamp\":\"2025-11-12T07:01:13.207Z\"}},\"message\":\"User created successfully\"}},{\"test\":\"get_users_updated\",\"success\":true,\"data\":{\"success\":true,\"users\":[],\"count\":0}},{\"test\":\"get_specific_user\",\"success\":true,\"data\":{\"success\":true,\"users\":[],\"count\":0}},{\"test\":\"random_data\",\"success\":true,\"data\":{\"success\":true,\"data\":{\"id\":1,\"value\":0.5918037305009558,\"timestamp\":\"2025-11-12T07:01:13.208Z\"}}},{\"test\":\"echo\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/echo\"}},{\"test\":\"delayed_response\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/delay/2\"},\"actualDelay\":0},{\"test\":\"search\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/search?q=wang&limit=5\"}},{\"test\":\"bulk_data\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/bulk/20\",\"data\":\"undefined items\"}},{\"test\":\"server_status\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/status\"}},{\"test\":\"error_404\",\"success\":false,\"expected\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/error/404\"}},{\"test\":\"authentication\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/login\"}}],\"summary\":{\"basicApiCall\":true,\"userCrud\":true,\"dataRetrieval\":true,\"errorHandling\":true,\"authentication\":true}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.211Z",
+          "level": "log",
+          "args": [
+            "API test results stored:",
+            "{\"basicApiCall\":true,\"userCrud\":true,\"dataRetrieval\":true,\"errorHandling\":true,\"authentication\":true}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.211Z",
+          "level": "log",
+          "args": [
+            "API calls test completed successfully! ✅"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.211Z",
+          "level": "log",
+          "args": [
+            "Summary: 13/13 tests passed"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "message": "All API tests completed",
+        "results": {
+          "timestamp": "2025-11-12T07:01:13.209Z",
+          "totalTests": 13,
+          "successfulTests": 13,
+          "failedTests": 0,
+          "testDetails": [
+            {
+              "test": "basic",
+              "success": true,
+              "data": {
+                "success": true,
+                "message": "Mock API response",
+                "timestamp": "2025-11-12T07:01:13.206Z",
+                "callCount": 1
+              }
+            },
+            {
+              "test": "get_users",
+              "success": true,
+              "data": {
+                "success": true,
+                "users": [],
+                "count": 0
+              }
+            },
+            {
+              "test": "create_user",
+              "success": true,
+              "data": {
+                "success": true,
+                "user": {
+                  "id": 1,
+                  "name": "Wang Test User",
+                  "email": "wang@example.com",
+                  "role": "automation",
+                  "createdBy": "service-worker",
+                  "metadata": {
+                    "testRun": true,
+                    "timestamp": "2025-11-12T07:01:13.207Z"
+                  }
+                },
+                "message": "User created successfully"
+              }
+            },
+            {
+              "test": "get_users_updated",
+              "success": true,
+              "data": {
+                "success": true,
+                "users": [],
+                "count": 0
+              }
+            },
+            {
+              "test": "get_specific_user",
+              "success": true,
+              "data": {
+                "success": true,
+                "users": [],
+                "count": 0
+              }
+            },
+            {
+              "test": "random_data",
+              "success": true,
+              "data": {
+                "success": true,
+                "data": {
+                  "id": 1,
+                  "value": 0.5918037305009558,
+                  "timestamp": "2025-11-12T07:01:13.208Z"
+                }
+              }
+            },
+            {
+              "test": "echo",
+              "success": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/echo"
+              }
+            },
+            {
+              "test": "delayed_response",
+              "success": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/delay/2"
+              },
+              "actualDelay": 0
+            },
+            {
+              "test": "search",
+              "success": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/search?q=wang&limit=5"
+              }
+            },
+            {
+              "test": "bulk_data",
+              "success": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/bulk/20",
+                "data": "undefined items"
+              }
+            },
+            {
+              "test": "server_status",
+              "success": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/status"
+              }
+            },
+            {
+              "test": "error_404",
+              "success": false,
+              "expected": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/error/404"
+              }
+            },
+            {
+              "test": "authentication",
+              "success": true,
+              "data": {
+                "success": true,
+                "mock": true,
+                "url": "http://localhost:3000/api/login"
+              }
+            }
+          ],
+          "summary": {
+            "basicApiCall": true,
+            "userCrud": true,
+            "dataRetrieval": true,
+            "errorHandling": true,
+            "authentication": true
+          }
+        }
+      }
+    },
+    {
+      "script": "storage-ops.wang",
+      "status": "success",
+      "duration": 29,
+      "logCount": 28,
+      "storageCount": 9,
+      "logs": [
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Starting storage operations test..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Test 1: Basic store and retrieve..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: test_string = \"Hello Wang!\""
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: test_number = 42"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: test_boolean = true"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: test_array = [1,2,3,\"test\"]"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: test_object = {\"nested\":{\"value\":\"deep\",\"count\":100},\"timestamp\":\"2025-11-12T07:01:13.743Z\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored test data"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved: test_string = \"Hello Wang!\""
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved: test_number = 42"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved: test_boolean = true"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved: test_array = [1,2,3,\"test\"]"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved: test_object = {\"nested\":{\"value\":\"deep\",\"count\":100},\"timestamp\":\"2025-11-12T07:01:13.743Z\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved values:"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "String:",
+            "Hello Wang!"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Number:",
+            "42"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Boolean:",
+            "true"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Array:",
+            "[1,2,3,\"test\"]"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Object:",
+            "{\"nested\":{\"value\":\"deep\",\"count\":100},\"timestamp\":\"2025-11-12T07:01:13.743Z\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Data integrity check:",
+            "{\"string\":true,\"number\":true,\"boolean\":true,\"array\":true,\"object\":true}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Test 2: Complex data storage..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: complex_data = {\"userSession\":{\"userId\":\"wang_user_123\",\"loginTime\":\"2025-11-12T07:01:13.743Z\",\"permissions\":[\"read\",\"write\",\"automation\"],\"preferences\":{\"theme\":\"dark\",\"language\":\"en\",\"notifications\":true}},\"automationHistory\":[{\"script\":\"dom-automation.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":2340},{\"script\":\"api-calls.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":5670}],\"applicationState\":{\"version\":\"1.0.0\",\"features\":{\"serviceWorker\":true,\"pausableExecution\":true,\"stateManagement\":true},\"performance\":{\"executionCount\":42,\"averageExecutionTime\":3000,\"memoryUsage\":15.2}}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored complex data structure"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved: complex_data = {\"userSession\":{\"userId\":\"wang_user_123\",\"loginTime\":\"2025-11-12T07:01:13.743Z\",\"permissions\":[\"read\",\"write\",\"automation\"],\"preferences\":{\"theme\":\"dark\",\"language\":\"en\",\"notifications\":true}},\"automationHistory\":[{\"script\":\"dom-automation.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":2340},{\"script\":\"api-calls.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":5670}],\"applicationState\":{\"version\":\"1.0.0\",\"features\":{\"serviceWorker\":true,\"pausableExecution\":true,\"stateManagement\":true},\"performance\":{\"executionCount\":42,\"averageExecutionTime\":3000,\"memoryUsage\":15.2}}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Retrieved complex data:",
+            "{\"userSession\":{\"userId\":\"wang_user_123\",\"loginTime\":\"2025-11-12T07:01:13.743Z\",\"permissions\":[\"read\",\"write\",\"automation\"],\"preferences\":{\"theme\":\"dark\",\"language\":\"en\",\"notifications\":true}},\"automationHistory\":[{\"script\":\"dom-automation.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":2340},{\"script\":\"api-calls.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":5670}],\"applicationState\":{\"version\":\"1.0.0\",\"features\":{\"serviceWorker\":true,\"pausableExecution\":true,\"stateManagement\":true},\"performance\":{\"executionCount\":42,\"averageExecutionTime\":3000,\"memoryUsage\":15.2}}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Test 3: Testing storage limits..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Storage test failed:",
+            "Cannot evaluate node type synchronously: TemplateLiteral"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:13.743Z",
+          "level": "log",
+          "args": [
+            "Stored: storage_test_error = {\"timestamp\":\"2025-11-12T07:01:13.743Z\",\"error\":\"Cannot evaluate node type synchronously: TemplateLiteral\",\"stack\":\"WangError: Cannot evaluate node type synchronously: TemplateLiteral\\n    at WangInterpreter.evaluateNodeSync (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1126:23)\\n    at WangInterpreter.evaluateNodeSync (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1088:51)\\n    at fn (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1701:45)\\n    at Function.from (<anonymous>)\\n    at WangInterpreter.evaluateCallExpression (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:2400:33)\\n    at async WangInterpreter.evaluateVariableDeclaration (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1323:45)\\n    at async WangInterpreter.evaluateBlock (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:2030:29)\\n    at async WangInterpreter.evaluateTryStatement (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:2215:22)\\n    at async WangInterpreter.evaluateProgram (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1246:25)\\n    at async WangInterpreter.execute (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:646:32)\",\"testSuite\":\"storage-operations\"}"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "error": "Cannot evaluate node type synchronously: TemplateLiteral"
+      }
+    },
+    {
+      "script": "scheduled-tasks.wang",
+      "status": "success",
+      "duration": 52,
+      "logCount": 38,
+      "storageCount": 17,
+      "logs": [
+        {
+          "timestamp": "2025-11-12T07:01:14.286Z",
+          "level": "log",
+          "args": [
+            "Starting scheduled tasks test..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.286Z",
+          "level": "log",
+          "args": [
+            "Test 1: Basic task scheduling..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.287Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: test_task_mhvniwfi4bexhbtuwa5 in 1 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.287Z",
+          "level": "log",
+          "args": [
+            "Scheduled task with ID: mhvniwfi4bexhbtuwa5"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.287Z",
+          "level": "log",
+          "args": [
+            "Stored: task_mhvniwfi4bexhbtuwa5_scheduled = {\"taskId\":\"mhvniwfi4bexhbtuwa5\",\"scheduledAt\":\"2025-11-12T07:01:14.287Z\",\"willExecuteAt\":\"2025-11-12T07:02:14.287Z\",\"taskCode\":\"\\n    log(\\\"Scheduled task mhvniwfi4bexhbtuwa5 executed at\\\", new Date().toISOString())\\n    await store(\\\"task_mhvniwfi4bexhbtuwa5_executed\\\", {\\n      taskId: \\\"mhvniwfi4bexhbtuwa5\\\",\\n      executedAt: new Date().toISOString(),\\n      status: \\\"completed\\\"\\n    })\\n  \"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.287Z",
+          "level": "log",
+          "args": [
+            "Test 2: Multiple task scheduling..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.289Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: multi_0_mhvniwfksiwg3qm84sc in 1 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.289Z",
+          "level": "log",
+          "args": [
+            "Scheduled multi-task 1: multi_0_mhvniwfksiwg3qm84sc"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.290Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: multi_1_mhvniwfln9kwsy3piq in 2 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.291Z",
+          "level": "log",
+          "args": [
+            "Scheduled multi-task 2: multi_1_mhvniwfln9kwsy3piq"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: multi_2_mhvniwfnfh8exbqk3yf in 3 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Scheduled multi-task 3: multi_2_mhvniwfnfh8exbqk3yf"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Stored: multi_tasks_scheduled = [{\"taskId\":\"multi_0_mhvniwfksiwg3qm84sc\",\"scheduledAt\":\"2025-11-12T07:01:14.289Z\",\"delayMinutes\":1,\"willExecuteAt\":\"2025-11-12T07:02:14.289Z\"},{\"taskId\":\"multi_1_mhvniwfln9kwsy3piq\",\"scheduledAt\":\"2025-11-12T07:01:14.290Z\",\"delayMinutes\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.290Z\"},{\"taskId\":\"multi_2_mhvniwfnfh8exbqk3yf\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.292Z\"}]"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Test 3: Task management simulation..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Stored: task_manager_state = {\"session\":\"mhvniwfo1tbk1ck3qmb\",\"createdAt\":\"2025-11-12T07:01:14.292Z\",\"scheduledTasks\":[{\"taskId\":\"multi_0_mhvniwfksiwg3qm84sc\",\"scheduledAt\":\"2025-11-12T07:01:14.289Z\",\"delayMinutes\":1,\"willExecuteAt\":\"2025-11-12T07:02:14.289Z\"},{\"taskId\":\"multi_1_mhvniwfln9kwsy3piq\",\"scheduledAt\":\"2025-11-12T07:01:14.290Z\",\"delayMinutes\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.290Z\"},{\"taskId\":\"multi_2_mhvniwfnfh8exbqk3yf\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.292Z\"},{\"taskId\":\"mhvniwfi4bexhbtuwa5\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":1}],\"totalTasks\":4,\"monitoring\":{\"enabled\":true,\"checkInterval\":30,\"lastCheck\":\"2025-11-12T07:01:14.292Z\"}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Task manager state stored:",
+            "mhvniwfo1tbk1ck3qmb"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.292Z",
+          "level": "log",
+          "args": [
+            "Test 4: Recurring task pattern..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.294Z",
+          "level": "log",
+          "args": [
+            "Stored: recurring_task_count = 0"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.294Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: recurring_task_start in 1 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.294Z",
+          "level": "log",
+          "args": [
+            "Started recurring task sequence"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.294Z",
+          "level": "log",
+          "args": [
+            "Test 5: Data collection tasks..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.294Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: api_status_check_mhvniwfqbwd1e3lzhfa in 2 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.294Z",
+          "level": "log",
+          "args": [
+            "Scheduled data collection task: api_status_check"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.295Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: random_data_collection_mhvniwfrx9s2rq7y6a in 3 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.295Z",
+          "level": "log",
+          "args": [
+            "Scheduled data collection task: random_data_collection"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.295Z",
+          "level": "log",
+          "args": [
+            "Scheduled task: storage_cleanup_mhvniwfrsncxno93ami in 4 minutes"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Scheduled data collection task: storage_cleanup"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Stored: data_collection_tasks = [{\"taskId\":\"api_status_check_mhvniwfqbwd1e3lzhfa\",\"name\":\"api_status_check\",\"scheduledAt\":\"2025-11-12T07:01:14.294Z\",\"delay\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.294Z\"},{\"taskId\":\"random_data_collection_mhvniwfrx9s2rq7y6a\",\"name\":\"random_data_collection\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.295Z\"},{\"taskId\":\"storage_cleanup_mhvniwfrsncxno93ami\",\"name\":\"storage_cleanup\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":4,\"willExecuteAt\":\"2025-11-12T07:05:14.295Z\"}]"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Test 6: Task monitoring setup..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Stored: task_monitoring_data = {\"session\":\"mhvniwfsr5d5f7h8s2\",\"startedAt\":\"2025-11-12T07:01:14.296Z\",\"totalScheduled\":11,\"categories\":{\"basic\":1,\"multi\":3,\"recurring\":1,\"dataCollection\":3},\"nextCheck\":\"2025-11-12T07:01:44.296Z\",\"monitoring\":{\"enabled\":true,\"checkKeys\":[\"task_mhvniwfi4bexhbtuwa5_executed\",\"recurring_task_final\",\"scheduled_api_status_*\",\"scheduled_random_data_*\",\"cleanup_performed_*\"]}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Task monitoring setup completed"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Test 7: Generating test summary..."
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Stored: scheduled_tasks_test_results = {\"timestamp\":\"2025-11-12T07:01:14.296Z\",\"testSuite\":\"scheduled-tasks\",\"session\":\"mhvniwfsr5d5f7h8s2\",\"summary\":{\"totalTasksScheduled\":11,\"taskCategories\":{\"basic\":1,\"multi\":3,\"recurring\":1,\"dataCollection\":3},\"schedulingTimeframe\":\"1-4 minutes from now\",\"monitoringEnabled\":true},\"scheduledTasks\":{\"basic\":{\"taskId\":\"mhvniwfi4bexhbtuwa5\",\"executeAt\":\"2025-11-12T07:02:14.296Z\",\"description\":\"Basic single task execution\"},\"multiTasks\":[{\"taskId\":\"multi_0_mhvniwfksiwg3qm84sc\",\"scheduledAt\":\"2025-11-12T07:01:14.289Z\",\"delayMinutes\":1,\"willExecuteAt\":\"2025-11-12T07:02:14.289Z\"},{\"taskId\":\"multi_1_mhvniwfln9kwsy3piq\",\"scheduledAt\":\"2025-11-12T07:01:14.290Z\",\"delayMinutes\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.290Z\"},{\"taskId\":\"multi_2_mhvniwfnfh8exbqk3yf\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.292Z\"}],\"recurringTask\":{\"started\":true,\"maxExecutions\":5,\"description\":\"Self-scheduling recurring task\"},\"dataCollectionTasks\":[{\"taskId\":\"api_status_check_mhvniwfqbwd1e3lzhfa\",\"name\":\"api_status_check\",\"scheduledAt\":\"2025-11-12T07:01:14.294Z\",\"delay\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.294Z\"},{\"taskId\":\"random_data_collection_mhvniwfrx9s2rq7y6a\",\"name\":\"random_data_collection\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.295Z\"},{\"taskId\":\"storage_cleanup_mhvniwfrsncxno93ami\",\"name\":\"storage_cleanup\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":4,\"willExecuteAt\":\"2025-11-12T07:05:14.295Z\"}]},\"monitoring\":{\"sessionId\":\"mhvniwfsr5d5f7h8s2\",\"checkInterval\":30,\"statusKeys\":[\"task_mhvniwfi4bexhbtuwa5_executed\",\"recurring_task_final\",\"scheduled_api_status_*\",\"scheduled_random_data_*\",\"cleanup_performed_*\"]},\"instructions\":{\"verification\":\"Check storage after scheduled times for task execution results\",\"keys\":[\"task_mhvniwfi4bexhbtuwa5_executed\",\"multi_task_*_result\",\"recurring_task_final\",\"scheduled_*\"]}}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.296Z",
+          "level": "log",
+          "args": [
+            "Scheduled tasks test results stored"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.297Z",
+          "level": "log",
+          "args": [
+            "Stored: scheduled_tasks_verification = {\"timestamp\":\"2025-11-12T07:01:14.297Z\",\"testCompleted\":true,\"tasksScheduled\":11,\"verificationWindow\":\"Next 5 minutes\",\"expectedResults\":11,\"checkAfter\":\"2025-11-12T07:06:14.297Z\"}"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.297Z",
+          "level": "log",
+          "args": [
+            "Scheduled tasks test completed successfully! ✅"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.297Z",
+          "level": "log",
+          "args": [
+            "Summary: 11 tasks scheduled across 4 categories"
+          ]
+        },
+        {
+          "timestamp": "2025-11-12T07:01:14.297Z",
+          "level": "log",
+          "args": [
+            "Note: Tasks will execute in the background. Check storage in 1-5 minutes for results."
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "message": "All scheduled tasks configured",
+        "results": {
+          "tasksScheduled": 11,
+          "session": "mhvniwfsr5d5f7h8s2",
+          "checkAfter": "1-5 minutes"
+        }
+      }
+    }
+  ],
+  "environment": {
+    "totalLogs": 144,
+    "storageEntries": 17,
+    "storageKeys": [
+      "dom_automation_results",
+      "api_test_results",
+      "test_string",
+      "test_number",
+      "test_boolean",
+      "test_array",
+      "test_object",
+      "complex_data",
+      "storage_test_error",
+      "task_mhvniwfi4bexhbtuwa5_scheduled",
+      "multi_tasks_scheduled",
+      "task_manager_state",
+      "recurring_task_count",
+      "data_collection_tasks",
+      "task_monitoring_data",
+      "scheduled_tasks_test_results",
+      "scheduled_tasks_verification"
+    ]
+  },
+  "logs": [
+    {
+      "timestamp": "2025-11-12T07:01:05.134Z",
+      "level": "log",
+      "args": [
+        "Starting DOM automation test..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.135Z",
+      "level": "log",
+      "args": [
+        "executeInPage: ({\n    title: document.title,\n    url: window.loca..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "Page info:",
+        "{\"result\":\"Mock execution result\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "Testing querySelector..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "querySelector: h1"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "Found title element:",
+        "Mock Element"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "querySelector: #test-form"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "Found test form, filling it out..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.136Z",
+      "level": "log",
+      "args": [
+        "Type: #name = \"Wang Test User\""
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:05.639Z",
+      "level": "log",
+      "args": [
+        "Type: #email = \"wang.test@example.com\""
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:06.141Z",
+      "level": "log",
+      "args": [
+        "executeInPage: \n      const countrySelect = document.querySelecto..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:06.646Z",
+      "level": "log",
+      "args": [
+        "executeInPage: \n      const newsletter = document.querySelector(\"..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:07.148Z",
+      "level": "log",
+      "args": [
+        "executeInPage: \n      const terms = document.querySelector(\"#term..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:07.649Z",
+      "level": "log",
+      "args": [
+        "Type: #comments = \"This form was filled by Wang automation running in a Chrome service worker!\""
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:08.149Z",
+      "level": "log",
+      "args": [
+        "Form filled successfully!"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:08.149Z",
+      "level": "log",
+      "args": [
+        "Testing button clicks..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:08.149Z",
+      "level": "log",
+      "args": [
+        "querySelector: #load-content-btn"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:08.150Z",
+      "level": "log",
+      "args": [
+        "Click: #load-content-btn"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:08.150Z",
+      "level": "log",
+      "args": [
+        "Clicked load content button"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:09.151Z",
+      "level": "log",
+      "args": [
+        "executeInPage: \n        document.querySelector(\"#dynamic-content\"..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:09.151Z",
+      "level": "log",
+      "args": [
+        "Dynamic content:",
+        "{\"result\":\"Mock execution result\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:09.151Z",
+      "level": "log",
+      "args": [
+        "Click: #show-hidden-btn"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:09.151Z",
+      "level": "log",
+      "args": [
+        "Clicked show hidden button"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:09.651Z",
+      "level": "log",
+      "args": [
+        "Click: #add-element-btn"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:09.653Z",
+      "level": "log",
+      "args": [
+        "Clicked add element button"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:10.154Z",
+      "level": "log",
+      "args": [
+        "Click: #toggle-status-btn"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:10.154Z",
+      "level": "log",
+      "args": [
+        "Clicked toggle status button"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:10.661Z",
+      "level": "log",
+      "args": [
+        "executeInPage: ({\n      buttons: document.querySelectorAll('butto..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:10.661Z",
+      "level": "log",
+      "args": [
+        "Final element counts:",
+        "{\"result\":\"Mock execution result\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:10.661Z",
+      "level": "log",
+      "args": [
+        "Testing scroll operations..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:10.661Z",
+      "level": "log",
+      "args": [
+        "executeInPage: \n    window.scrollTo({ top: document.body.scrollHe..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:11.663Z",
+      "level": "log",
+      "args": [
+        "executeInPage: \n    window.scrollTo({ top: 0, behavior: 'smooth' ..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:12.670Z",
+      "level": "log",
+      "args": [
+        "Stored: dom_automation_results = {\"timestamp\":\"2025-11-12T07:01:12.668Z\",\"pageUrl\":\"unknown\",\"pageTitle\":\"unknown\",\"formFound\":true,\"elementsInteracted\":[\"name\",\"email\",\"country\",\"newsletter\",\"terms\",\"comments\"],\"buttonsClicked\":[\"load-content-btn\",\"show-hidden-btn\",\"add-element-btn\",\"toggle-status-btn\"],\"testStatus\":\"completed\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:12.670Z",
+      "level": "log",
+      "args": [
+        "Test results stored:",
+        "{\"timestamp\":\"2025-11-12T07:01:12.668Z\",\"pageUrl\":\"unknown\",\"pageTitle\":\"unknown\",\"formFound\":true,\"elementsInteracted\":[\"name\",\"email\",\"country\",\"newsletter\",\"terms\",\"comments\"],\"buttonsClicked\":[\"load-content-btn\",\"show-hidden-btn\",\"add-element-btn\",\"toggle-status-btn\"],\"testStatus\":\"completed\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:12.670Z",
+      "level": "log",
+      "args": [
+        "DOM automation test completed successfully! ✅"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.204Z",
+      "level": "log",
+      "args": [
+        "Starting API calls test..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.205Z",
+      "level": "log",
+      "args": [
+        "Test 1: Basic API test..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.206Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/test"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.206Z",
+      "level": "log",
+      "args": [
+        "Basic API response:",
+        "{\"success\":true,\"message\":\"Mock API response\",\"timestamp\":\"2025-11-12T07:01:13.206Z\",\"callCount\":1}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.206Z",
+      "level": "log",
+      "args": [
+        "Test 2: Get users..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.206Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/users"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.206Z",
+      "level": "log",
+      "args": [
+        "Users response:",
+        "{\"success\":true,\"users\":[],\"count\":0}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.206Z",
+      "level": "log",
+      "args": [
+        "Test 3: Creating new user..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "API Call: POST http://localhost:3000/api/users"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "New user created:",
+        "{\"success\":true,\"user\":{\"id\":1,\"name\":\"Wang Test User\",\"email\":\"wang@example.com\",\"role\":\"automation\",\"createdBy\":\"service-worker\",\"metadata\":{\"testRun\":true,\"timestamp\":\"2025-11-12T07:01:13.207Z\"}},\"message\":\"User created successfully\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "Test 4: Get updated users list..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/users"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "Updated users:",
+        "{\"success\":true,\"users\":[],\"count\":0}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "Test 5: Get specific user..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/users/1"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "Specific user:",
+        "{\"success\":true,\"users\":[],\"count\":0}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.207Z",
+      "level": "log",
+      "args": [
+        "Test 6: Getting random data..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/random"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Random data:",
+        "{\"success\":true,\"data\":{\"id\":1,\"value\":0.5918037305009558,\"timestamp\":\"2025-11-12T07:01:13.208Z\"}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Test 7: Testing echo endpoint..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "API Call: POST http://localhost:3000/api/echo"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Echo response:",
+        "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/echo\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Test 8: Testing delayed response..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/delay/2"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Delayed response received after 0ms:",
+        "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/delay/2\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Test 9: Testing search..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/search?q=wang&limit=5"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Search results:",
+        "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/search?q=wang&limit=5\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.208Z",
+      "level": "log",
+      "args": [
+        "Test 10: Testing bulk data retrieval..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/bulk/20"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "Bulk data retrieved (undefined items):",
+        "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/bulk/20\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "Test 11: Getting server status..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/status"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "Server status:",
+        "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/status\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "Test 12: Testing error handling..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "API Call: GET http://localhost:3000/api/error/404"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "Test 13: Testing authentication..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "API Call: POST http://localhost:3000/api/login"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.209Z",
+      "level": "log",
+      "args": [
+        "Login response:",
+        "{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/login\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.211Z",
+      "level": "log",
+      "args": [
+        "Stored: api_test_results = {\"timestamp\":\"2025-11-12T07:01:13.209Z\",\"totalTests\":13,\"successfulTests\":13,\"failedTests\":0,\"testDetails\":[{\"test\":\"basic\",\"success\":true,\"data\":{\"success\":true,\"message\":\"Mock API response\",\"timestamp\":\"2025-11-12T07:01:13.206Z\",\"callCount\":1}},{\"test\":\"get_users\",\"success\":true,\"data\":{\"success\":true,\"users\":[],\"count\":0}},{\"test\":\"create_user\",\"success\":true,\"data\":{\"success\":true,\"user\":{\"id\":1,\"name\":\"Wang Test User\",\"email\":\"wang@example.com\",\"role\":\"automation\",\"createdBy\":\"service-worker\",\"metadata\":{\"testRun\":true,\"timestamp\":\"2025-11-12T07:01:13.207Z\"}},\"message\":\"User created successfully\"}},{\"test\":\"get_users_updated\",\"success\":true,\"data\":{\"success\":true,\"users\":[],\"count\":0}},{\"test\":\"get_specific_user\",\"success\":true,\"data\":{\"success\":true,\"users\":[],\"count\":0}},{\"test\":\"random_data\",\"success\":true,\"data\":{\"success\":true,\"data\":{\"id\":1,\"value\":0.5918037305009558,\"timestamp\":\"2025-11-12T07:01:13.208Z\"}}},{\"test\":\"echo\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/echo\"}},{\"test\":\"delayed_response\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/delay/2\"},\"actualDelay\":0},{\"test\":\"search\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/search?q=wang&limit=5\"}},{\"test\":\"bulk_data\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/bulk/20\",\"data\":\"undefined items\"}},{\"test\":\"server_status\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/status\"}},{\"test\":\"error_404\",\"success\":false,\"expected\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/error/404\"}},{\"test\":\"authentication\",\"success\":true,\"data\":{\"success\":true,\"mock\":true,\"url\":\"http://localhost:3000/api/login\"}}],\"summary\":{\"basicApiCall\":true,\"userCrud\":true,\"dataRetrieval\":true,\"errorHandling\":true,\"authentication\":true}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.211Z",
+      "level": "log",
+      "args": [
+        "API test results stored:",
+        "{\"basicApiCall\":true,\"userCrud\":true,\"dataRetrieval\":true,\"errorHandling\":true,\"authentication\":true}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.211Z",
+      "level": "log",
+      "args": [
+        "API calls test completed successfully! ✅"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.211Z",
+      "level": "log",
+      "args": [
+        "Summary: 13/13 tests passed"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Starting storage operations test..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Test 1: Basic store and retrieve..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: test_string = \"Hello Wang!\""
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: test_number = 42"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: test_boolean = true"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: test_array = [1,2,3,\"test\"]"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: test_object = {\"nested\":{\"value\":\"deep\",\"count\":100},\"timestamp\":\"2025-11-12T07:01:13.743Z\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored test data"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved: test_string = \"Hello Wang!\""
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved: test_number = 42"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved: test_boolean = true"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved: test_array = [1,2,3,\"test\"]"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved: test_object = {\"nested\":{\"value\":\"deep\",\"count\":100},\"timestamp\":\"2025-11-12T07:01:13.743Z\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved values:"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "String:",
+        "Hello Wang!"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Number:",
+        "42"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Boolean:",
+        "true"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Array:",
+        "[1,2,3,\"test\"]"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Object:",
+        "{\"nested\":{\"value\":\"deep\",\"count\":100},\"timestamp\":\"2025-11-12T07:01:13.743Z\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Data integrity check:",
+        "{\"string\":true,\"number\":true,\"boolean\":true,\"array\":true,\"object\":true}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Test 2: Complex data storage..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: complex_data = {\"userSession\":{\"userId\":\"wang_user_123\",\"loginTime\":\"2025-11-12T07:01:13.743Z\",\"permissions\":[\"read\",\"write\",\"automation\"],\"preferences\":{\"theme\":\"dark\",\"language\":\"en\",\"notifications\":true}},\"automationHistory\":[{\"script\":\"dom-automation.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":2340},{\"script\":\"api-calls.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":5670}],\"applicationState\":{\"version\":\"1.0.0\",\"features\":{\"serviceWorker\":true,\"pausableExecution\":true,\"stateManagement\":true},\"performance\":{\"executionCount\":42,\"averageExecutionTime\":3000,\"memoryUsage\":15.2}}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored complex data structure"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved: complex_data = {\"userSession\":{\"userId\":\"wang_user_123\",\"loginTime\":\"2025-11-12T07:01:13.743Z\",\"permissions\":[\"read\",\"write\",\"automation\"],\"preferences\":{\"theme\":\"dark\",\"language\":\"en\",\"notifications\":true}},\"automationHistory\":[{\"script\":\"dom-automation.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":2340},{\"script\":\"api-calls.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":5670}],\"applicationState\":{\"version\":\"1.0.0\",\"features\":{\"serviceWorker\":true,\"pausableExecution\":true,\"stateManagement\":true},\"performance\":{\"executionCount\":42,\"averageExecutionTime\":3000,\"memoryUsage\":15.2}}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Retrieved complex data:",
+        "{\"userSession\":{\"userId\":\"wang_user_123\",\"loginTime\":\"2025-11-12T07:01:13.743Z\",\"permissions\":[\"read\",\"write\",\"automation\"],\"preferences\":{\"theme\":\"dark\",\"language\":\"en\",\"notifications\":true}},\"automationHistory\":[{\"script\":\"dom-automation.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":2340},{\"script\":\"api-calls.wang\",\"executedAt\":\"2025-11-12T07:01:13.743Z\",\"status\":\"success\",\"duration\":5670}],\"applicationState\":{\"version\":\"1.0.0\",\"features\":{\"serviceWorker\":true,\"pausableExecution\":true,\"stateManagement\":true},\"performance\":{\"executionCount\":42,\"averageExecutionTime\":3000,\"memoryUsage\":15.2}}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Test 3: Testing storage limits..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Storage test failed:",
+        "Cannot evaluate node type synchronously: TemplateLiteral"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:13.743Z",
+      "level": "log",
+      "args": [
+        "Stored: storage_test_error = {\"timestamp\":\"2025-11-12T07:01:13.743Z\",\"error\":\"Cannot evaluate node type synchronously: TemplateLiteral\",\"stack\":\"WangError: Cannot evaluate node type synchronously: TemplateLiteral\\n    at WangInterpreter.evaluateNodeSync (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1126:23)\\n    at WangInterpreter.evaluateNodeSync (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1088:51)\\n    at fn (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1701:45)\\n    at Function.from (<anonymous>)\\n    at WangInterpreter.evaluateCallExpression (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:2400:33)\\n    at async WangInterpreter.evaluateVariableDeclaration (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1323:45)\\n    at async WangInterpreter.evaluateBlock (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:2030:29)\\n    at async WangInterpreter.evaluateTryStatement (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:2215:22)\\n    at async WangInterpreter.evaluateProgram (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:1246:25)\\n    at async WangInterpreter.execute (file:///Users/artpar/workspace/code/insidious/wang/dist/esm/interpreter/index.js:646:32)\",\"testSuite\":\"storage-operations\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.286Z",
+      "level": "log",
+      "args": [
+        "Starting scheduled tasks test..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.286Z",
+      "level": "log",
+      "args": [
+        "Test 1: Basic task scheduling..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.287Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: test_task_mhvniwfi4bexhbtuwa5 in 1 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.287Z",
+      "level": "log",
+      "args": [
+        "Scheduled task with ID: mhvniwfi4bexhbtuwa5"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.287Z",
+      "level": "log",
+      "args": [
+        "Stored: task_mhvniwfi4bexhbtuwa5_scheduled = {\"taskId\":\"mhvniwfi4bexhbtuwa5\",\"scheduledAt\":\"2025-11-12T07:01:14.287Z\",\"willExecuteAt\":\"2025-11-12T07:02:14.287Z\",\"taskCode\":\"\\n    log(\\\"Scheduled task mhvniwfi4bexhbtuwa5 executed at\\\", new Date().toISOString())\\n    await store(\\\"task_mhvniwfi4bexhbtuwa5_executed\\\", {\\n      taskId: \\\"mhvniwfi4bexhbtuwa5\\\",\\n      executedAt: new Date().toISOString(),\\n      status: \\\"completed\\\"\\n    })\\n  \"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.287Z",
+      "level": "log",
+      "args": [
+        "Test 2: Multiple task scheduling..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.289Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: multi_0_mhvniwfksiwg3qm84sc in 1 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.289Z",
+      "level": "log",
+      "args": [
+        "Scheduled multi-task 1: multi_0_mhvniwfksiwg3qm84sc"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.290Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: multi_1_mhvniwfln9kwsy3piq in 2 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.291Z",
+      "level": "log",
+      "args": [
+        "Scheduled multi-task 2: multi_1_mhvniwfln9kwsy3piq"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: multi_2_mhvniwfnfh8exbqk3yf in 3 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Scheduled multi-task 3: multi_2_mhvniwfnfh8exbqk3yf"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Stored: multi_tasks_scheduled = [{\"taskId\":\"multi_0_mhvniwfksiwg3qm84sc\",\"scheduledAt\":\"2025-11-12T07:01:14.289Z\",\"delayMinutes\":1,\"willExecuteAt\":\"2025-11-12T07:02:14.289Z\"},{\"taskId\":\"multi_1_mhvniwfln9kwsy3piq\",\"scheduledAt\":\"2025-11-12T07:01:14.290Z\",\"delayMinutes\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.290Z\"},{\"taskId\":\"multi_2_mhvniwfnfh8exbqk3yf\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.292Z\"}]"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Test 3: Task management simulation..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Stored: task_manager_state = {\"session\":\"mhvniwfo1tbk1ck3qmb\",\"createdAt\":\"2025-11-12T07:01:14.292Z\",\"scheduledTasks\":[{\"taskId\":\"multi_0_mhvniwfksiwg3qm84sc\",\"scheduledAt\":\"2025-11-12T07:01:14.289Z\",\"delayMinutes\":1,\"willExecuteAt\":\"2025-11-12T07:02:14.289Z\"},{\"taskId\":\"multi_1_mhvniwfln9kwsy3piq\",\"scheduledAt\":\"2025-11-12T07:01:14.290Z\",\"delayMinutes\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.290Z\"},{\"taskId\":\"multi_2_mhvniwfnfh8exbqk3yf\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.292Z\"},{\"taskId\":\"mhvniwfi4bexhbtuwa5\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":1}],\"totalTasks\":4,\"monitoring\":{\"enabled\":true,\"checkInterval\":30,\"lastCheck\":\"2025-11-12T07:01:14.292Z\"}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Task manager state stored:",
+        "mhvniwfo1tbk1ck3qmb"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.292Z",
+      "level": "log",
+      "args": [
+        "Test 4: Recurring task pattern..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.294Z",
+      "level": "log",
+      "args": [
+        "Stored: recurring_task_count = 0"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.294Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: recurring_task_start in 1 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.294Z",
+      "level": "log",
+      "args": [
+        "Started recurring task sequence"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.294Z",
+      "level": "log",
+      "args": [
+        "Test 5: Data collection tasks..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.294Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: api_status_check_mhvniwfqbwd1e3lzhfa in 2 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.294Z",
+      "level": "log",
+      "args": [
+        "Scheduled data collection task: api_status_check"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.295Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: random_data_collection_mhvniwfrx9s2rq7y6a in 3 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.295Z",
+      "level": "log",
+      "args": [
+        "Scheduled data collection task: random_data_collection"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.295Z",
+      "level": "log",
+      "args": [
+        "Scheduled task: storage_cleanup_mhvniwfrsncxno93ami in 4 minutes"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Scheduled data collection task: storage_cleanup"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Stored: data_collection_tasks = [{\"taskId\":\"api_status_check_mhvniwfqbwd1e3lzhfa\",\"name\":\"api_status_check\",\"scheduledAt\":\"2025-11-12T07:01:14.294Z\",\"delay\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.294Z\"},{\"taskId\":\"random_data_collection_mhvniwfrx9s2rq7y6a\",\"name\":\"random_data_collection\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.295Z\"},{\"taskId\":\"storage_cleanup_mhvniwfrsncxno93ami\",\"name\":\"storage_cleanup\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":4,\"willExecuteAt\":\"2025-11-12T07:05:14.295Z\"}]"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Test 6: Task monitoring setup..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Stored: task_monitoring_data = {\"session\":\"mhvniwfsr5d5f7h8s2\",\"startedAt\":\"2025-11-12T07:01:14.296Z\",\"totalScheduled\":11,\"categories\":{\"basic\":1,\"multi\":3,\"recurring\":1,\"dataCollection\":3},\"nextCheck\":\"2025-11-12T07:01:44.296Z\",\"monitoring\":{\"enabled\":true,\"checkKeys\":[\"task_mhvniwfi4bexhbtuwa5_executed\",\"recurring_task_final\",\"scheduled_api_status_*\",\"scheduled_random_data_*\",\"cleanup_performed_*\"]}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Task monitoring setup completed"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Test 7: Generating test summary..."
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Stored: scheduled_tasks_test_results = {\"timestamp\":\"2025-11-12T07:01:14.296Z\",\"testSuite\":\"scheduled-tasks\",\"session\":\"mhvniwfsr5d5f7h8s2\",\"summary\":{\"totalTasksScheduled\":11,\"taskCategories\":{\"basic\":1,\"multi\":3,\"recurring\":1,\"dataCollection\":3},\"schedulingTimeframe\":\"1-4 minutes from now\",\"monitoringEnabled\":true},\"scheduledTasks\":{\"basic\":{\"taskId\":\"mhvniwfi4bexhbtuwa5\",\"executeAt\":\"2025-11-12T07:02:14.296Z\",\"description\":\"Basic single task execution\"},\"multiTasks\":[{\"taskId\":\"multi_0_mhvniwfksiwg3qm84sc\",\"scheduledAt\":\"2025-11-12T07:01:14.289Z\",\"delayMinutes\":1,\"willExecuteAt\":\"2025-11-12T07:02:14.289Z\"},{\"taskId\":\"multi_1_mhvniwfln9kwsy3piq\",\"scheduledAt\":\"2025-11-12T07:01:14.290Z\",\"delayMinutes\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.290Z\"},{\"taskId\":\"multi_2_mhvniwfnfh8exbqk3yf\",\"scheduledAt\":\"2025-11-12T07:01:14.292Z\",\"delayMinutes\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.292Z\"}],\"recurringTask\":{\"started\":true,\"maxExecutions\":5,\"description\":\"Self-scheduling recurring task\"},\"dataCollectionTasks\":[{\"taskId\":\"api_status_check_mhvniwfqbwd1e3lzhfa\",\"name\":\"api_status_check\",\"scheduledAt\":\"2025-11-12T07:01:14.294Z\",\"delay\":2,\"willExecuteAt\":\"2025-11-12T07:03:14.294Z\"},{\"taskId\":\"random_data_collection_mhvniwfrx9s2rq7y6a\",\"name\":\"random_data_collection\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":3,\"willExecuteAt\":\"2025-11-12T07:04:14.295Z\"},{\"taskId\":\"storage_cleanup_mhvniwfrsncxno93ami\",\"name\":\"storage_cleanup\",\"scheduledAt\":\"2025-11-12T07:01:14.295Z\",\"delay\":4,\"willExecuteAt\":\"2025-11-12T07:05:14.295Z\"}]},\"monitoring\":{\"sessionId\":\"mhvniwfsr5d5f7h8s2\",\"checkInterval\":30,\"statusKeys\":[\"task_mhvniwfi4bexhbtuwa5_executed\",\"recurring_task_final\",\"scheduled_api_status_*\",\"scheduled_random_data_*\",\"cleanup_performed_*\"]},\"instructions\":{\"verification\":\"Check storage after scheduled times for task execution results\",\"keys\":[\"task_mhvniwfi4bexhbtuwa5_executed\",\"multi_task_*_result\",\"recurring_task_final\",\"scheduled_*\"]}}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.296Z",
+      "level": "log",
+      "args": [
+        "Scheduled tasks test results stored"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.297Z",
+      "level": "log",
+      "args": [
+        "Stored: scheduled_tasks_verification = {\"timestamp\":\"2025-11-12T07:01:14.297Z\",\"testCompleted\":true,\"tasksScheduled\":11,\"verificationWindow\":\"Next 5 minutes\",\"expectedResults\":11,\"checkAfter\":\"2025-11-12T07:06:14.297Z\"}"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.297Z",
+      "level": "log",
+      "args": [
+        "Scheduled tasks test completed successfully! ✅"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.297Z",
+      "level": "log",
+      "args": [
+        "Summary: 11 tasks scheduled across 4 categories"
+      ]
+    },
+    {
+      "timestamp": "2025-11-12T07:01:14.297Z",
+      "level": "log",
+      "args": [
+        "Note: Tasks will execute in the background. Check storage in 1-5 minutes for results."
+      ]
+    }
+  ]
+}

@@ -183,6 +183,74 @@ await interpreter.execute(`
 `)
 ```
 
+### Abort Signal Support (v0.24.5+)
+
+Wang interpreter supports the standard Web API `AbortSignal` for cancelling long-running operations:
+
+```javascript
+import { WangInterpreter } from "./wang-interpreter.js"
+
+// Create an AbortController
+const abortController = new AbortController()
+
+// Pass the signal when creating the interpreter
+const interpreter = new WangInterpreter({
+  moduleResolver: resolver,
+  abortSignal: abortController.signal
+})
+
+// Execute code that may run for a long time
+const executePromise = interpreter.execute(`
+  let result = []
+  for (let i = 0; i < 1000000; i++) {
+    result.push(processItem(i))
+  }
+  result
+`)
+
+// Abort execution at any time
+setTimeout(() => {
+  abortController.abort()  // Execution stops immediately
+}, 1000)
+
+// The execute promise will reject with AbortError
+try {
+  await executePromise
+} catch (error) {
+  if (error.name === 'AbortError') {
+    console.log('Execution was aborted')
+  }
+}
+```
+
+**Features:**
+- **Immediate cancellation**: Abort checks happen at every statement, loop iteration, array callback, and function call
+- **Works with async code**: Properly aborts during async/await operations
+- **Compatible with pause/resume**: In `PausableWangInterpreter`, abort has higher priority than pause
+- **Standard Web API**: Uses the same `AbortSignal`/`AbortController` pattern as `fetch()` and other browser APIs
+- **Custom error type**: Throws `AbortError` (extends `WangError`) with helpful suggestions
+
+**When abort checks occur:**
+- Before evaluating each statement
+- Before each loop iteration (for, while, do-while, for-of, for-in)
+- Before each array method callback (forEach, map, filter, etc.)
+- Before each function call
+
+**Example with timeout:**
+```javascript
+// Automatically abort after 5 seconds
+const abortController = new AbortController()
+setTimeout(() => abortController.abort(), 5000)
+
+const interpreter = new WangInterpreter({
+  moduleResolver: resolver,
+  abortSignal: abortController.signal
+})
+
+// This will throw AbortError if it takes longer than 5 seconds
+await interpreter.execute(longRunningCode)
+```
+
 ### Module Resolution
 
 Implement your own module resolver:
@@ -277,6 +345,14 @@ npm run build && echo 'console.log("Hello from stdin!")' | npx wang-run -
    - Perfect for LinkedIn/web scraping workflows
    - LLM integration for intelligent decisions
 
+8. **AbortSignal Support** (v0.24.5+):
+   - Standard Web API `AbortSignal` for cancelling long-running operations
+   - Aggressive abort checking: every statement, loop iteration, array callback, and function call
+   - Works seamlessly with async/await operations
+   - Compatible with `PausableWangInterpreter` (abort has higher priority than pause)
+   - Throws custom `AbortError` with helpful context and suggestions
+   - Perfect for timeout scenarios and user-initiated cancellation
+
 ## Enhanced Error Reporting (v0.16.1+)
 
 Wang now provides comprehensive error reporting with full context to help developers quickly identify and fix issues:
@@ -305,6 +381,7 @@ Suggestions:
 
 - **TypeMismatchError**: When a value doesn't match expected type
 - **UndefinedVariableError**: Variable not found (with similar name suggestions)
+- **AbortError**: When execution is cancelled via AbortSignal (v0.24.5+)
 - **WangError**: General runtime errors with context
 - **Division by zero**: Shows both operands for debugging
 - **Null/undefined access**: Shows what property/method was being accessed

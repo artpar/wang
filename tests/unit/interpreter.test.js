@@ -311,4 +311,266 @@ describe('Wang Interpreter', () => {
       expect(result).toBeCloseTo(28.14159, 5);
     });
   });
+
+  describe('AbortSignal', () => {
+    it('should abort execution when signal is triggered', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      // Abort immediately
+      abortController.abort();
+
+      await expect(ctx.execute('let x = 1')).rejects.toThrow('The operation was aborted');
+    });
+
+    it('should abort in for loop', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let iterationCount = 0;
+      ctx.addFunction('count', () => {
+        iterationCount++;
+        if (iterationCount === 3) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          for (let i = 0; i < 100; i++) {
+            count()
+          }
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(iterationCount).toBe(3);
+    });
+
+    it('should abort in while loop', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let iterationCount = 0;
+      ctx.addFunction('count', () => {
+        iterationCount++;
+        if (iterationCount === 5) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          let i = 0
+          while (i < 100) {
+            count()
+            i = i + 1
+          }
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(iterationCount).toBe(5);
+    });
+
+    it('should abort in do-while loop', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let iterationCount = 0;
+      ctx.addFunction('count', () => {
+        iterationCount++;
+        if (iterationCount === 4) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          let i = 0
+          do {
+            count()
+            i = i + 1
+          } while (i < 100)
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(iterationCount).toBe(4);
+    });
+
+    it('should abort in for-of loop', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let iterationCount = 0;
+      ctx.addFunction('count', () => {
+        iterationCount++;
+        if (iterationCount === 3) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          for (const item of arr) {
+            count()
+          }
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(iterationCount).toBe(3);
+    });
+
+    it('should abort in for-in loop', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let iterationCount = 0;
+      ctx.addFunction('count', () => {
+        iterationCount++;
+        if (iterationCount === 2) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          const obj = { a: 1, b: 2, c: 3, d: 4, e: 5 }
+          for (const key in obj) {
+            count()
+          }
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(iterationCount).toBe(2);
+    });
+
+    it('should abort in forEach callback', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let iterationCount = 0;
+      ctx.addFunction('count', () => {
+        iterationCount++;
+        if (iterationCount === 3) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          const arr = [1, 2, 3, 4, 5]
+          arr.forEach(item => {
+            count()
+          })
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(iterationCount).toBe(3);
+    });
+
+    it('should abort during function calls', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let callCount = 0;
+      ctx.addFunction('increment', () => {
+        callCount++;
+        if (callCount === 2) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          increment()
+          increment()
+          increment()
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(callCount).toBe(2);
+    });
+
+    it('should abort during async operations', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let callCount = 0;
+      ctx.addFunction('asyncOp', async () => {
+        callCount++;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        if (callCount === 2) {
+          abortController.abort();
+        }
+      });
+
+      await expect(
+        ctx.execute(`
+          async function test() {
+            await asyncOp()
+            await asyncOp()
+            await asyncOp()
+          }
+          await test()
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(callCount).toBe(2);
+    });
+
+    it('should handle already aborted signal', async () => {
+      const abortController = new AbortController();
+      abortController.abort(); // Abort before execution
+
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      await expect(ctx.execute('let x = 1')).rejects.toThrow('The operation was aborted');
+    });
+
+    it('should work with try-catch blocks', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      let beforeAbort = false;
+      let afterAbort = false;
+      let inCatch = false;
+
+      ctx.addFunction('setBeforeAbort', () => {
+        beforeAbort = true;
+        abortController.abort();
+      });
+      ctx.addFunction('setAfterAbort', () => {
+        afterAbort = true;
+      });
+
+      await expect(
+        ctx.execute(`
+          try {
+            setBeforeAbort()
+            setAfterAbort()
+          } catch (e) {
+            // AbortError should not be caught
+          }
+        `),
+      ).rejects.toThrow('The operation was aborted');
+
+      expect(beforeAbort).toBe(true);
+      expect(afterAbort).toBe(false);
+    });
+
+    it('should not interfere with normal execution', async () => {
+      const abortController = new AbortController();
+      const ctx = new TestContext({ abortSignal: abortController.signal });
+
+      const result = await ctx.execute(`
+        let sum = 0
+        for (let i = 1; i <= 5; i++) {
+          sum = sum + i
+        }
+        sum
+      `);
+
+      expect(result).toBe(15);
+    });
+  });
 });

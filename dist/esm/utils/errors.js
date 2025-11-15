@@ -151,4 +151,21 @@ export class FunctionNotFoundError extends WangError {
         });
     }
 }
+export class AbortError extends WangError {
+    constructor() {
+        super('The operation was aborted', {
+            type: 'RuntimeError',
+            suggestions: [
+                'The AbortSignal was triggered during execution',
+                'Check if the abort signal was intentionally triggered',
+                'This error cannot be recovered from - the operation has been cancelled',
+            ],
+        });
+        this.name = 'AbortError';
+        // Maintain proper stack trace
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, AbortError);
+        }
+    }
+}
 //# sourceMappingURL=errors.js.map

@@ -1,0 +1,24 @@
+{
+  "name": "wang-test-runner",
+  "version": "1.0.0",
+  "description": "Automated test runner for Wang service worker environment",
+  "main": "test-runner.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test-runner.js",
+    "test:debug": "node --inspect test-runner.js",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "puppeteer": "^21.5.0"
+  },
+  "keywords": [
+    "wang",
+    "testing",
+    "puppeteer",
+    "service-worker",
+    "automation"
+  ],
+  "author": "Wang Test Team",
+  "license": "MIT"
+}
