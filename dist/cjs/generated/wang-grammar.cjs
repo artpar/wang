@@ -1301,9 +1301,10 @@ const lexer = moo.compile({
     type: moo.keywords({
       // Variable declarations
       let: 'let', const: 'const', var: 'var',
-      // Control flow (no switch)
+      // Control flow
       if: 'if', else: 'else',
       for: 'for', while: 'while', do: 'do',
+      switch: 'switch', case: 'case', default: 'default',
       break: 'break', continue: 'continue', return: 'return',
       // Functions and classes
       function: 'function', class: 'class', extends: 'extends',
@@ -1582,6 +1583,7 @@ var grammar = {
     {"name": "ControlStatement", "symbols": ["WhileStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["DoWhileStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["ForStatement"], "postprocess": id},
+    {"name": "ControlStatement", "symbols": ["SwitchStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["TryStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["ThrowStatement"], "postprocess": id},
     {"name": "ControlStatement", "symbols": ["ReturnStatement"], "postprocess": id},
@@ -1675,6 +1677,41 @@ var grammar = {
           }),
           right: d[8],
           body: d[11]
+        }) },
+    {"name": "SwitchStatement$ebnf$1", "symbols": []},
+    {"name": "SwitchStatement$ebnf$1", "symbols": ["SwitchStatement$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchStatement$ebnf$2", "symbols": []},
+    {"name": "SwitchStatement$ebnf$2", "symbols": ["SwitchStatement$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchStatement$ebnf$3", "symbols": []},
+    {"name": "SwitchStatement$ebnf$3", "symbols": ["SwitchStatement$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchStatement$ebnf$4", "symbols": []},
+    {"name": "SwitchStatement$ebnf$4", "symbols": ["SwitchStatement$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchStatement$ebnf$5", "symbols": []},
+    {"name": "SwitchStatement$ebnf$5", "symbols": ["SwitchStatement$ebnf$5", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchStatement", "symbols": [{"literal":"switch"}, {"literal":"("}, "SwitchStatement$ebnf$1", "Expression", "SwitchStatement$ebnf$2", {"literal":")"}, "SwitchStatement$ebnf$3", {"literal":"{"}, "SwitchStatement$ebnf$4", "SwitchCaseList", "SwitchStatement$ebnf$5", {"literal":"}"}], "postprocess":  d => createNode('SwitchStatement', {
+          discriminant: d[3],
+          cases: d[9]
+        }) },
+    {"name": "SwitchCaseList", "symbols": [], "postprocess": () => []},
+    {"name": "SwitchCaseList", "symbols": ["SwitchCase"], "postprocess": d => [d[0]]},
+    {"name": "SwitchCaseList$ebnf$1", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)]},
+    {"name": "SwitchCaseList$ebnf$1", "symbols": ["SwitchCaseList$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchCaseList", "symbols": ["SwitchCaseList", "SwitchCaseList$ebnf$1", "SwitchCase"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "SwitchCase$ebnf$1", "symbols": []},
+    {"name": "SwitchCase$ebnf$1", "symbols": ["SwitchCase$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchCase$ebnf$2", "symbols": []},
+    {"name": "SwitchCase$ebnf$2", "symbols": ["SwitchCase$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchCase", "symbols": [{"literal":"case"}, "Expression", "SwitchCase$ebnf$1", {"literal":":"}, "SwitchCase$ebnf$2", "StatementList"], "postprocess":  d => createNode('SwitchCase', {
+          test: d[1],
+          consequent: d[5]
+        }) },
+    {"name": "SwitchCase$ebnf$3", "symbols": []},
+    {"name": "SwitchCase$ebnf$3", "symbols": ["SwitchCase$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchCase$ebnf$4", "symbols": []},
+    {"name": "SwitchCase$ebnf$4", "symbols": ["SwitchCase$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "SwitchCase", "symbols": [{"literal":"default"}, "SwitchCase$ebnf$3", {"literal":":"}, "SwitchCase$ebnf$4", "StatementList"], "postprocess":  d => createNode('SwitchCase', {
+          test: null,
+          consequent: d[4]
         }) },
     {"name": "TryStatement", "symbols": [{"literal":"try"}, "Block", "CatchFinally"], "postprocess":  d => createNode('TryStatement', {
           block: d[1],
@@ -1882,6 +1919,9 @@ var grammar = {
     {"name": "ReservedKeyword", "symbols": [{"literal":"for"}], "postprocess": d => ({ value: 'for' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"while"}], "postprocess": d => ({ value: 'while' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"do"}], "postprocess": d => ({ value: 'do' })},
+    {"name": "ReservedKeyword", "symbols": [{"literal":"switch"}], "postprocess": d => ({ value: 'switch' })},
+    {"name": "ReservedKeyword", "symbols": [{"literal":"case"}], "postprocess": d => ({ value: 'case' })},
+    {"name": "ReservedKeyword", "symbols": [{"literal":"default"}], "postprocess": d => ({ value: 'default' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"break"}], "postprocess": d => ({ value: 'break' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"continue"}], "postprocess": d => ({ value: 'continue' })},
     {"name": "ReservedKeyword", "symbols": [{"literal":"return"}], "postprocess": d => ({ value: 'return' })},

@@ -352,8 +352,7 @@ it('should handle getters and setters', async () => {
       expect(result).toEqual([0, 2, 3, 10, 12, 13, 20]);
     });
 
-    /* Removed: switch statements not supported
-it('should handle switch statements', async () => {
+    it('should handle switch statements', async () => {
       const result = await interpreter.execute(`
         function getDayType(day) {
           switch(day) {
@@ -375,7 +374,123 @@ it('should handle switch statements', async () => {
       `);
       expect(result).toEqual(['Weekday', 'Weekend', 'Invalid']);
     });
-*/
+
+    it('should handle switch with break statements', async () => {
+      const result = await interpreter.execute(`
+        function getAction(status) {
+          let action = ""
+          switch(status) {
+            case "active":
+              action = "continue"
+              break
+            case "paused":
+              action = "resume"
+              break
+            case "stopped":
+              action = "restart"
+              break
+            default:
+              action = "unknown"
+          }
+          return action
+        }
+
+        [getAction("active"), getAction("paused"), getAction("invalid")]
+      `);
+      expect(result).toEqual(['continue', 'resume', 'unknown']);
+    });
+
+    it('should handle switch with numbers and expressions', async () => {
+      const result = await interpreter.execute(`
+        function scoreGrade(score) {
+          switch(true) {
+            case score >= 90:
+              return "A"
+            case score >= 80:
+              return "B"
+            case score >= 70:
+              return "C"
+            case score >= 60:
+              return "D"
+            default:
+              return "F"
+          }
+        }
+
+        [scoreGrade(95), scoreGrade(82), scoreGrade(65), scoreGrade(50)]
+      `);
+      expect(result).toEqual(['A', 'B', 'D', 'F']);
+    });
+
+    it('should handle switch with fall-through behavior', async () => {
+      const result = await interpreter.execute(`
+        function processFallThrough(value) {
+          let result = []
+          switch(value) {
+            case 1:
+              result.push("one")
+            case 2:
+              result.push("two")
+            case 3:
+              result.push("three")
+              break
+            default:
+              result.push("other")
+          }
+          return result
+        }
+
+        [processFallThrough(1), processFallThrough(2), processFallThrough(4)]
+      `);
+      expect(result).toEqual([['one', 'two', 'three'], ['two', 'three'], ['other']]);
+    });
+
+    it('should handle nested switch statements', async () => {
+      const result = await interpreter.execute(`
+        function classify(type, value) {
+          switch(type) {
+            case "number":
+              switch(true) {
+                case value > 0:
+                  return "positive"
+                case value < 0:
+                  return "negative"
+                default:
+                  return "zero"
+              }
+            case "string":
+              return "text"
+            default:
+              return "unknown"
+          }
+        }
+
+        [classify("number", 5), classify("number", -3), classify("string", "hi")]
+      `);
+      expect(result).toEqual(['positive', 'negative', 'text']);
+    });
+
+    it('should handle switch with async operations', async () => {
+      const result = await interpreter.execute(`
+        async function processAsync(cmd) {
+          switch(cmd) {
+            case "wait":
+              await wait(10)
+              return "waited"
+            case "immediate":
+              return "now"
+            default:
+              return "default"
+          }
+        }
+
+        let results = []
+        results.push(await processAsync("wait"))
+        results.push(await processAsync("immediate"))
+        results
+      `);
+      expect(result).toEqual(['waited', 'now']);
+    });
 
     it('should handle do-while loops', async () => {
       const result = await interpreter.execute(`

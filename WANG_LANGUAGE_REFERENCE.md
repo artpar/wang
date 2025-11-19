@@ -288,19 +288,51 @@ const category = value > 100
     : "low"
 ```
 
-#### Complex Conditionals
+#### Switch Statements
 ```javascript
+// Basic switch with break
+function getAction(status) {
+  switch(status) {
+    case "active":
+      return "continue"
+    case "paused":
+      return "resume"
+    case "stopped":
+      return "restart"
+    default:
+      return "unknown"
+  }
+}
+
+// Switch with fall-through (no break)
 function getDayType(day) {
-  // Use if-else chains instead of switch statements
-  if (day === "Monday" || day === "Tuesday" || 
-      day === "Wednesday" || day === "Thursday" || 
-      day === "Friday") {
-    return "Weekday"
+  switch(day) {
+    case "Monday":
+    case "Tuesday":
+    case "Wednesday":
+    case "Thursday":
+    case "Friday":
+      return "Weekday"
+    case "Saturday":
+    case "Sunday":
+      return "Weekend"
+    default:
+      return "Invalid"
   }
-  if (day === "Saturday" || day === "Sunday") {
-    return "Weekend"
+}
+
+// Switch with expressions
+function scoreGrade(score) {
+  switch(true) {
+    case score >= 90:
+      return "A"
+    case score >= 80:
+      return "B"
+    case score >= 70:
+      return "C"
+    default:
+      return "F"
   }
-  return "Invalid"
 }
 ```
 
@@ -1193,16 +1225,6 @@ x += 5, x -= 3, x *= 2      // Use: x = x + 5, x = x - 3, x = x * 2
 ### Removed Statements
 **Not Supported** - Use alternatives:
 ```javascript
-// ❌ Switch statements - use if-else chains
-switch (value) {
-  case 'a': return 1
-  case 'b': return 2
-}
-
-// ✅ Use if-else instead
-if (value === 'a') return 1
-if (value === 'b') return 2
-
 // ❌ For-in loops - problematic with prototypes
 for (let key in obj) { /* ... */ }
 
@@ -1210,6 +1232,8 @@ for (let key in obj) { /* ... */ }
 for (let [key, value] of Object.entries(obj)) { /* ... */ }
 for (let key of Object.keys(obj)) { /* ... */ }
 ```
+
+Note: Switch statements are now fully supported as of v0.25.0!
 
 ### Removed Class Features
 **Not Supported** - Use conventions/methods:

@@ -86,9 +86,10 @@ const lexer = moo.compile({
     type: moo.keywords({
       // Variable declarations
       let: 'let', const: 'const', var: 'var',
-      // Control flow (no switch)
+      // Control flow
       if: 'if', else: 'else',
       for: 'for', while: 'while', do: 'do',
+      switch: 'switch', case: 'case', default: 'default',
       break: 'break', continue: 'continue', return: 'return',
       // Functions and classes
       function: 'function', class: 'class', extends: 'extends',
@@ -433,6 +434,7 @@ ControlStatement ->
   | WhileStatement {% id %}
   | DoWhileStatement {% id %}
   | ForStatement {% id %}
+  | SwitchStatement {% id %}
   | TryStatement {% id %}
   | ThrowStatement {% id %}
   | ReturnStatement {% id %}
@@ -483,6 +485,30 @@ ForStatement ->
       }),
       right: d[8],
       body: d[11]
+    }) %}
+
+SwitchStatement ->
+    "switch" "(" %NL:* Expression %NL:* ")" %NL:* "{" %NL:* SwitchCaseList %NL:* "}"
+    {% d => createNode('SwitchStatement', {
+      discriminant: d[3],
+      cases: d[9]
+    }) %}
+
+SwitchCaseList ->
+    null {% () => [] %}
+  | SwitchCase {% d => [d[0]] %}
+  | SwitchCaseList %NL:+ SwitchCase {% d => [...d[0], d[2]] %}
+
+SwitchCase ->
+    "case" Expression %NL:* ":" %NL:* StatementList
+    {% d => createNode('SwitchCase', {
+      test: d[1],
+      consequent: d[5]
+    }) %}
+  | "default" %NL:* ":" %NL:* StatementList
+    {% d => createNode('SwitchCase', {
+      test: null,
+      consequent: d[4]
     }) %}
 
 TryStatement ->
@@ -701,6 +727,9 @@ ReservedKeyword ->
   | "for" {% d => ({ value: 'for' }) %}
   | "while" {% d => ({ value: 'while' }) %}
   | "do" {% d => ({ value: 'do' }) %}
+  | "switch" {% d => ({ value: 'switch' }) %}
+  | "case" {% d => ({ value: 'case' }) %}
+  | "default" {% d => ({ value: 'default' }) %}
   | "break" {% d => ({ value: 'break' }) %}
   | "continue" {% d => ({ value: 'continue' }) %}
   | "return" {% d => ({ value: 'return' }) %}

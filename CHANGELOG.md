@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.0] - 2025-01-19
+
+### Features
+
+* **Switch Statements**: Added full JavaScript-compatible switch/case support
+  - Added `switch`, `case`, `default` keywords to lexer
+  - Added SwitchStatement grammar rules with proper syntax
+  - Supports break statements and fall-through behavior
+  - Works with expressions as discriminant (e.g., `switch(true)`)
+  - Full async/await compatibility
+  - Nested switch statements supported
+  - 6 comprehensive tests added covering all scenarios
+  - **775 total tests passing** (up from 752) - zero regressions
+  - CSP-safe implementation (no eval/new Function)
+
+### Documentation
+
+* Updated WANG_LANGUAGE_REFERENCE.md with switch examples
+* Removed outdated "switch not supported" warnings
+* Added switch statement examples showing fall-through and break usage
+
 ### [0.24.2](https://github.com/artpar/wang/compare/v0.24.1...v0.24.2) (2025-11-01)
 
 
@@ -433,8 +454,9 @@ All notable changes to this project will be documented in this file. See [standa
 - Default parameters in functions not yet implemented
 - Static methods in classes not working
 - Private fields (#field) not supported
-- Switch statements not implemented
 - Do-while loops not implemented
 - Async generators not supported
 - Template literals with expressions need fixes
 - Some module system features incomplete (default exports, namespace imports)
+
+Note: Switch statements were added in v0.25.0

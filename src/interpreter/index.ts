@@ -9,7 +9,7 @@ import { WangError, UndefinedVariableError, TypeMismatchError, AbortError } from
 import { stdlib } from '../stdlib/index';
 
 // Version will be replaced during build
-const VERSION = '0.21.0';
+const VERSION = '0.25.0';
 
 // Import the generated parser (will be generated at build time)
 // @ts-ignore - Generated file
