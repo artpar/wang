@@ -500,16 +500,33 @@ SwitchCaseList ->
   | SwitchCaseList %NL:+ SwitchCase {% d => [...d[0], d[2]] %}
 
 SwitchCase ->
-    "case" Expression %NL:* ":" %NL:* StatementList
+    "case" Expression %NL:* ":" %NL:* SwitchCaseStatements
     {% d => createNode('SwitchCase', {
       test: d[1],
       consequent: d[5]
     }) %}
-  | "default" %NL:* ":" %NL:* StatementList
+  | "default" %NL:* ":" %NL:* SwitchCaseStatements
     {% d => createNode('SwitchCase', {
       test: null,
       consequent: d[4]
     }) %}
+
+# Specialized non-greedy statement list for switch cases
+# Prevents exponential ambiguity by naturally terminating at case boundaries
+# Stops when encountering: 'case', 'default', or closing '}'
+SwitchCaseStatements ->
+    null {% () => [] %}
+  | SwitchCaseStatement {% d => [d[0]] %}
+  | SwitchCaseStatements StatementTerminator SwitchCaseStatement {% d => [...d[0], d[2]] %}
+  | SwitchCaseStatements StatementTerminator {% d => d[0] %}
+
+# Statements allowed in switch cases (same as regular statements)
+SwitchCaseStatement ->
+    Declaration {% id %}
+  | LabeledStatement {% id %}
+  | ControlStatement {% id %}
+  | ExpressionStatement {% id %}
+  | Block {% id %}
 
 TryStatement ->
     "try" Block CatchFinally

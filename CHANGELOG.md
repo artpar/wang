@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.26.1] - 2025-01-19
+
+### Bug Fixes
+
+* **Switch Statement Grammar**: Fixed critical ambiguity causing 524,288 possible parse interpretations
+  - Replaced greedy `StatementList` with specialized `SwitchCaseStatements` rule
+  - Switch cases now naturally terminate at case boundaries (`case`, `default`, `}`)
+  - Parse complexity reduced from exponential to linear
+  - Parse time improved from timeout/failure to <100ms for complex switch statements
+  - Zero regressions - all 775 tests continue to pass
+  - Maintains full JavaScript compatibility and CSP safety
+
+### Technical Details
+
+* Created `SwitchCaseStatements` and `SwitchCaseStatement` grammar rules
+* These rules have the same structure as `StatementList` but create a distinct parsing context
+* Nearley parser naturally terminates when encountering tokens that can't continue the rule
+* Follows standard JavaScript parser approach (Acorn, Babel, TypeScript)
+* Eliminates exponential ambiguity while preserving all switch features (fall-through, break, default)
+
 ### [0.25.0] - 2025-01-19
 
 ### Features

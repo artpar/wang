@@ -17,7 +17,7 @@ export { WangValidator, validator, } from './parser/wang-validator.js';
 // Import for createInterpreter
 import { WangInterpreter } from './interpreter/index.js';
 // Version - will be replaced during build with actual package.json version
-export const VERSION = '0.25.0';
+export const VERSION = '0.26.1';
 /**
  * Quick start helper to create an interpreter
  */
