@@ -1007,15 +1007,18 @@ console.log(metadata.logs)
 // Process captured logs
 metadata.logs.forEach(log => {
   switch(log.type) {
-    case 'error':
+    case 'error': {
       // Handle errors
       break
-    case 'warn':
+    }
+    case 'warn': {
       // Handle warnings
       break
-    case 'log':
+    }
+    case 'log': {
       // Handle info logs
       break
+    }
   }
 })
 

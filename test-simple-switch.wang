@@ -1,7 +1,0 @@
-switch (__inputs.value) {
-  case "hello":
-    break
-
-  case "world":
-    break
-}

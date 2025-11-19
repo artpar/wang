@@ -53,6 +53,32 @@ Wang is a modern workflow programming language that runs inside JavaScript, desi
 
 ## Language Syntax
 
+### Important: Switch Statement Syntax (v0.26.2+)
+
+**Switch cases MUST use curly braces `{}` around each case body:**
+
+```javascript
+// ✅ CORRECT - Required syntax
+switch (value) {
+  case "hello": {
+    console.log("matched");
+    break;
+  }
+  default: {
+    console.log("no match");
+  }
+}
+
+// ❌ WRONG - Will cause parse error
+switch (value) {
+  case "hello":
+    console.log("matched");
+    break;
+}
+```
+
+This requirement prevents parser ambiguity and ensures reliable parsing of complex switch statements. Fall-through cases use empty blocks: `case 1: {} case 2: { action(); }`
+
 ### Modern JavaScript-like Syntax
 
 ```javascript
@@ -394,7 +420,7 @@ Wang achieves **752/757 tests passing** with comprehensive coverage of:
 - **Variables & Scoping**: `let`, `const`, `var` with proper hoisting and block scoping
 - **Functions**: Regular functions, arrow functions, async/await, closures, recursion
 - **Classes**: Constructors, methods, inheritance with `super()`, static methods, getters/setters
-- **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `switch`, `try/catch/finally`
+- **Control Flow**: `if/else`, loops (`for`, `for-in`, `for-of`, `while`, `do-while`), `switch` **(requires `{}` blocks around each case - v0.26.2+)**, `try/catch/finally`
 - **Operators**: All standard JavaScript arithmetic, comparison, and logical operators
 - **Binary Operators**: `in` operator for property checking, `instanceof` operator for type validation
 
