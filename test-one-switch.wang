@@ -1,0 +1,50 @@
+console.log("Starting switch-case-default test workflow");
+console.log("Input testType:", __inputs.testType);
+console.log("Input value:", __inputs.value, "Type:", typeof __inputs.value);
+
+let switchResult;
+let caseMatched;
+
+// Main switch test based on input value
+switch (__inputs.value) {
+  case "hello":
+    switchResult = "Matched string 'hello'"
+    caseMatched = "string-hello"
+    break
+
+  case "world":
+    switchResult = "Matched string 'world'"
+    caseMatched = "string-world"
+    break
+
+  case 42:
+    switchResult = "Matched number 42"
+    caseMatched = "number-42"
+    break
+
+  case 100:
+    switchResult = "Matched number 100"
+    caseMatched = "number-100"
+    break
+
+  case true:
+    switchResult = "Matched boolean true"
+    caseMatched = "boolean-true"
+    break
+
+  case false:
+    switchResult = "Matched boolean false"
+    caseMatched = "boolean-false"
+    break
+
+  case null:
+    switchResult = "Matched null value"
+    caseMatched = "null"
+    break
+
+  default:
+    switchResult = `No specific case matched. Value: ${__inputs.value}, Type: ${typeof __inputs.value}`
+    caseMatched = "default"
+    break
+}
+

@@ -1,0 +1,23 @@
+switch (__inputs.value) {
+  case "hello": {
+    let result = "Matched hello";
+    console.log(result);
+    break;
+  }
+  
+  case "world": {
+    let result = "Matched world";  
+    console.log(result);
+    break;
+  }
+  
+  case 42: {
+    console.log("Matched 42");
+    break;
+  }
+  
+  default: {
+    console.log("No match");
+    break;
+  }
+}

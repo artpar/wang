@@ -1694,34 +1694,25 @@ var grammar = {
         }) },
     {"name": "SwitchCaseList", "symbols": [], "postprocess": () => []},
     {"name": "SwitchCaseList", "symbols": ["SwitchCase"], "postprocess": d => [d[0]]},
-    {"name": "SwitchCaseList$ebnf$1", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)]},
+    {"name": "SwitchCaseList$ebnf$1", "symbols": []},
     {"name": "SwitchCaseList$ebnf$1", "symbols": ["SwitchCaseList$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "SwitchCaseList", "symbols": ["SwitchCaseList", "SwitchCaseList$ebnf$1", "SwitchCase"], "postprocess": d => [...d[0], d[2]]},
     {"name": "SwitchCase$ebnf$1", "symbols": []},
     {"name": "SwitchCase$ebnf$1", "symbols": ["SwitchCase$ebnf$1", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "SwitchCase$ebnf$2", "symbols": []},
     {"name": "SwitchCase$ebnf$2", "symbols": ["SwitchCase$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "SwitchCase", "symbols": [{"literal":"case"}, "Expression", "SwitchCase$ebnf$1", {"literal":":"}, "SwitchCase$ebnf$2", "SwitchCaseStatements"], "postprocess":  d => createNode('SwitchCase', {
+    {"name": "SwitchCase", "symbols": [{"literal":"case"}, "Expression", "SwitchCase$ebnf$1", {"literal":":"}, "SwitchCase$ebnf$2", "Block"], "postprocess":  d => createNode('SwitchCase', {
           test: d[1],
-          consequent: d[5]
+          consequent: d[5].body
         }) },
     {"name": "SwitchCase$ebnf$3", "symbols": []},
     {"name": "SwitchCase$ebnf$3", "symbols": ["SwitchCase$ebnf$3", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "SwitchCase$ebnf$4", "symbols": []},
     {"name": "SwitchCase$ebnf$4", "symbols": ["SwitchCase$ebnf$4", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "SwitchCase", "symbols": [{"literal":"default"}, "SwitchCase$ebnf$3", {"literal":":"}, "SwitchCase$ebnf$4", "SwitchCaseStatements"], "postprocess":  d => createNode('SwitchCase', {
+    {"name": "SwitchCase", "symbols": [{"literal":"default"}, "SwitchCase$ebnf$3", {"literal":":"}, "SwitchCase$ebnf$4", "Block"], "postprocess":  d => createNode('SwitchCase', {
           test: null,
-          consequent: d[4]
+          consequent: d[4].body
         }) },
-    {"name": "SwitchCaseStatements", "symbols": [], "postprocess": () => []},
-    {"name": "SwitchCaseStatements", "symbols": ["SwitchCaseStatement"], "postprocess": d => [d[0]]},
-    {"name": "SwitchCaseStatements", "symbols": ["SwitchCaseStatements", "StatementTerminator", "SwitchCaseStatement"], "postprocess": d => [...d[0], d[2]]},
-    {"name": "SwitchCaseStatements", "symbols": ["SwitchCaseStatements", "StatementTerminator"], "postprocess": d => d[0]},
-    {"name": "SwitchCaseStatement", "symbols": ["Declaration"], "postprocess": id},
-    {"name": "SwitchCaseStatement", "symbols": ["LabeledStatement"], "postprocess": id},
-    {"name": "SwitchCaseStatement", "symbols": ["ControlStatement"], "postprocess": id},
-    {"name": "SwitchCaseStatement", "symbols": ["ExpressionStatement"], "postprocess": id},
-    {"name": "SwitchCaseStatement", "symbols": ["Block"], "postprocess": id},
     {"name": "TryStatement", "symbols": [{"literal":"try"}, "Block", "CatchFinally"], "postprocess":  d => createNode('TryStatement', {
           block: d[1],
           handler: d[2].handler,

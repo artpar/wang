@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.26.2] - 2025-01-19
+
+### BREAKING CHANGE
+
+* **Switch Statements**: Now require curly braces `{}` around each case body to prevent OOM
+  - **Why**: The flexible JavaScript syntax (cases without blocks) creates exponential parser ambiguity
+  - **Before**: `case "x": doSomething(); break;`
+  - **After**: `case "x": { doSomething(); break; }`
+  - Eliminates OOM crashes on complex switch statements (23+ cases, nested switches)
+  - Fall-through syntax: empty blocks like `case 1: {} case 2: { action(); }`
+  - This is a JavaScript best practice recommended by ESLint and most style guides
+  - All 775 tests passing with updated syntax
+
+### Migration Guide
+
+Update your switch statements to use blocks:
+```javascript
+// Old syntax (no longer supported)
+switch (x) {
+  case 1:
+    console.log("one");
+    break;
+  default:
+    console.log("default");
+}
+
+// New syntax (required)
+switch (x) {
+  case 1: {
+    console.log("one");
+    break;
+  }
+  default: {
+    console.log("default");
+  }
+}
+```
+
 ### [0.26.1] - 2025-01-19
 
 ### Bug Fixes

@@ -356,17 +356,20 @@ it('should handle getters and setters', async () => {
       const result = await interpreter.execute(`
         function getDayType(day) {
           switch(day) {
-            case "Monday":
-            case "Tuesday":
-            case "Wednesday":
-            case "Thursday":
-            case "Friday":
+            case "Monday": {}
+            case "Tuesday": {}
+            case "Wednesday": {}
+            case "Thursday": {}
+            case "Friday": {
               return "Weekday"
-            case "Saturday":
-            case "Sunday":
+            }
+            case "Saturday": {}
+            case "Sunday": {
               return "Weekend"
-            default:
+            }
+            default: {
               return "Invalid"
+            }
           }
         }
 
@@ -380,17 +383,21 @@ it('should handle getters and setters', async () => {
         function getAction(status) {
           let action = ""
           switch(status) {
-            case "active":
+            case "active": {
               action = "continue"
               break
-            case "paused":
+            }
+            case "paused": {
               action = "resume"
               break
-            case "stopped":
+            }
+            case "stopped": {
               action = "restart"
               break
-            default:
+            }
+            default: {
               action = "unknown"
+            }
           }
           return action
         }
@@ -404,16 +411,21 @@ it('should handle getters and setters', async () => {
       const result = await interpreter.execute(`
         function scoreGrade(score) {
           switch(true) {
-            case score >= 90:
+            case score >= 90: {
               return "A"
-            case score >= 80:
+            }
+            case score >= 80: {
               return "B"
-            case score >= 70:
+            }
+            case score >= 70: {
               return "C"
-            case score >= 60:
+            }
+            case score >= 60: {
               return "D"
-            default:
+            }
+            default: {
               return "F"
+            }
           }
         }
 
@@ -427,15 +439,19 @@ it('should handle getters and setters', async () => {
         function processFallThrough(value) {
           let result = []
           switch(value) {
-            case 1:
+            case 1: {
               result.push("one")
-            case 2:
+            }
+            case 2: {
               result.push("two")
-            case 3:
+            }
+            case 3: {
               result.push("three")
               break
-            default:
+            }
+            default: {
               result.push("other")
+            }
           }
           return result
         }
@@ -449,19 +465,25 @@ it('should handle getters and setters', async () => {
       const result = await interpreter.execute(`
         function classify(type, value) {
           switch(type) {
-            case "number":
+            case "number": {
               switch(true) {
-                case value > 0:
+                case value > 0: {
                   return "positive"
-                case value < 0:
+                }
+                case value < 0: {
                   return "negative"
-                default:
+                }
+                default: {
                   return "zero"
+                }
               }
-            case "string":
+            }
+            case "string": {
               return "text"
-            default:
+            }
+            default: {
               return "unknown"
+            }
           }
         }
 
@@ -474,13 +496,16 @@ it('should handle getters and setters', async () => {
       const result = await interpreter.execute(`
         async function processAsync(cmd) {
           switch(cmd) {
-            case "wait":
+            case "wait": {
               await wait(10)
               return "waited"
-            case "immediate":
+            }
+            case "immediate": {
               return "now"
-            default:
+            }
+            default: {
               return "default"
+            }
           }
         }
 

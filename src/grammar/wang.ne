@@ -211,7 +211,6 @@ Program -> StatementList {% d => createNode('Program', { body: d[0] }) %}
 
 # Statements - Support both newlines and semicolons (JavaScript-compatible)
 # Semicolons are optional statement terminators
-# Fixed: Removed ambiguity by simplifying terminator rules
 StatementList ->
     null {% () => [] %}
   | Statement {% d => [d[0]] %}
@@ -497,36 +496,21 @@ SwitchStatement ->
 SwitchCaseList ->
     null {% () => [] %}
   | SwitchCase {% d => [d[0]] %}
-  | SwitchCaseList %NL:+ SwitchCase {% d => [...d[0], d[2]] %}
+  | SwitchCaseList %NL:* SwitchCase {% d => [...d[0], d[2]] %}
 
+# Wang requires blocks {} around switch cases to avoid parser ambiguity
+# This is a JavaScript best practice recommended by most linters
 SwitchCase ->
-    "case" Expression %NL:* ":" %NL:* SwitchCaseStatements
+    "case" Expression %NL:* ":" %NL:* Block
     {% d => createNode('SwitchCase', {
       test: d[1],
-      consequent: d[5]
+      consequent: d[5].body
     }) %}
-  | "default" %NL:* ":" %NL:* SwitchCaseStatements
+  | "default" %NL:* ":" %NL:* Block
     {% d => createNode('SwitchCase', {
       test: null,
-      consequent: d[4]
+      consequent: d[4].body
     }) %}
-
-# Specialized non-greedy statement list for switch cases
-# Prevents exponential ambiguity by naturally terminating at case boundaries
-# Stops when encountering: 'case', 'default', or closing '}'
-SwitchCaseStatements ->
-    null {% () => [] %}
-  | SwitchCaseStatement {% d => [d[0]] %}
-  | SwitchCaseStatements StatementTerminator SwitchCaseStatement {% d => [...d[0], d[2]] %}
-  | SwitchCaseStatements StatementTerminator {% d => d[0] %}
-
-# Statements allowed in switch cases (same as regular statements)
-SwitchCaseStatement ->
-    Declaration {% id %}
-  | LabeledStatement {% id %}
-  | ControlStatement {% id %}
-  | ExpressionStatement {% id %}
-  | Block {% id %}
 
 TryStatement ->
     "try" Block CatchFinally

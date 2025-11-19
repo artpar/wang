@@ -1,0 +1,159 @@
+console.log("Starting switch-case-default test workflow");
+console.log("Input testType:", __inputs.testType);
+console.log("Input value:", __inputs.value, "Type:", typeof __inputs.value);
+
+let switchResult;
+let caseMatched;
+
+// Main switch test based on input value
+switch (__inputs.value) {
+  case "hello":
+    switchResult = "Matched string 'hello'"
+    caseMatched = "string-hello"
+    break
+
+  case "world":
+    switchResult = "Matched string 'world'"
+    caseMatched = "string-world"
+    break
+
+  case 42:
+    switchResult = "Matched number 42"
+    caseMatched = "number-42"
+    break
+
+  case 100:
+    switchResult = "Matched number 100"
+    caseMatched = "number-100"
+    break
+
+  case true:
+    switchResult = "Matched boolean true"
+    caseMatched = "boolean-true"
+    break
+
+  case false:
+    switchResult = "Matched boolean false"
+    caseMatched = "boolean-false"
+    break
+
+  case null:
+    switchResult = "Matched null value"
+    caseMatched = "null"
+    break
+
+  default:
+    switchResult = `No specific case matched. Value: ${__inputs.value}, Type: ${typeof __inputs.value}`
+    caseMatched = "default"
+    break
+}
+
+console.log("Switch result:", switchResult);
+console.log("Case matched:", caseMatched);
+
+// Additional switch tests with different patterns
+let additionalTests = {};
+
+// Number range switch
+let testNumber = typeof __inputs.value === 'number' ? __inputs.value : 50;
+switch (true) {
+  case testNumber < 0:
+    additionalTests.numberSwitch = "Negative number"
+    break
+  case testNumber >= 0 && testNumber < 50:
+    additionalTests.numberSwitch = "Small positive number (0-49)"
+    break
+  case testNumber >= 50 && testNumber < 100:
+    additionalTests.numberSwitch = "Medium number (50-99)"
+    break
+  case testNumber >= 100:
+    additionalTests.numberSwitch = "Large number (100+)"
+    break
+  default:
+    additionalTests.numberSwitch = "Not a valid number"
+    break
+}
+
+// Boolean/truthy switch
+switch (Boolean(__inputs.value)) {
+  case true:
+    additionalTests.booleanSwitch = "Value is truthy"
+    break
+  case false:
+    additionalTests.booleanSwitch = "Value is falsy"
+    break
+  default:
+    additionalTests.booleanSwitch = "Unexpected boolean conversion"
+    break
+}
+
+// Object type switch
+switch (typeof __inputs.value) {
+  case "string":
+    additionalTests.objectSwitch = "Input is a string type"
+    break
+  case "number":
+    additionalTests.objectSwitch = "Input is a number type"
+    break
+  case "boolean":
+    additionalTests.objectSwitch = "Input is a boolean type"
+    break
+  case "object":
+    if (__inputs.value === null) {
+      additionalTests.objectSwitch = "Input is null (object type)"
+    } else if (Array.isArray(__inputs.value)) {
+      additionalTests.objectSwitch = "Input is an array"
+    } else {
+      additionalTests.objectSwitch = "Input is an object"
+    }
+    break
+  case "undefined":
+    additionalTests.objectSwitch = "Input is undefined"
+    break
+  default:
+    additionalTests.objectSwitch = `Input is of type: ${typeof __inputs.value}`
+    break
+}
+
+console.log("Additional tests completed:", JSON.stringify(additionalTests, null, 2));
+
+// Test switch without break statements (fall-through)
+let fallThroughTest = "";
+switch (__inputs.testType) {
+  case "string":
+    fallThroughTest += "Processing string type, "
+    // Intentional fall-through
+  case "number":
+    fallThroughTest += "Processing numeric-like data, "
+    // Intentional fall-through
+  case "object":
+    fallThroughTest += "Processing complex data structure"
+    break
+  case "boolean":
+    fallThroughTest = "Simple boolean processing only"
+    break
+  default:
+    fallThroughTest = "Unknown test type, using default processing"
+    break
+}
+
+console.log("Fall-through test result:", fallThroughTest);
+
+let __result = {
+  success: true,
+  testType: __inputs.testType,
+  inputValue: __inputs.value,
+  switchResult: switchResult,
+  caseMatched: caseMatched,
+  additionalTests: additionalTests,
+  fallThroughDemo: fallThroughTest,
+  metadata: {
+    inputType: typeof __inputs.value,
+    isArray: Array.isArray(__inputs.value),
+    isNull: __inputs.value === null,
+    isTruthy: Boolean(__inputs.value)
+  }
+};
+
+console.log("Final result:", JSON.stringify(__result, null, 2));
+return __result;
